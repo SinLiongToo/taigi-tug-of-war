@@ -24,7 +24,38 @@ const UI = (() => {
       buzzBtnA: $('buzzBtnA'),
       buzzBtnB: $('buzzBtnB'),
       winnerText: $('winnerText'),
+      charA: $('charA'),
+      charB: $('charB'),
     });
+  }
+
+  function resetTug() {
+    [el.charA, el.charB].forEach(c => c.classList.remove('bigPull', 'stumble', 'victory', 'defeated'));
+  }
+
+  let pulseTimer = null;
+  function pulseTug(winnerTeam) {
+    const winnerEl = winnerTeam === 'A' ? el.charA : el.charB;
+    const loserEl = winnerTeam === 'A' ? el.charB : el.charA;
+    clearTimeout(pulseTimer);
+    [winnerEl, loserEl].forEach(c => c.classList.remove('bigPull', 'stumble'));
+    void winnerEl.offsetWidth; // 強制 reflow,讓連續答對也能重新觸發動畫
+    winnerEl.classList.add('bigPull');
+    loserEl.classList.add('stumble');
+    pulseTimer = setTimeout(() => {
+      winnerEl.classList.remove('bigPull');
+      loserEl.classList.remove('stumble');
+    }, 750);
+  }
+
+  function celebrateTug(winnerTeam) {
+    clearTimeout(pulseTimer);
+    const winnerEl = winnerTeam === 'A' ? el.charA : el.charB;
+    const loserEl = winnerTeam === 'A' ? el.charB : el.charA;
+    winnerEl.classList.remove('bigPull', 'stumble');
+    loserEl.classList.remove('bigPull', 'stumble');
+    winnerEl.classList.add('victory');
+    loserEl.classList.add('defeated');
   }
 
   function showScreen(name) {
@@ -118,6 +149,11 @@ const UI = (() => {
         el.choiceBtns[r.index].classList.add('wrong');
       }
       stopTimerBar();
+      if (r.correct) pulseTug(r.team);
+    }
+
+    if (state.phase === 'gameover') {
+      celebrateTug(state.winner);
     }
   }
 
@@ -128,6 +164,6 @@ const UI = (() => {
   }
 
   return {
-    cacheEls, showScreen, setDictStatus, startTimerBar, stopTimerBar, render, showGameOver,
+    cacheEls, showScreen, setDictStatus, startTimerBar, stopTimerBar, render, showGameOver, resetTug,
   };
 })();

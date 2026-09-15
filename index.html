@@ -35,7 +35,7 @@
 
       <fieldset>
         <legend>出題模式(可複選,複選就是混合出題)</legend>
-        <label><input type="checkbox" class="modeCheckbox" value="meaning" checked> 詞義(台語詞 ↔ 中文意思)</label>
+        <label><input type="checkbox" class="modeCheckbox" value="meaning" checked> 詞義(看台語詞,猜中文意思)</label>
         <label><input type="checkbox" class="modeCheckbox" value="romanization" checked> 漢字 ↔ 羅馬字</label>
         <label><input type="checkbox" class="modeCheckbox" value="tone"> 聲調(本調 / 連讀變調)</label>
       </fieldset>
@@ -67,19 +67,23 @@
           <line id="sceneCenterLine" x1="200" y1="18" x2="200" y2="132"/>
           <line id="ropeLine" x1="95" y1="78" x2="305" y2="78"/>
 
-          <g class="tugChar" id="charA" transform="translate(70,78)">
-            <line class="leg" x1="0" y1="0" x2="-16" y2="34"/>
-            <line class="leg" x1="0" y1="0" x2="12" y2="36"/>
-            <line class="torso" x1="0" y1="0" x2="-12" y2="-38"/>
-            <line class="arm" x1="-8" y1="-30" x2="26" y2="-6"/>
-            <circle class="head" cx="-16" cy="-48" r="11"/>
+          <g transform="translate(70,78)">
+            <g class="tugChar" id="charA">
+              <line class="leg" x1="0" y1="0" x2="-16" y2="34"/>
+              <line class="leg" x1="0" y1="0" x2="12" y2="36"/>
+              <line class="torso" x1="0" y1="0" x2="-12" y2="-38"/>
+              <line class="arm" x1="-8" y1="-30" x2="26" y2="-6"/>
+              <circle class="head" cx="-16" cy="-48" r="11"/>
+            </g>
           </g>
-          <g class="tugChar" id="charB" transform="translate(330,78) scale(-1,1)">
-            <line class="leg" x1="0" y1="0" x2="-16" y2="34"/>
-            <line class="leg" x1="0" y1="0" x2="12" y2="36"/>
-            <line class="torso" x1="0" y1="0" x2="-12" y2="-38"/>
-            <line class="arm" x1="-8" y1="-30" x2="26" y2="-6"/>
-            <circle class="head" cx="-16" cy="-48" r="11"/>
+          <g transform="translate(330,78) scale(-1,1)">
+            <g class="tugChar" id="charB">
+              <line class="leg" x1="0" y1="0" x2="-16" y2="34"/>
+              <line class="leg" x1="0" y1="0" x2="12" y2="36"/>
+              <line class="torso" x1="0" y1="0" x2="-12" y2="-38"/>
+              <line class="arm" x1="-8" y1="-30" x2="26" y2="-6"/>
+              <circle class="head" cx="-16" cy="-48" r="11"/>
+            </g>
           </g>
 
           <g id="ropeKnot">

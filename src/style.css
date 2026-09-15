@@ -174,6 +174,41 @@ kbd {
 #charA .leg, #charA .torso, #charA .arm, #charA .head { stroke: var(--teamA); fill: var(--teamA); }
 #charB .leg, #charB .torso, #charB .arm, #charB .head { stroke: var(--teamB); fill: var(--teamB); }
 
+/* 拔河角色動畫。角色的手/腳/身體都是以自己的髖部(0,0)為原點畫的,
+   父層 <g transform="translate(...)"> 只負責定位、不參與動畫,
+   所以這裡對 .tugChar 做 rotate 動畫,轉軸自然就是髖部,不會跑位。 */
+@keyframes tugSway {
+  0%, 100% { transform: rotate(-7deg); }
+  50%      { transform: rotate(5deg); }
+}
+.tugChar { animation: tugSway 1.2s ease-in-out infinite; }
+#charB { animation-delay: 0.6s; } /* 跟A錯開,看起來像雙方輪流較量,不是同步晃 */
+
+/* 答對時,獲勝那隊用力拉一下 */
+@keyframes bigPull {
+  0%   { transform: rotate(-7deg); }
+  25%  { transform: rotate(-34deg) scale(1.12); }
+  55%  { transform: rotate(8deg); }
+  100% { transform: rotate(-7deg); }
+}
+.tugChar.bigPull { animation: bigPull 0.75s ease-out; }
+
+/* 答對時,另一隊被拉得一個踉蹌 */
+@keyframes stumble {
+  0%   { transform: rotate(5deg); }
+  40%  { transform: rotate(24deg) translate(6px, 3px); }
+  100% { transform: rotate(-7deg); }
+}
+.tugChar.stumble { animation: stumble 0.75s ease-out; }
+
+/* 遊戲結束:獲勝隊伍歡呼跳動,落敗隊伍癱倒 */
+@keyframes victoryBounce {
+  0%, 100% { transform: translateY(0) rotate(-8deg); }
+  50%      { transform: translateY(-16px) rotate(10deg); }
+}
+.tugChar.victory { animation: victoryBounce 0.55s ease-in-out infinite; }
+.tugChar.defeated { animation: none; transform: rotate(50deg) translate(10px, 10px); opacity: 0.55; }
+
 #statusLine { text-align: center; font-weight: bold; min-height: 1.4em; margin-bottom: 12px; }
 
 /* ---- 題目卡 ---- */

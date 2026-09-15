@@ -39,6 +39,7 @@
   function startGame() {
     settings = Settings.readForm();
     gs = new GameState({ settings, onChange: onStateChange });
+    UI.resetTug();
     UI.showScreen('game');
     Keyboard.start(null, {
       onBuzz: (team) => gs.buzz(team),

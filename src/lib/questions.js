@@ -97,17 +97,14 @@ const Questions = (() => {
     return system === 'poj' ? Romanize.wordToPojMark(sylls) : Romanize.wordToTailoMark(sylls);
   }
 
-  // ---- 模式一:詞義(台語詞 <-> 中文意思) ----
-  function genMeaning(entry, direction) {
+  // ---- 模式一:詞義(題目一律是台語詞,答案選項才是中文意思) ----
+  // 刻意只出這個方向,不出「題目是中文釋義、選項是台語詞」的反方向——
+  // 題目本身應該永遠是台語,中文只能出現在用來測驗理解程度的答案選項裡。
+  function genMeaning(entry) {
     const correctDef = shortDef(entry.defs[0].def);
-    if (direction === 'def2word') {
-      const distractors = pickDistractorHanzi(entry, entry.hanzi, 3);
-      const { options, correctIndex } = buildChoices(entry.hanzi, distractors);
-      return { mode: 'meaning', direction, promptLabel: '這是台語詞?', prompt: correctDef, choices: options, correctIndex };
-    }
     const distractors = pickDistractorDefs(entry, correctDef, 3);
     const { options, correctIndex } = buildChoices(correctDef, distractors);
-    return { mode: 'meaning', direction, promptLabel: '意思是?', prompt: entry.hanzi, choices: options, correctIndex };
+    return { mode: 'meaning', direction: 'word2def', promptLabel: '意思是?', prompt: entry.hanzi, choices: options, correctIndex };
   }
 
   // ---- 模式二:漢字 <-> 羅馬字 ----
@@ -180,8 +177,7 @@ const Questions = (() => {
 
     if (mode === 'meaning') {
       const entry = randomEntry();
-      const direction = Math.random() < 0.5 ? 'word2def' : 'def2word';
-      return genMeaning(entry, direction);
+      return genMeaning(entry);
     }
     if (mode === 'romanization') {
       const entry = randomEntry();
