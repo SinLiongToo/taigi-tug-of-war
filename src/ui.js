@@ -135,6 +135,7 @@ const UI = (() => {
     if (q) {
       el.promptLabel.textContent = q.promptLabel;
       el.promptText.textContent = q.prompt;
+      el.promptText.classList.toggle('emojiPrompt', q.mode === 'animal');
       el.choiceBtns.forEach((btn, idx) => {
         btn.querySelector('.choiceText').textContent = q.choices[idx];
         btn.classList.remove('correct', 'wrong');

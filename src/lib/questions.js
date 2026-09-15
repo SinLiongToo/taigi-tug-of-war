@@ -10,6 +10,27 @@
 const Questions = (() => {
   let entries = null;
   let bySyllCount = null;
+  let animalPool = null;
+
+  // 「動物」模式的題庫:題目是emoji(不是中文字),挑漢字剛好等於常見動物名、
+  // 且在題庫裡查得到的詞。用 emoji 而不是中文動物名當題目,一樣避開題目是
+  // 中文的問題,而且對這個主題來說比文字更直覺。
+  const ANIMAL_WORDS = [
+    { emoji: '🐶', hanzi: '狗' }, { emoji: '🐱', hanzi: '貓' },
+    { emoji: '🐮', hanzi: '牛' }, { emoji: '🐃', hanzi: '水牛' },
+    { emoji: '🐴', hanzi: '馬' }, { emoji: '🐷', hanzi: '豬' },
+    { emoji: '🐑', hanzi: '羊' }, { emoji: '🐔', hanzi: '雞' },
+    { emoji: '🦆', hanzi: '鴨' }, { emoji: '🦢', hanzi: '鵝' },
+    { emoji: '🐟', hanzi: '魚' }, { emoji: '🦐', hanzi: '蝦' },
+    { emoji: '🦀', hanzi: '蟳' }, { emoji: '🐦', hanzi: '鳥' },
+    { emoji: '🐰', hanzi: '兔' }, { emoji: '🐘', hanzi: '象' },
+    { emoji: '🐯', hanzi: '虎' }, { emoji: '🦁', hanzi: '獅' },
+    { emoji: '🐵', hanzi: '猴' }, { emoji: '🐍', hanzi: '蛇' },
+    { emoji: '🐢', hanzi: '龜' }, { emoji: '🐝', hanzi: '蜂' },
+    { emoji: '🐭', hanzi: '鼠' }, { emoji: '🐻', hanzi: '熊' },
+    { emoji: '🦌', hanzi: '鹿' }, { emoji: '🐫', hanzi: '駱駝' },
+    { emoji: '🕷️', hanzi: '蜘蛛' }, { emoji: '🐸', hanzi: '田蛤仔' },
+  ];
 
   async function load() {
     if (typeof TAIGI_QUESTIONS === 'undefined') {
@@ -18,11 +39,16 @@ const Questions = (() => {
     const data = TAIGI_QUESTIONS;
     entries = data.entries;
     bySyllCount = new Map();
+    const byHanzi = new Map();
     for (const e of entries) {
       const n = e.sylls.length;
       if (!bySyllCount.has(n)) bySyllCount.set(n, []);
       bySyllCount.get(n).push(e);
+      if (!byHanzi.has(e.hanzi)) byHanzi.set(e.hanzi, e);
     }
+    animalPool = ANIMAL_WORDS
+      .map(a => ({ emoji: a.emoji, entry: byHanzi.get(a.hanzi) }))
+      .filter(a => a.entry);
     return { count: entries.length, source: data.source };
   }
 
@@ -133,6 +159,39 @@ const Questions = (() => {
     return { mode: 'romanization', direction, promptLabel: '羅馬字怎麼寫?', prompt: entry.hanzi, choices: options, correctIndex };
   }
 
+  // ---- 模式:動物(題目是emoji,答案選漢字或羅馬字) ----
+  function genAnimal(direction, system) {
+    const pick = animalPool[Math.floor(Math.random() * animalPool.length)];
+    const entry = pick.entry;
+    const otherAnimals = animalPool.filter(a => a.entry !== entry);
+
+    if (direction === 'animal2roman') {
+      const correctLabel = renderWord(entry.sylls, system);
+      const distractors = [];
+      const seen = new Set([correctLabel]);
+      for (const a of shuffle(otherAnimals)) {
+        if (distractors.length >= 3) break;
+        const label = renderWord(a.entry.sylls, system);
+        if (seen.has(label)) continue;
+        seen.add(label);
+        distractors.push(label);
+      }
+      const { options, correctIndex } = buildChoices(correctLabel, distractors);
+      return { mode: 'animal', direction, promptLabel: '台語按怎唸?', prompt: pick.emoji, choices: options, correctIndex };
+    }
+
+    const distractors = [];
+    const seen = new Set([entry.hanzi]);
+    for (const a of shuffle(otherAnimals)) {
+      if (distractors.length >= 3) break;
+      if (seen.has(a.entry.hanzi)) continue;
+      seen.add(a.entry.hanzi);
+      distractors.push(a.entry.hanzi);
+    }
+    const { options, correctIndex } = buildChoices(entry.hanzi, distractors);
+    return { mode: 'animal', direction, promptLabel: '台語漢字按怎寫?', prompt: pick.emoji, choices: options, correctIndex };
+  }
+
   // ---- 模式三:聲調(本調 / 連讀變調) ----
   const REGULAR_TONES = [1, 2, 3, 4, 5, 7, 8];
 
@@ -183,6 +242,10 @@ const Questions = (() => {
       const entry = randomEntry();
       const direction = Math.random() < 0.5 ? 'hanzi2roman' : 'roman2hanzi';
       return genRomanization(entry, direction, system);
+    }
+    if (mode === 'animal' && animalPool && animalPool.length >= 4) {
+      const direction = Math.random() < 0.5 ? 'animal2hanzi' : 'animal2roman';
+      return genAnimal(direction, system);
     }
     // tone
     const entry = randomEntry(e => e.sylls.length >= 2);

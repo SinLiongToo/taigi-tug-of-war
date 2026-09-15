@@ -221,6 +221,7 @@ kbd {
 }
 #promptLabel { color: var(--muted); margin-bottom: 8px; }
 #promptText { font-size: clamp(1.3rem, 6vw, 1.8rem); font-weight: bold; word-break: break-word; }
+#promptText.emojiPrompt { font-size: clamp(2.5rem, 12vw, 4rem); line-height: 1; }
 
 /* ---- 選項 ---- */
 #choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
