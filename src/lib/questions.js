@@ -1,15 +1,21 @@
-// 出題引擎:讀取 data/questions.json 建好的題庫,在瀏覽器執行期依「已啟用的
-// 模式」與「羅馬字系統(台羅/白話字)」動態組出一題四選一。
+// 出題引擎:讀取 data/questions.js(<script> 標籤載入的全域 TAIGI_QUESTIONS,
+// 由 data/build-questions.js 產生),在瀏覽器執行期依「已啟用的模式」與
+// 「羅馬字系統(台羅/白話字)」動態組出一題四選一。
+//
+// 用 <script> 載入而不是 fetch() 讀 JSON,是為了讓雙擊開啟 index.html(file://)
+// 也能直接玩,不需要架本機伺服器——瀏覽器的同源限制只擋 fetch/XHR 讀本機檔案,
+// 不擋 <script src> 載入本機 .js。
 //
 // 依賴全域 Romanize(src/lib/romanize.js,未修改的原始複製檔)。
 const Questions = (() => {
   let entries = null;
   let bySyllCount = null;
 
-  async function load(url) {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`題庫載入失敗: HTTP ${res.status}`);
-    const data = await res.json();
+  async function load() {
+    if (typeof TAIGI_QUESTIONS === 'undefined') {
+      throw new Error('找不到題庫(data/questions.js 沒載入或載入順序不對)');
+    }
+    const data = TAIGI_QUESTIONS;
     entries = data.entries;
     bySyllCount = new Map();
     for (const e of entries) {

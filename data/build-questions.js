@@ -13,7 +13,9 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 const SOURCE_PATH = path.join(ROOT, 'data', 'raw', 'dict-twblg.json');
-const OUTPUT_PATH = path.join(ROOT, 'data', 'questions.json');
+// .js 而不是 .json:用 <script> 標籤載入,瀏覽器在 file:// 底下開頁面也能讀,
+// 不像 fetch() 一份本機 JSON 那樣會被瀏覽器的同源限制擋下來,不需要架本機伺服器。
+const OUTPUT_PATH = path.join(ROOT, 'data', 'questions.js');
 const ROMANIZE_PATH = path.join(ROOT, 'src', 'lib', 'romanize.js');
 const SOURCE_URL = 'https://raw.githubusercontent.com/g0v/moedict-data-twblg/master/dict-twblg.json';
 
@@ -99,7 +101,8 @@ function main() {
     count: entries.length,
     entries,
   };
-  fs.writeFileSync(OUTPUT_PATH, JSON.stringify(output));
+  const js = `// 自動產生,勿手動編輯。重新產生: node data/build-questions.js\nconst TAIGI_QUESTIONS = ${JSON.stringify(output)};\n`;
+  fs.writeFileSync(OUTPUT_PATH, js);
   const sizeMb = (fs.statSync(OUTPUT_PATH).size / 1024 / 1024).toFixed(2);
   console.log(`已寫入 ${OUTPUT_PATH} (${sizeMb} MB)`);
 }

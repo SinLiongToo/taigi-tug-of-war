@@ -29,13 +29,12 @@
 
 ## 執行方式
 
-無需安裝任何套件,一般瀏覽器直接打開 `index.html` 即可(部分瀏覽器對 `file://`
-讀取本地 JSON 有限制,若題庫顯示載入失敗,改用簡易本機伺服器):
+直接用瀏覽器雙擊開啟 `index.html` 就能玩,不需要架任何伺服器。題庫是用
+`<script src="data/questions.js">` 載入(不是 `fetch()` 讀 JSON),瀏覽器的
+同源限制不會擋這種本機檔案讀取方式,所以 `file://` 直開也沒問題。
 
-```bash
-python -m http.server 8000
-# 開瀏覽器連到 http://localhost:8000
-```
+(如果你偏好還是想跑本機伺服器,例如要用瀏覽器開發工具的 network 面板除錯,
+一樣可以: `python -m http.server 8000`,再連到 http://localhost:8000。)
 
 ## 題庫來源與授權
 
@@ -52,7 +51,8 @@ node data/build-questions.js
 ```
 
 `data/build-questions.js` 會篩選出 1~4 字、羅馬字可正確解析、至少有一則中文釋義的
-詞條,輸出成遊戲執行時直接讀取的 `data/questions.json`(離線,不需要網路)。
+詞條,輸出成 `data/questions.js`(離線,不需要網路;內容是一份指定給全域變數
+`TAIGI_QUESTIONS` 的 JS 檔,遊戲用 `<script>` 標籤直接載入,不是 `fetch()` 讀 JSON)。
 
 **已知限制**:原始資料中少數詞條用空白分隔音節而非連字號(例如片語式的「一口灶」
 寫作 `tsi̍t kháu tsàu`),建置腳本會把空白當連字號處理以便解析,但這是簡化寫法,
@@ -85,11 +85,19 @@ src/lib/romanize.js          台羅/白話字轉換 + 變調邏輯(vendored,未�
 src/lib/questions.js         出題引擎(讀題庫 + 動態組四選一)
 data/raw/                    下載下來的教育部辭典原始資料(不進版控)
 data/build-questions.js       題庫建置腳本
-data/questions.json          遊戲實際讀取的離線題庫
+data/questions.js            遊戲實際載入的離線題庫(<script> 標籤載入,非 fetch)
 ```
 
 ## 開發紀錄
 
+- 2026-09-15:題庫改成用 `<script src="data/questions.js">` 載入(原本是
+  `fetch('data/questions.json')`)。原因:`fetch()` 讀本機檔案在 `file://`
+  底下會被瀏覽器同源限制擋下來(「Failed to fetch」),使用者不能直接雙擊
+  `index.html` 玩,得知道要架本機伺服器才行——但 `<script src>` 本來就不受
+  這個限制,改用它之後雙擊開啟就能直接玩,不需要伺服器,也更符合這個專案
+  「純前端、無需安裝」的定位。
+- 2026-09-15:加上右上角深色/淺色模式切換鈕(記在 localStorage,預設跟隨系統),
+  補強手機寬度(375px)下的版面(隊伍面板、按鈕、標題字級)。
 - 2026-09-15:初版完成。四種出題模式(詞義/漢字羅馬字/聲調/混合)、單畫面鍵盤
   搶答拔河、可設定目標題數與每題時限。題庫從 g0v/moedict-data-twblg 篩選出
   13,876 詞(其中 11,470 詞可出聲調模式)。台羅/白話字轉換與連讀變調邏輯

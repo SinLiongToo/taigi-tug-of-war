@@ -8,8 +8,12 @@
 </head>
 <body>
 
-  <section id="settingsScreen">
+  <header class="topBar">
     <h1>台語搶答拔河</h1>
+    <button type="button" id="themeToggle" title="切換深色/淺色模式" aria-label="切換深色/淺色模式">🌓</button>
+  </header>
+
+  <section id="settingsScreen">
     <p id="dictStatus">題庫載入中...</p>
     <form id="settingsForm">
       <div class="field">
@@ -89,6 +93,7 @@
   </section>
 
   <script src="src/lib/romanize.js"></script>
+  <script src="data/questions.js"></script>
   <script src="src/lib/questions.js"></script>
   <script src="src/game-state.js"></script>
   <script src="src/keyboard.js"></script>
