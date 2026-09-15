@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台語搶答拔河</title>
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+
+  <section id="settingsScreen">
+    <h1>台語搶答拔河</h1>
+    <p id="dictStatus">題庫載入中...</p>
+    <form id="settingsForm">
+      <div class="field">
+        <label for="targetScore">目標題數(N)</label>
+        <input type="number" id="targetScore" value="5" min="1" max="50">
+      </div>
+      <div class="field">
+        <label for="questionSeconds">每題時限(秒)</label>
+        <input type="number" id="questionSeconds" value="15" min="5" max="60">
+      </div>
+      <div class="field">
+        <label for="teamAName">A隊隊名</label>
+        <input type="text" id="teamAName" value="紅隊">
+      </div>
+      <div class="field">
+        <label for="teamBName">B隊隊名</label>
+        <input type="text" id="teamBName" value="藍隊">
+      </div>
+
+      <fieldset>
+        <legend>出題模式(可複選,複選就是混合出題)</legend>
+        <label><input type="checkbox" class="modeCheckbox" value="meaning" checked> 詞義(台語詞 ↔ 中文意思)</label>
+        <label><input type="checkbox" class="modeCheckbox" value="romanization" checked> 漢字 ↔ 羅馬字</label>
+        <label><input type="checkbox" class="modeCheckbox" value="tone"> 聲調(本調 / 連讀變調)</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>羅馬字系統</legend>
+        <label><input type="radio" name="romanSystem" value="tailo" checked> 台羅拼音</label>
+        <label><input type="radio" name="romanSystem" value="poj"> 白話字(POJ)</label>
+      </fieldset>
+
+      <button type="submit" id="startBtn" disabled>開始遊戲</button>
+    </form>
+    <p class="hint">搶答鍵:A隊按 <kbd>D</kbd>、B隊按 <kbd>K</kbd>;作答按 <kbd>1</kbd>~<kbd>4</kbd>(畫面按鈕也可以點)</p>
+  </section>
+
+  <section id="gameScreen" hidden>
+    <div id="ropeTrack">
+      <div id="ropeMarker"></div>
+    </div>
+
+    <div id="teamPanels">
+      <div class="teamPanel" id="panelA">
+        <div class="teamName"></div>
+        <div class="teamScore"></div>
+        <button class="buzzBtn" id="buzzBtnA">搶答(D)</button>
+      </div>
+      <div class="teamPanel" id="panelB">
+        <div class="teamName"></div>
+        <div class="teamScore"></div>
+        <button class="buzzBtn" id="buzzBtnB">搶答(K)</button>
+      </div>
+    </div>
+
+    <div id="timerBar"><div id="timerFill"></div></div>
+    <div id="statusLine"></div>
+
+    <div id="questionCard">
+      <div id="promptLabel"></div>
+      <div id="promptText"></div>
+    </div>
+
+    <div id="choices">
+      <button class="choiceBtn" data-idx="0"><span class="choiceKey">1</span><span class="choiceText"></span></button>
+      <button class="choiceBtn" data-idx="1"><span class="choiceKey">2</span><span class="choiceText"></span></button>
+      <button class="choiceBtn" data-idx="2"><span class="choiceKey">3</span><span class="choiceText"></span></button>
+      <button class="choiceBtn" data-idx="3"><span class="choiceKey">4</span><span class="choiceText"></span></button>
+    </div>
+
+    <button id="backBtn">回設定</button>
+  </section>
+
+  <section id="gameOverScreen" hidden>
+    <h1 id="winnerText"></h1>
+    <button id="playAgainBtn">再玩一次</button>
+  </section>
+
+  <script src="src/lib/romanize.js"></script>
+  <script src="src/lib/questions.js"></script>
+  <script src="src/game-state.js"></script>
+  <script src="src/keyboard.js"></script>
+  <script src="src/ui.js"></script>
+  <script src="src/settings.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>
