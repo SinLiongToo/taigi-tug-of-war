@@ -100,55 +100,79 @@ kbd {
   font-family: monospace;
 }
 
-/* ---- 拔河繩 ---- */
-#ropeTrack {
-  position: relative;
-  height: 16px;
-  border-radius: 8px;
-  background: linear-gradient(90deg, var(--teamA), var(--teamB));
-  margin: 24px 0 12px;
-}
-#ropeMarker {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 6px;
-  height: 36px;
-  background: var(--fg);
-  border-radius: 3px;
-  transform: translateX(-50%);
-  transition: left 0.5s ease;
+/* ---- 遊戲畫面:左右分邊 + 中間拔河場景 ---- */
+#gameScreen { max-width: 900px; }
+
+#arena {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(0, 2.4fr) minmax(120px, 1fr);
+  grid-template-areas: "panelA center panelB";
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 16px;
 }
 
-/* ---- 隊伍面板 ---- */
-#teamPanels { display: flex; gap: 16px; margin-bottom: 12px; }
-.teamPanel {
-  flex: 1;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
+.sidePanel {
+  border-radius: 14px;
+  padding: 14px 10px;
   text-align: center;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: box-shadow 0.2s;
 }
-#panelA { border-color: var(--teamA); }
-#panelB { border-color: var(--teamB); }
-.teamPanel.active { box-shadow: 0 0 0 4px rgba(255, 200, 0, 0.5); }
-.teamName { font-weight: bold; font-size: 1.1rem; }
-.teamScore { font-size: 1.6rem; margin: 4px 0; }
+#panelA { grid-area: panelA; background: color-mix(in srgb, var(--teamA) 14%, var(--card-bg)); border: 2px solid var(--teamA); }
+#panelB { grid-area: panelB; background: color-mix(in srgb, var(--teamB) 14%, var(--card-bg)); border: 2px solid var(--teamB); }
+.sidePanel.active { box-shadow: 0 0 0 4px rgba(255, 200, 0, 0.55); }
+.teamName { font-weight: bold; font-size: 1.05rem; word-break: break-word; }
+.teamScore { font-size: 1.7rem; font-weight: bold; }
+#panelA .teamScore { color: var(--teamA); }
+#panelB .teamScore { color: var(--teamB); }
 .buzzBtn {
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
   font-weight: bold;
+  color: white;
+  width: 100%;
 }
-#panelA .buzzBtn { background: var(--teamA); color: white; }
-#panelB .buzzBtn { background: var(--teamB); color: white; }
+#panelA .buzzBtn { background: var(--teamA); }
+#panelB .buzzBtn { background: var(--teamB); }
 
-/* ---- 計時條 ---- */
-#timerBar { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin-bottom: 8px; }
-#timerFill { height: 100%; width: 100%; background: #2e7d32; transition: background 0.2s; }
-#timerFill.timerLow { background: #c62828; }
+#centerStage { grid-area: center; display: flex; flex-direction: column; align-items: stretch; }
+
+#timerBadge {
+  align-self: center;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}
+#timerBadge.timerLow { color: #c62828; border-color: #c62828; }
+
+#tugScene { width: 100%; height: auto; margin-bottom: 8px; }
+#sceneGround { stroke: var(--border); stroke-width: 3; }
+#sceneCenterLine { stroke: var(--muted); stroke-width: 2; stroke-dasharray: 4 5; }
+#ropeLine { stroke: #9a7148; stroke-width: 4; stroke-linecap: round; }
+#ropeKnot {
+  transition: transform 0.5s ease;
+  transform: translate(200px, 78px);
+}
+#ropeKnot circle { fill: var(--fg); }
+#ropeKnot .flag { fill: #f2b705; }
+.tugChar .leg, .tugChar .torso, .tugChar .arm {
+  stroke-width: 6;
+  stroke-linecap: round;
+  fill: none;
+}
+.tugChar .head { stroke: none; }
+#charA .leg, #charA .torso, #charA .arm, #charA .head { stroke: var(--teamA); fill: var(--teamA); }
+#charB .leg, #charB .torso, #charB .arm, #charB .head { stroke: var(--teamB); fill: var(--teamB); }
 
 #statusLine { text-align: center; font-weight: bold; min-height: 1.4em; margin-bottom: 12px; }
 
@@ -217,15 +241,26 @@ kbd {
   cursor: pointer;
 }
 
+@media (max-width: 700px) {
+  #arena {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "panelA panelB"
+      "center center";
+  }
+  .sidePanel { flex-direction: row; justify-content: space-between; text-align: left; padding: 10px; }
+  .sidePanel > * { flex: 1; }
+  .buzzBtn { width: auto; }
+}
+
 @media (max-width: 480px) {
   #choices { grid-template-columns: 1fr; }
   .field { flex-direction: column; align-items: stretch; }
   .field input { width: 100%; }
-  #teamPanels { gap: 8px; }
-  .teamPanel { padding: 8px; }
-  .teamName { font-size: 0.95rem; }
-  .teamScore { font-size: 1.3rem; }
-  .buzzBtn { padding: 6px 10px; font-size: 0.9rem; }
+  .sidePanel { padding: 8px; gap: 6px; }
+  .teamName { font-size: 0.9rem; }
+  .teamScore { font-size: 1.2rem; }
+  .buzzBtn { padding: 6px 10px; font-size: 0.85rem; }
   .topBar { justify-content: flex-start; }
   .topBar h1 { flex: 1; text-align: center; }
 }

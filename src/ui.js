@@ -10,12 +10,13 @@ const UI = (() => {
       gameOverScreen: $('gameOverScreen'),
       dictStatus: $('dictStatus'),
       startBtn: $('startBtn'),
-      ropeMarker: $('ropeMarker'),
+      ropeKnot: $('ropeKnot'),
       panelAName: $('panelA').querySelector('.teamName'),
       panelAScore: $('panelA').querySelector('.teamScore'),
       panelBName: $('panelB').querySelector('.teamName'),
       panelBScore: $('panelB').querySelector('.teamScore'),
-      timerFill: $('timerFill'),
+      timerBadge: $('timerBadge'),
+      timerNum: $('timerNum'),
       statusLine: $('statusLine'),
       promptLabel: $('promptLabel'),
       promptText: $('promptText'),
@@ -42,14 +43,13 @@ const UI = (() => {
     cancelAnimationFrame(timerRAF);
     const start = performance.now();
     const durationMs = seconds * 1000;
-    el.timerFill.style.width = '100%';
-    el.timerFill.classList.remove('timerLow');
+    el.timerBadge.classList.remove('timerLow');
     function tick(now) {
-      const elapsed = now - start;
-      const pct = Math.max(0, 100 - (elapsed / durationMs) * 100);
-      el.timerFill.style.width = pct + '%';
-      el.timerFill.classList.toggle('timerLow', pct < 25);
-      if (pct > 0) timerRAF = requestAnimationFrame(tick);
+      const remaining = Math.max(0, durationMs - (now - start));
+      const remainingSec = Math.ceil(remaining / 1000);
+      el.timerNum.textContent = remainingSec;
+      el.timerBadge.classList.toggle('timerLow', remaining / durationMs < 0.25);
+      if (remaining > 0) timerRAF = requestAnimationFrame(tick);
     }
     timerRAF = requestAnimationFrame(tick);
   }
@@ -57,10 +57,14 @@ const UI = (() => {
     cancelAnimationFrame(timerRAF);
   }
 
+  // 拔河繩結沿著 charA(左,x=95) <-> charB(右,x=305) 之間滑動。
+  // A 領先時繩結要往 A 那側(左邊)靠,不是往 B 那側 —— pct 越小代表越靠左。
+  const ROPE_LEFT_X = 95, ROPE_RIGHT_X = 305, ROPE_Y = 78;
   function renderRope(scores, targetScore) {
     const diff = scores.A - scores.B;
-    const pct = Math.max(0, Math.min(100, 50 + (diff / targetScore) * 50));
-    el.ropeMarker.style.left = pct + '%';
+    const pct = Math.max(0, Math.min(100, 50 - (diff / targetScore) * 50));
+    const x = ROPE_LEFT_X + (pct / 100) * (ROPE_RIGHT_X - ROPE_LEFT_X);
+    el.ropeKnot.style.transform = `translate(${x}px, ${ROPE_Y}px)`;
   }
 
   function statusText(state, settings) {
@@ -89,7 +93,7 @@ const UI = (() => {
     el.panelBScore.textContent = `${state.scores.B} / ${settings.targetScore}`;
     renderRope(state.scores, settings.targetScore);
 
-    document.querySelectorAll('.teamPanel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidePanel').forEach(p => p.classList.remove('active'));
     if (state.phase === 'answer') {
       $(state.activeTeam === 'A' ? 'panelA' : 'panelB').classList.add('active');
     }

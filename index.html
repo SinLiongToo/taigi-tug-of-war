@@ -52,36 +52,62 @@
   </section>
 
   <section id="gameScreen" hidden>
-    <div id="ropeTrack">
-      <div id="ropeMarker"></div>
-    </div>
-
-    <div id="teamPanels">
-      <div class="teamPanel" id="panelA">
+    <div id="arena">
+      <div class="sidePanel" id="panelA">
         <div class="teamName"></div>
         <div class="teamScore"></div>
         <button class="buzzBtn" id="buzzBtnA">搶答(D)</button>
       </div>
-      <div class="teamPanel" id="panelB">
+
+      <div id="centerStage">
+        <div id="timerBadge">⏱ <span id="timerNum">--</span></div>
+
+        <svg id="tugScene" viewBox="0 0 400 150" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <line id="sceneGround" x1="10" y1="132" x2="390" y2="132"/>
+          <line id="sceneCenterLine" x1="200" y1="18" x2="200" y2="132"/>
+          <line id="ropeLine" x1="95" y1="78" x2="305" y2="78"/>
+
+          <g class="tugChar" id="charA" transform="translate(70,78)">
+            <line class="leg" x1="0" y1="0" x2="-16" y2="34"/>
+            <line class="leg" x1="0" y1="0" x2="12" y2="36"/>
+            <line class="torso" x1="0" y1="0" x2="-12" y2="-38"/>
+            <line class="arm" x1="-8" y1="-30" x2="26" y2="-6"/>
+            <circle class="head" cx="-16" cy="-48" r="11"/>
+          </g>
+          <g class="tugChar" id="charB" transform="translate(330,78) scale(-1,1)">
+            <line class="leg" x1="0" y1="0" x2="-16" y2="34"/>
+            <line class="leg" x1="0" y1="0" x2="12" y2="36"/>
+            <line class="torso" x1="0" y1="0" x2="-12" y2="-38"/>
+            <line class="arm" x1="-8" y1="-30" x2="26" y2="-6"/>
+            <circle class="head" cx="-16" cy="-48" r="11"/>
+          </g>
+
+          <g id="ropeKnot">
+            <circle r="8"/>
+            <path class="flag" d="M0,-8 L14,-14 L0,-20 Z"/>
+          </g>
+        </svg>
+
+        <div id="statusLine"></div>
+
+        <div id="questionCard">
+          <div id="promptLabel"></div>
+          <div id="promptText"></div>
+        </div>
+
+        <div id="choices">
+          <button class="choiceBtn" data-idx="0"><span class="choiceKey">1</span><span class="choiceText"></span></button>
+          <button class="choiceBtn" data-idx="1"><span class="choiceKey">2</span><span class="choiceText"></span></button>
+          <button class="choiceBtn" data-idx="2"><span class="choiceKey">3</span><span class="choiceText"></span></button>
+          <button class="choiceBtn" data-idx="3"><span class="choiceKey">4</span><span class="choiceText"></span></button>
+        </div>
+      </div>
+
+      <div class="sidePanel" id="panelB">
         <div class="teamName"></div>
         <div class="teamScore"></div>
         <button class="buzzBtn" id="buzzBtnB">搶答(K)</button>
       </div>
-    </div>
-
-    <div id="timerBar"><div id="timerFill"></div></div>
-    <div id="statusLine"></div>
-
-    <div id="questionCard">
-      <div id="promptLabel"></div>
-      <div id="promptText"></div>
-    </div>
-
-    <div id="choices">
-      <button class="choiceBtn" data-idx="0"><span class="choiceKey">1</span><span class="choiceText"></span></button>
-      <button class="choiceBtn" data-idx="1"><span class="choiceKey">2</span><span class="choiceText"></span></button>
-      <button class="choiceBtn" data-idx="2"><span class="choiceKey">3</span><span class="choiceText"></span></button>
-      <button class="choiceBtn" data-idx="3"><span class="choiceKey">4</span><span class="choiceText"></span></button>
     </div>
 
     <button id="backBtn">回設定</button>
