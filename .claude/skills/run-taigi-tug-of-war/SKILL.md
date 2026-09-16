@@ -8,8 +8,15 @@ description: Launch, drive, and verify the 台語搶答拔河 (Taiwanese vocabul
 Single static page (`index.html` + `src/*.js` + `src/lib/*.js` + `data/questions.js`),
 no build step, no `package.json`. Script load order matters (set in `index.html`):
 `data/version.js` → `src/lib/romanize.js` → `data/questions.js` →
-`src/lib/questions.js` → `src/game-state.js` → `src/keyboard.js` →
-`src/ui.js` → `src/settings.js` → `src/main.js`.
+`src/lib/questions.js` → `src/game-state.js` → `src/solo-state.js` →
+`src/solo-stats.js` → `src/keyboard.js` → `src/ui.js` → `src/settings.js` →
+`src/main.js`.
+
+Two game types, chosen via the `input[name="gameType"]` radio on the settings
+screen: **team** (`team`, the original two-team buzzer game, `GameState`) and
+**solo** (`solo`, practice/drill mode, `SoloState` + `SoloStats`, see
+"Solo/practice mode" below). Both share the same `Questions.generate()`
+question bank and modes.
 
 Eight question modes: `meaning`, `romanization`, `tone` (all three filter
 against `data/build-questions.js`'s `classifyLevel()` difficulty tag —
@@ -117,6 +124,55 @@ out rather than crashing:
 - `genFromPicturePool(pool, mode, direction, toRoman, labels, system)` is the
   shared generator behind animal/body/plant — don't reimplement the
   distractor logic per mode, extend this one if you add a fifth picture pool.
+
+## Solo/practice mode
+
+`SoloState` (`src/solo-state.js`) is a small state machine parallel to
+`GameState` but simpler — no buzz/steal, just `idle → answering → result`.
+`SoloStats` (`src/solo-stats.js`) is a pure `localStorage` read/write module
+(key `taigiTugOfWar.soloStats.v1`, wrapped in try/catch since private
+browsing / disabled storage genuinely throws) that persists cumulative
+`{ totalAnswered, totalCorrect, bestStreak, lastPlayedAt }` across sessions —
+this is separate from `SoloState`'s own `sessionAnswered`/`sessionCorrect`
+which reset every time the page reloads or a new solo session starts.
+
+- Toggle game type: `page.check('input[name="gameType"][value="solo"]')` then
+  submit `#settingsForm`. Watch `UI.applyGameTypeVisibility()` — it hides
+  `#teamOnlyFields` (target score / team names) and shows `#soloStatsBox`
+  (cumulative stats + `#resetSoloStatsBtn`) when solo is selected, and vice
+  versa.
+- Solo screen is `#soloScreen`, parallel IDs to the team screen throughout
+  (`#soloTimerBadge`, `#soloStatusLine`, `#soloQuestionCard`,
+  `#soloPromptLabel`/`#soloPromptText`, `#soloChoices .choiceBtn`,
+  `#soloSessionScore`/`#soloTotalScore`, `#soloEndBtn`). Don't reuse the
+  team screen's bare IDs (`#timerBadge`, `#questionCard`, `.choiceBtn`
+  unscoped) for anything solo-related — they collide with the team screen's
+  real elements since both screens' markup is always in the DOM
+  simultaneously (only `hidden` differs), which silently breaks
+  `document.getElementById`/`querySelectorAll` in both `ui.js` and `main.js`.
+- Answering: click a `#soloChoices .choiceBtn`, or press `1`-`4` (there's a
+  dedicated solo keydown listener in `main.js`, unrelated to the team game's
+  `Keyboard.js` buzz-key wiring — no buzz step in solo mode).
+- After each answer, `SoloStats.recordAnswer()` is called and the cumulative
+  numbers update immediately in `#soloTotalScore`/the settings-screen stats
+  box; a correct/wrong-colored choice button (`.correct`/`.wrong` classes)
+  and the real answer both show for ~1.2s before auto-advancing to the next
+  question (`setTimeout(nextSoloRound, 1200)` in `main.js`).
+- `#resetSoloStatsBtn` triggers a native `confirm()` dialog before actually
+  calling `SoloStats.reset()` — in Playwright, handle it with
+  `page.once('dialog', d => d.accept())` (or `.dismiss()`) registered
+  *before* the click.
+- **A real bug this mode's testing caught**: `#soloStatsBox` was toggled via
+  the `hidden` attribute alone, but `style.css` also had a plain
+  `#soloStatsBox { display: flex; ... }` rule — an ID selector beats the
+  browser's built-in `[hidden] { display: none }` attribute-selector rule in
+  specificity, so the box stayed visible in team mode regardless of the
+  `hidden` attribute. Only caught by actually screenshotting/inspecting
+  `isVisible()` in team mode, not by reading the CSS or JS in isolation. Fix
+  was an explicit `#soloStatsBox[hidden] { display: none; }` override. If you
+  add a new element that's toggled via `.hidden = ...` *and* has its own
+  `display:` rule keyed off the same ID, add the same `[hidden]` override or
+  you'll reproduce this bug.
 
 ## Bumping the version footer
 

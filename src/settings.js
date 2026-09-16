@@ -1,6 +1,7 @@
 // 從設定畫面表單讀出一份 settings 物件。
 const Settings = (() => {
   function readForm() {
+    const gameType = document.querySelector('input[name="gameType"]:checked').value; // 'team' | 'solo'
     const targetScore = Math.max(1, parseInt(document.getElementById('targetScore').value, 10) || 5);
     const questionSeconds = Math.max(5, parseInt(document.getElementById('questionSeconds').value, 10) || 15);
     const teamAName = document.getElementById('teamAName').value.trim() || 'A隊';
@@ -10,6 +11,7 @@ const Settings = (() => {
     const romanSystem = document.querySelector('input[name="romanSystem"]:checked').value;
 
     return {
+      gameType,
       targetScore,
       questionSeconds,
       teamNames: { A: teamAName, B: teamBName },

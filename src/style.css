@@ -143,7 +143,7 @@ kbd {
 
 #centerStage { grid-area: center; display: flex; flex-direction: column; align-items: stretch; }
 
-#timerBadge {
+#timerBadge, #soloTimerBadge {
   align-self: center;
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -153,7 +153,7 @@ kbd {
   font-variant-numeric: tabular-nums;
   margin-bottom: 6px;
 }
-#timerBadge.timerLow { color: #c62828; border-color: #c62828; }
+#timerBadge.timerLow, #soloTimerBadge.timerLow { color: #c62828; border-color: #c62828; }
 
 #tugScene { width: 100%; height: auto; margin-bottom: 8px; }
 #sceneGround { stroke: var(--border); stroke-width: 3; }
@@ -209,19 +209,19 @@ kbd {
 .tugChar.victory { animation: victoryBounce 0.55s ease-in-out infinite; }
 .tugChar.defeated { animation: none; transform: rotate(50deg) translate(10px, 10px); opacity: 0.55; }
 
-#statusLine { text-align: center; font-weight: bold; min-height: 1.4em; margin-bottom: 12px; }
+#statusLine, #soloStatusLine { text-align: center; font-weight: bold; min-height: 1.4em; margin-bottom: 12px; }
 
 /* ---- 題目卡 ---- */
-#questionCard {
+#questionCard, #soloQuestionCard {
   background: var(--card-bg);
   border-radius: 10px;
   padding: 20px;
   text-align: center;
   margin-bottom: 16px;
 }
-#promptLabel { color: var(--muted); margin-bottom: 8px; }
-#promptText { font-size: clamp(1.3rem, 6vw, 1.8rem); font-weight: bold; word-break: break-word; }
-#promptText.emojiPrompt { font-size: clamp(2.5rem, 12vw, 4rem); line-height: 1; }
+#promptLabel, #soloPromptLabel { color: var(--muted); margin-bottom: 8px; }
+#promptText, #soloPromptText { font-size: clamp(1.3rem, 6vw, 1.8rem); font-weight: bold; word-break: break-word; }
+#promptText.emojiPrompt, #soloPromptText.emojiPrompt { font-size: clamp(2.5rem, 12vw, 4rem); line-height: 1; }
 .boneCrop {
   width: min(220px, 100%);
   aspect-ratio: 1 / 1;
@@ -241,7 +241,7 @@ kbd {
 }
 
 /* ---- 選項 ---- */
-#choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+#choices, #soloChoices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
 .choiceBtn {
   display: flex;
   align-items: center;
@@ -271,7 +271,7 @@ kbd {
 .choiceBtn.correct { border-color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
 .choiceBtn.wrong { border-color: #c62828; background: rgba(198, 40, 40, 0.15); }
 
-#backBtn {
+#backBtn, #soloEndBtn {
   display: block;
   margin: 0 auto;
   padding: 8px 16px;
@@ -280,6 +280,51 @@ kbd {
   background: transparent;
   color: var(--fg);
   cursor: pointer;
+}
+
+/* ---- 一人刷題畫面 ---- */
+#soloScreen { max-width: 720px; }
+#soloTop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+#soloScoreLine {
+  display: flex;
+  gap: 14px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+#soloSessionScore { color: var(--fg); }
+#soloTotalScore { color: var(--muted); }
+
+/* ---- 設定畫面:一人模式累計數據 ---- */
+#soloStatsBox {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+/* #id 的 specificity 比瀏覽器內建的 [hidden] { display: none } 高,
+   沒有這條的話設定 hidden 屬性會被上面的 display: flex 蓋掉,element
+   永遠顯示——這裡是 Playwright 測試才抓到的真實 bug,不是防禦性寫法。 */
+#soloStatsBox[hidden] { display: none; }
+#soloStatsBox .hint { margin: 0; text-align: left; }
+#resetSoloStatsBtn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 /* ---- 結束畫面 ---- */
@@ -307,9 +352,11 @@ kbd {
 }
 
 @media (max-width: 480px) {
-  #choices { grid-template-columns: 1fr; }
+  #choices, #soloChoices { grid-template-columns: 1fr; }
   .field { flex-direction: column; align-items: stretch; }
   .field input { width: 100%; }
+  #soloStatsBox { flex-direction: column; align-items: stretch; text-align: center; }
+  #soloStatsBox .hint { text-align: center; }
   .sidePanel { padding: 8px; gap: 6px; }
   .teamName { font-size: 0.9rem; }
   .teamScore { font-size: 1.2rem; }
