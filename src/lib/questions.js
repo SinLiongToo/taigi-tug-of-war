@@ -11,6 +11,8 @@ const Questions = (() => {
   let entries = null;
   let bySyllCount = null;
   let animalPool = null;
+  let bodyPool = null;
+  let placePool = null;
 
   // 「動物」模式的題庫:題目是emoji或照片(不是中文字),挑漢字剛好等於常見
   // 動物名、且在題庫裡查得到的詞。用圖像而不是中文動物名當題目,一樣避開
@@ -45,6 +47,94 @@ const Questions = (() => {
     { type: 'image', value: 'data/images/tw-wildlife/flying-squirrel.jpg', hanzi: '飛鼠' },
   ];
 
+  // 「身體部位」模式的題庫:跟動物模式做法一樣,題目是emoji,挑辭典裡查得到
+  // 的身體部位詞。都是逐一查證過教育部辭典確實有收錄才放進來的(含骨頭類:
+  // 骨、手骨、跤骨、頭殼、尻脊骿),不是猜的。
+  const BODY_WORDS = [
+    { type: 'emoji', value: '👁️', hanzi: '目睭' },
+    { type: 'emoji', value: '👂', hanzi: '耳仔' },
+    { type: 'emoji', value: '👃', hanzi: '鼻仔' },
+    { type: 'emoji', value: '👄', hanzi: '喙' },
+    { type: 'emoji', value: '🦷', hanzi: '喙齒' },
+    { type: 'emoji', value: '👅', hanzi: '舌' },
+    { type: 'emoji', value: '✋', hanzi: '手' },
+    { type: 'emoji', value: '🦵', hanzi: '跤' },
+    { type: 'emoji', value: '❤️', hanzi: '心臟' },
+    { type: 'emoji', value: '🫁', hanzi: '肺' },
+    { type: 'emoji', value: '🩸', hanzi: '血' },
+    { type: 'emoji', value: '🦴', hanzi: '骨' },
+    { type: 'emoji', value: '🦴', hanzi: '手骨' },
+    { type: 'emoji', value: '🦴', hanzi: '跤骨' },
+    { type: 'emoji', value: '💀', hanzi: '頭殼' },
+    { type: 'emoji', value: '🍑', hanzi: '尻川' },
+  ];
+
+  // 「地名/溪流」模式的題庫:教育部辭典幾乎沒收錄具體地名(查證過,標記
+  // 「地名」的詞條全辭典只有 12 筆,扣掉「地號名」這種泛稱,真正的地名只有
+  // 「淡水」「西門町」兩個;溪流一個都沒有)——這裡改用本機另外兩個專案已經
+  // 整理好的地名/地理資料:
+  //   - 全台鐵路車站名(73筆):來自「台灣鐵路四界行」專案的車站資料庫。
+  //   - 山脈/溪流/地標(14筆):來自「geo地理,動物,人體,車,蟲」專案。
+  // 這兩份都不是教育部辭典本身的資料,是另外兩個本機專案整理的,已經用
+  // Romanize.parseWord() 逐筆驗證過羅馬字格式解析得出來、且跟已知的台語
+  // 讀音慣例(例:台北 Tâi-pak、高雄 Ko-hiông)核對過看起來合理,但沒辦法像
+  // 其他模式一樣對照教育部辭典本身逐字確認發音,所以請比較保留地看待,如果
+  // 哪個地名的讀音有問題,歡迎回報修正,見 README「地名/溪流資料來源」。
+  const PLACE_RAW = [
+    { hanzi: '基隆', poj: 'Kî-liông' }, { hanzi: '八堵', poj: 'Pat-tóo' },
+    { hanzi: '暖暖', poj: 'Luán-luán' }, { hanzi: '瑞芳', poj: 'Sūi-hong' },
+    { hanzi: '雙溪', poj: 'Siang-khoe' }, { hanzi: '福隆', poj: 'Hok-liông' },
+    { hanzi: '宜蘭', poj: 'Gî-lân' }, { hanzi: '蘇澳', poj: 'So-ò' },
+    { hanzi: '東澳', poj: 'Tang-ò' }, { hanzi: '新城', poj: 'Sin-siâⁿ' },
+    { hanzi: '花蓮', poj: 'Hua-liân' }, { hanzi: '吉安', poj: 'Kiat-an' },
+    { hanzi: '壽豐', poj: 'Siū-hong' }, { hanzi: '富源', poj: 'Hù-gôan' },
+    { hanzi: '玉里', poj: 'Gio̍k-lí' }, { hanzi: '富里', poj: 'Hù-lí' },
+    { hanzi: '池上', poj: 'Tî-siōng' }, { hanzi: '關山', poj: 'Kuan-san' },
+    { hanzi: '鹿野', poj: 'Lo̍k-iá' }, { hanzi: '台東', poj: 'Tâi-tang' },
+    { hanzi: '知本', poj: 'Ti-pún' }, { hanzi: '大武', poj: 'Tāi-bú' },
+    { hanzi: '屏東', poj: 'Pîn-tong' }, { hanzi: '林邊', poj: 'Nâ-pinn' },
+    { hanzi: '東港', poj: 'Tang-káng' }, { hanzi: '仁武', poj: 'Jîn-bú' },
+    { hanzi: '鳳山', poj: 'Hōng-san' }, { hanzi: '高雄', poj: 'Ko-hiông' },
+    { hanzi: '左營', poj: 'Chó-iâⁿ' }, { hanzi: '楠梓', poj: 'Lâm-chú' },
+    { hanzi: '岡山', poj: 'Kong-san' }, { hanzi: '大湖', poj: 'Tāi-ôo' },
+    { hanzi: '保安', poj: 'Pó-an' }, { hanzi: '台南', poj: 'Tâi-lâm' },
+    { hanzi: '沙崙', poj: 'Sua-lūn' }, { hanzi: '永康', poj: 'Íng-khong' },
+    { hanzi: '新市', poj: 'Sin-tshī' }, { hanzi: '善化', poj: 'Siān-hoà' },
+    { hanzi: '柳營', poj: 'Liú-iâⁿ' }, { hanzi: '新營', poj: 'Sin-iâⁿ' },
+    { hanzi: '嘉義', poj: 'Ka-gī' }, { hanzi: '斗南', poj: 'Táu-lâm' },
+    { hanzi: '斗六', poj: 'Táu-la̍k' }, { hanzi: '林內', poj: 'Nâ-lāi' },
+    { hanzi: '二水', poj: 'Jī-tsuí' }, { hanzi: '田中', poj: 'Tshân-tiong' },
+    { hanzi: '員林', poj: 'Uân-lîm' }, { hanzi: '彰化', poj: 'Chiong-hoà' },
+    { hanzi: '大慶', poj: 'Tāi-khìng' }, { hanzi: '台中', poj: 'Tâi-tiong' },
+    { hanzi: '豐原', poj: 'Hong-gôan' }, { hanzi: '三義', poj: 'Sam-gī' },
+    { hanzi: '銅鑼', poj: 'Tâng-lô' }, { hanzi: '苗栗', poj: 'Biâu-le̍k' },
+    { hanzi: '頭份', poj: 'Thâu-hūn' }, { hanzi: '竹南', poj: 'Tek-lâm' },
+    { hanzi: '六家', poj: 'La̍k-ke' }, { hanzi: '新竹', poj: 'Sin-tek' },
+    { hanzi: '竹北', poj: 'Tek-pak' }, { hanzi: '湖口', poj: 'Ôo-kháu' },
+    { hanzi: '楊梅', poj: 'Iûⁿ-mn̂g' }, { hanzi: '中壢', poj: 'Tiong-le̍k' },
+    { hanzi: '桃園', poj: 'Thô-hn̂g' }, { hanzi: '鶯歌', poj: 'Ing-ko' },
+    { hanzi: '三峽', poj: 'Sam-kiap' }, { hanzi: '板橋', poj: 'Pang-kiô' },
+    { hanzi: '萬華', poj: 'Bān-huà' }, { hanzi: '台北', poj: 'Tâi-pak' },
+    { hanzi: '清水', poj: 'Tshin-tsuí' }, { hanzi: '沙鹿', poj: 'Sua-lo̍k' },
+    { hanzi: '龍井', poj: 'Liông-tsínn' }, { hanzi: '南港', poj: 'Lâm-káng' },
+    { hanzi: '雲林', poj: 'Hûn-lîm' },
+    // 山脈/溪流/地標
+    { hanzi: '中央山脈', poj: 'Tiong-iong San-me̍h' },
+    { hanzi: '玉山山脈', poj: 'Gio̍k-san san-me̍h' },
+    { hanzi: '雪山山脈', poj: 'Suat-suann san-me̍h' },
+    { hanzi: '阿里山山脈', poj: 'A-lî-san san-me̍h' },
+    { hanzi: '海岸山脈', poj: 'Hái-gān san-me̍h' },
+    { hanzi: '淡水河', poj: 'Tām-tsúi-hô' },
+    { hanzi: '濁水溪', poj: 'Lô-tsúi-khe' },
+    { hanzi: '曾文溪', poj: 'Tsan-bûn-khe' },
+    { hanzi: '高屏溪', poj: 'Ko-pîng-khe' },
+    { hanzi: '日月潭', poj: 'Ji̍t-gue̍h-thâm' },
+    { hanzi: '太魯閣', poj: 'Thài-ló͘-ko̍k' },
+    { hanzi: '澎湖群島', poj: 'Phînn-ôo kûn-tó' },
+    { hanzi: '台灣海峽', poj: 'Tâi-uân hái-kiap' },
+    { hanzi: '花東縱谷', poj: 'Hua-tang tsong-kok' },
+  ];
+
   async function load() {
     if (typeof TAIGI_QUESTIONS === 'undefined') {
       throw new Error('找不到題庫(data/questions.js 沒載入或載入順序不對)');
@@ -62,6 +152,17 @@ const Questions = (() => {
     animalPool = ANIMAL_WORDS
       .map(a => ({ type: a.type, value: a.value, entry: byHanzi.get(a.hanzi) }))
       .filter(a => a.entry);
+    bodyPool = BODY_WORDS
+      .map(a => ({ type: a.type, value: a.value, entry: byHanzi.get(a.hanzi) }))
+      .filter(a => a.entry);
+    // PLACE_RAW 的羅馬字不是辭典查來的,要自己 parse 成 skeleton/tone(跟
+    // build-questions.js 對一般辭典詞條做的事一樣),parse 失敗的直接跳過。
+    placePool = PLACE_RAW
+      .map(p => {
+        const sylls = Romanize.parseWord(p.poj.replace(/\s+/g, '-'));
+        return sylls ? { hanzi: p.hanzi, sylls: sylls.map(s => ({ skeleton: s.skeleton, tone: s.tone, neutral: !!s.neutral })) } : null;
+      })
+      .filter(Boolean);
     return { count: entries.length, source: data.source };
   }
 
@@ -182,17 +283,19 @@ const Questions = (() => {
     return { mode: 'romanization', direction, promptLabel: '羅馬字怎麼寫?', prompt: entry.hanzi, choices: options, correctIndex };
   }
 
-  // ---- 模式:動物(題目是emoji,答案選漢字或羅馬字) ----
-  function genAnimal(direction, system) {
-    const pick = animalPool[Math.floor(Math.random() * animalPool.length)];
+  // ---- 共用:「題目是emoji或照片,答案選漢字或羅馬字」的出題邏輯 ----
+  // 動物、身體部位都是這個形狀的題庫(見 ANIMAL_WORDS/BODY_WORDS),抽出來
+  // 共用,避免兩份幾乎一樣的程式碼。
+  function genFromPicturePool(pool, mode, direction, toRoman, labels, system) {
+    const pick = pool[Math.floor(Math.random() * pool.length)];
     const entry = pick.entry;
-    const otherAnimals = animalPool.filter(a => a.entry !== entry);
+    const others = pool.filter(a => a.entry !== entry);
 
-    if (direction === 'animal2roman') {
+    if (toRoman) {
       const correctLabel = renderWord(entry.sylls, system);
       const distractors = [];
       const seen = new Set([correctLabel]);
-      for (const a of shuffle(otherAnimals)) {
+      for (const a of shuffle(others)) {
         if (distractors.length >= 3) break;
         const label = renderWord(a.entry.sylls, system);
         if (seen.has(label)) continue;
@@ -200,19 +303,64 @@ const Questions = (() => {
         distractors.push(label);
       }
       const { options, correctIndex } = buildChoices(correctLabel, distractors);
-      return { mode: 'animal', direction, promptLabel: '台語按怎唸?', prompt: pick.value, promptType: pick.type, choices: options, correctIndex };
+      return { mode, direction, promptLabel: labels.toRoman, prompt: pick.value, promptType: pick.type, choices: options, correctIndex };
     }
 
     const distractors = [];
     const seen = new Set([entry.hanzi]);
-    for (const a of shuffle(otherAnimals)) {
+    for (const a of shuffle(others)) {
       if (distractors.length >= 3) break;
       if (seen.has(a.entry.hanzi)) continue;
       seen.add(a.entry.hanzi);
       distractors.push(a.entry.hanzi);
     }
     const { options, correctIndex } = buildChoices(entry.hanzi, distractors);
-    return { mode: 'animal', direction, promptLabel: '台語漢字按怎寫?', prompt: pick.value, promptType: pick.type, choices: options, correctIndex };
+    return { mode, direction, promptLabel: labels.toHanzi, prompt: pick.value, promptType: pick.type, choices: options, correctIndex };
+  }
+
+  const PICTURE_LABELS = { toRoman: '台語按怎唸?', toHanzi: '台語漢字按怎寫?' };
+
+  // ---- 模式:動物(題目是emoji或照片,答案選漢字或羅馬字) ----
+  function genAnimal(direction, system) {
+    return genFromPicturePool(animalPool, 'animal', direction, direction === 'animal2roman', PICTURE_LABELS, system);
+  }
+
+  // ---- 模式:身體部位(題目是emoji,答案選漢字或羅馬字) ----
+  function genBody(direction, system) {
+    return genFromPicturePool(bodyPool, 'body', direction, direction === 'body2roman', PICTURE_LABELS, system);
+  }
+
+  // ---- 模式:地名/溪流(題目是台語漢字或羅馬字文字,不是emoji/照片) ----
+  function genPlace(direction, system) {
+    const pick = placePool[Math.floor(Math.random() * placePool.length)];
+    const others = placePool.filter(p => p !== pick);
+
+    if (direction === 'place2roman') {
+      const correctLabel = renderWord(pick.sylls, system);
+      const distractors = [];
+      const seen = new Set([correctLabel]);
+      for (const p of shuffle(others)) {
+        if (distractors.length >= 3) break;
+        const label = renderWord(p.sylls, system);
+        if (seen.has(label)) continue;
+        seen.add(label);
+        distractors.push(label);
+      }
+      const { options, correctIndex } = buildChoices(correctLabel, distractors);
+      return { mode: 'place', direction, promptLabel: '台語按怎唸?', prompt: pick.hanzi, choices: options, correctIndex };
+    }
+
+    const distractors = [];
+    const seen = new Set([pick.hanzi]);
+    for (const p of shuffle(others)) {
+      if (distractors.length >= 3) break;
+      if (seen.has(p.hanzi)) continue;
+      seen.add(p.hanzi);
+      distractors.push(p.hanzi);
+    }
+    const { options, correctIndex } = buildChoices(pick.hanzi, distractors);
+    const correctLabel = renderWord(pick.sylls, system);
+    return { mode: 'place', direction, promptLabel: '這是佗位?', prompt: correctLabel, choices: options, correctIndex };
   }
 
   // ---- 模式:九九乘法(傳統乘法歌讀法) ----
@@ -331,6 +479,14 @@ const Questions = (() => {
     if (mode === 'animal' && animalPool && animalPool.length >= 4) {
       const direction = Math.random() < 0.5 ? 'animal2hanzi' : 'animal2roman';
       return genAnimal(direction, system);
+    }
+    if (mode === 'body' && bodyPool && bodyPool.length >= 4) {
+      const direction = Math.random() < 0.5 ? 'body2hanzi' : 'body2roman';
+      return genBody(direction, system);
+    }
+    if (mode === 'place' && placePool && placePool.length >= 4) {
+      const direction = Math.random() < 0.5 ? 'place2hanzi' : 'place2roman';
+      return genPlace(direction, system);
     }
     if (mode === 'multiplication') {
       return genMultiplication(system);

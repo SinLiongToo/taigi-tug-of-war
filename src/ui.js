@@ -144,7 +144,7 @@ const UI = (() => {
         el.promptText.appendChild(img);
       } else {
         el.promptText.textContent = q.prompt;
-        el.promptText.classList.toggle('emojiPrompt', q.mode === 'animal');
+        el.promptText.classList.toggle('emojiPrompt', q.promptType === 'emoji');
       }
       el.choiceBtns.forEach((btn, idx) => {
         btn.querySelector('.choiceText').textContent = q.choices[idx];
