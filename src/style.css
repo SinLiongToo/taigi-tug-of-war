@@ -222,6 +222,12 @@ kbd {
 #promptLabel { color: var(--muted); margin-bottom: 8px; }
 #promptText { font-size: clamp(1.3rem, 6vw, 1.8rem); font-weight: bold; word-break: break-word; }
 #promptText.emojiPrompt { font-size: clamp(2.5rem, 12vw, 4rem); line-height: 1; }
+.boneCrop {
+  width: min(220px, 100%);
+  aspect-ratio: 1 / 1;
+  background-repeat: no-repeat;
+  background-color: #fdfaf3;
+}
 .animalPhoto {
   display: block;
   margin: 0 auto;

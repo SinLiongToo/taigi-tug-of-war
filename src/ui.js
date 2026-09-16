@@ -142,6 +142,19 @@ const UI = (() => {
         img.alt = '';
         img.className = 'animalPhoto';
         el.promptText.appendChild(img);
+      } else if (q.promptType === 'crop') {
+        // 骨頭題目:同一張人骨圖裁不同部位,用 background-position/-size
+        // 顯示局部特寫,而不是整張圖縮小(那樣會看不清楚細節)。
+        el.promptText.classList.remove('emojiPrompt');
+        el.promptText.innerHTML = '';
+        const crop = document.createElement('div');
+        crop.className = 'animalPhoto boneCrop';
+        crop.style.backgroundImage = `url('${q.prompt}')`;
+        if (q.cropStyle) {
+          crop.style.backgroundSize = q.cropStyle.backgroundSize;
+          crop.style.backgroundPosition = q.cropStyle.backgroundPosition;
+        }
+        el.promptText.appendChild(crop);
       } else {
         el.promptText.textContent = q.prompt;
         el.promptText.classList.toggle('emojiPrompt', q.promptType === 'emoji');

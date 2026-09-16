@@ -154,11 +154,30 @@ gets `Cannot find module 'playwright'` even though `npm install` succeeded.
   four checked by default; unchecking all falls back to unrestricted, not to
   zero results), radio `input[name="romanSystem"][value="tailo|poj"]`, click
   `#startBtn`.
-- `animal`/`body`/`plant` modes render either an emoji or an `<img>` inside
-  `#promptText` depending on `q.promptType` (`'emoji'` vs `'image'`) — assert
-  on `document.querySelector('#promptText img')` presence rather than text
-  content when you need to distinguish the two. `place` mode is text-only
-  (hanzi or romanization string, never an image).
+- `animal`/`body`/`plant` modes render an emoji, a whole photo, or (body only)
+  a cropped region of the shared skeleton chart inside `#promptText`,
+  depending on `q.promptType`: `'emoji'` (text), `'image'` (`<img>`), or
+  `'crop'` (a `<div class="boneCrop">` with `background-image`/`-size`/
+  `-position` set from `q.cropStyle`). Assert on
+  `document.querySelector('#promptText img')` or `.boneCrop` presence rather
+  than text content when you need to distinguish them. `place` mode is
+  text-only (hanzi or romanization string, never an image).
+- Bone crops all read one shared file, `data/images/tw-body/skeleton.webp`
+  (an unlabeled 1896 anatomical plate, public domain), cropped via
+  `BONE_CROPS` in `questions.js` — 12 named regions (skull-upper/-lower,
+  chest, spine, pelvis, thigh, knee, lowerleg, feet, upperarm, fullarm,
+  fullleg), each entry in `BODY_WORDS` picks one by name. To add/retune a
+  region: the container is always a square (`.boneCrop { aspect-ratio: 1/1 }`
+  in `style.css`), so compute `background-size` / `background-position` with
+  the "cover" formula in the comment above `BONE_CROPS` — critically, the
+  Y-axis effective zoom is `zoomX / imageAspectRatio`, **not** the same
+  `zoomX` used for the X axis (since `background-size: X% auto` scales
+  height to preserve the image's aspect ratio, not the container's). Verify
+  any new region visually before trusting the numbers: build a small HTML
+  page with the background-image + computed values at 220×220px, screenshot
+  it with Playwright, and look — several regions were badly mispositioned
+  (or fully blank) on the first pass from small coordinate-estimation
+  errors, especially thin bone shafts on a mostly-white line-art image.
 - Buzz keys are fixed, not configurable in the UI: `d` = Team A, `k` = Team B
   (`page.keyboard.press('d')`). Answer keys `1`–`4` work for whichever team
   currently holds `activeTeam`, no team-specific answer keys.

@@ -73,9 +73,34 @@ const Questions = (() => {
     { type: 'image', value: 'data/images/tw-plants/areca.jpg', hanzi: '檳榔' },
   ];
 
-  // 「身體部位」模式的題庫:跟動物模式做法一樣,題目是emoji,挑辭典裡查得到
-  // 的身體部位詞。都是逐一查證過教育部辭典確實有收錄才放進來的(含骨頭類:
-  // 骨、手骨、跤骨、頭殼、尻脊骿),不是猜的。
+  // 骨頭類題目共用同一張人骨全身圖(見 data/images/tw-body/,來源與授權見
+  // README「圖片授權」),裁成 12 個不同部位的局部特寫,而不是每題都長一樣。
+  // 座標是拿 Playwright 對著真實圖片反覆截圖校正出來的(校正過程見開發紀錄),
+  // 不是憑感覺猜的。cx/cy 是裁圖中心點、w/h 是裁圖範圍,單位是圖片的比例
+  // (0~1);backgroundSize/backgroundPosition 是照這個公式換算出來的 CSS 值
+  // (uiJs 直接拿去當 <img> 的 style 用,cover 式裁切、不變形):
+  //   r = 圖片寬/高;zoomX = max(1/w, r/h);zoomY = zoomX / r
+  //   backgroundSize = 100*zoomX + '% auto'
+  //   backgroundPosition = 100*(0.5-cx*zoomX)/(1-zoomX) + '% ' + 100*(0.5-cy*zoomY)/(1-zoomY) + '%'
+  const BONE_IMAGE = 'data/images/tw-body/skeleton.webp';
+  const BONE_CROPS = {
+    'skull-upper': { backgroundSize: '676.2% auto', backgroundPosition: '41.2% 6.6%' },
+    'skull-lower': { backgroundSize: '1014.3% auto', backgroundPosition: '42.2% 13.8%' },
+    chest: { backgroundSize: '380.4% auto', backgroundPosition: '40.5% 23.8%' },
+    spine: { backgroundSize: '1000.0% auto', backgroundPosition: '44.4% 30.8%' },
+    pelvis: { backgroundSize: '760.7% auto', backgroundPosition: '41.9% 46.7%' },
+    thigh: { backgroundSize: '434.7% auto', backgroundPosition: '40.9% 57.0%' },
+    knee: { backgroundSize: '1014.3% auto', backgroundPosition: '43.3% 67.0%' },
+    lowerleg: { backgroundSize: '476.2% auto', backgroundPosition: '41.8% 81.0%' },
+    feet: { backgroundSize: '869.4% auto', backgroundPosition: '41.0% 90.3%' },
+    upperarm: { backgroundSize: '555.6% auto', backgroundPosition: '24.4% 29.8%' },
+    fullarm: { backgroundSize: '500.0% auto', backgroundPosition: '18.8% 38.6%' },
+    fullleg: { backgroundSize: '714.3% auto', backgroundPosition: '37.2% 68.6%' },
+  };
+
+  // 「身體部位」模式的題庫:跟動物模式做法一樣,題目是emoji或照片,挑辭典裡
+  // 查得到的身體部位詞。都是逐一查證過教育部辭典確實有收錄才放進來的,不是
+  // 猜的(骨頭類的來源見上方 BONE_CROPS 註解)。
   const BODY_WORDS = [
     { type: 'emoji', value: '👁️', hanzi: '目睭' },
     { type: 'emoji', value: '👂', hanzi: '耳仔' },
@@ -88,10 +113,10 @@ const Questions = (() => {
     { type: 'emoji', value: '❤️', hanzi: '心臟' },
     { type: 'emoji', value: '🫁', hanzi: '肺' },
     { type: 'emoji', value: '🩸', hanzi: '血' },
-    { type: 'emoji', value: '🦴', hanzi: '骨' },
-    { type: 'emoji', value: '🦴', hanzi: '手骨' },
-    { type: 'emoji', value: '🦴', hanzi: '跤骨' },
-    { type: 'emoji', value: '💀', hanzi: '頭殼' },
+    { type: 'image', value: BONE_IMAGE, hanzi: '骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'fullarm', hanzi: '手骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'fullleg', hanzi: '跤骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'skull-upper', hanzi: '頭殼' },
     { type: 'emoji', value: '🍑', hanzi: '尻川' },
 
     // 人骨圖詳細部位(使用者提供的骨骼圖,作者:藍采琍)。大部分辭典裡也查
@@ -100,25 +125,31 @@ const Questions = (() => {
     // 欄位——這幾個是圖片本身標示的羅馬字,不是辭典查來的,只做過格式驗證
     // (Romanize.parseWord 解析得出來),沒辦法像辭典詞一樣逐字確認發音,
     // 請比較保留地看待。
-    { type: 'emoji', value: '🦴', hanzi: '頭殼碗' },
-    { type: 'emoji', value: '🦴', hanzi: '牙槽骨' },
-    { type: 'emoji', value: '🦴', hanzi: '鼻骨', poj: 'phīnn-kut' },
-    { type: 'emoji', value: '🦴', hanzi: '飯匙骨' },
-    { type: 'emoji', value: '🦴', hanzi: '頂胘骨', poj: 'tíng-kong-kut' },
-    { type: 'emoji', value: '🦴', hanzi: '胸掛骨' },
-    { type: 'emoji', value: '🦴', hanzi: '胸坎骨' },
-    { type: 'emoji', value: '🦴', hanzi: '算仔骨', poj: 'pín-á-kut' },
-    { type: 'emoji', value: '🦴', hanzi: '龍骨' },
-    { type: 'emoji', value: '🦴', hanzi: '尾胴骨' },
-    { type: 'emoji', value: '🦴', hanzi: '尾錐', poj: 'bué-tsui' },
-    { type: 'emoji', value: '🦴', hanzi: '腸骨', poj: 'tn̄g-kut' },
-    { type: 'emoji', value: '🦴', hanzi: '盆胲骨', poj: 'phûn-kha-kut' },
-    { type: 'emoji', value: '🦴', hanzi: '尻川骨' },
-    { type: 'emoji', value: '🦴', hanzi: '大腿骨' },
-    { type: 'emoji', value: '🦴', hanzi: '跤頭碗', poj: 'kha-thâu-uánn' },
-    { type: 'emoji', value: '🦴', hanzi: '跤肚骨' },
-    { type: 'emoji', value: '🦴', hanzi: '跤胴骨' },
-    { type: 'emoji', value: '🦴', hanzi: '跤指頭仔骨', poj: 'kha-tsíng-thâu-á-kut' },
+    //
+    // 題目圖片:一張沒有文字標籤的人骨全身圖(1896年出版,已公版/Public
+    // Domain,Arthur Thomson 繪、Henry Frowde 出版),依骨頭所在的身體部位
+    // 裁出 12 種不同的局部特寫(見 BONE_CROPS),不會每一題都長一樣。同一
+    // 部位裡好幾根骨頭共用同一張裁圖是刻意的(例如胸掛骨/胸坎骨/算仔骨都
+    // 共用「chest」裁圖),不是偷懶——那些骨頭本來就在畫面同一塊區域。
+    { type: 'crop', value: BONE_IMAGE, region: 'skull-upper', hanzi: '頭殼碗' },
+    { type: 'crop', value: BONE_IMAGE, region: 'skull-lower', hanzi: '牙槽骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'skull-lower', hanzi: '鼻骨', poj: 'phīnn-kut' },
+    { type: 'crop', value: BONE_IMAGE, region: 'upperarm', hanzi: '飯匙骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'upperarm', hanzi: '頂胘骨', poj: 'tíng-kong-kut' },
+    { type: 'crop', value: BONE_IMAGE, region: 'chest', hanzi: '胸掛骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'chest', hanzi: '胸坎骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'chest', hanzi: '算仔骨', poj: 'pín-á-kut' },
+    { type: 'crop', value: BONE_IMAGE, region: 'spine', hanzi: '龍骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'pelvis', hanzi: '尾胴骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'pelvis', hanzi: '尾錐', poj: 'bué-tsui' },
+    { type: 'crop', value: BONE_IMAGE, region: 'pelvis', hanzi: '腸骨', poj: 'tn̄g-kut' },
+    { type: 'crop', value: BONE_IMAGE, region: 'pelvis', hanzi: '盆胲骨', poj: 'phûn-kha-kut' },
+    { type: 'crop', value: BONE_IMAGE, region: 'pelvis', hanzi: '尻川骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'thigh', hanzi: '大腿骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'knee', hanzi: '跤頭碗', poj: 'kha-thâu-uánn' },
+    { type: 'crop', value: BONE_IMAGE, region: 'lowerleg', hanzi: '跤肚骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'lowerleg', hanzi: '跤胴骨' },
+    { type: 'crop', value: BONE_IMAGE, region: 'feet', hanzi: '跤指頭仔骨', poj: 'kha-tsíng-thâu-á-kut' },
   ];
 
   // 「地名/溪流」模式的題庫:教育部辭典幾乎沒收錄具體地名(查證過,標記
@@ -212,7 +243,7 @@ const Questions = (() => {
             const sylls = Romanize.parseWord(a.poj.replace(/\s+/g, '-'));
             if (sylls) entry = { hanzi: a.hanzi, sylls: sylls.map(s => ({ skeleton: s.skeleton, tone: s.tone, neutral: !!s.neutral })) };
           }
-          return { type: a.type, value: a.value, entry };
+          return { type: a.type, value: a.value, region: a.region, entry };
         })
         .filter(a => a.entry);
     }
@@ -354,6 +385,8 @@ const Questions = (() => {
     const pick = pool[Math.floor(Math.random() * pool.length)];
     const entry = pick.entry;
     const others = pool.filter(a => a.entry !== entry);
+    // 'crop' 類題目(目前只有身體部位的骨頭)要另外帶裁圖用的 CSS 座標。
+    const cropStyle = pick.type === 'crop' ? BONE_CROPS[pick.region] : undefined;
 
     if (toRoman) {
       const correctLabel = renderWord(entry.sylls, system);
@@ -367,7 +400,7 @@ const Questions = (() => {
         distractors.push(label);
       }
       const { options, correctIndex } = buildChoices(correctLabel, distractors);
-      return { mode, direction, promptLabel: labels.toRoman, prompt: pick.value, promptType: pick.type, choices: options, correctIndex };
+      return { mode, direction, promptLabel: labels.toRoman, prompt: pick.value, promptType: pick.type, cropStyle, choices: options, correctIndex };
     }
 
     const distractors = [];
@@ -379,7 +412,7 @@ const Questions = (() => {
       distractors.push(a.entry.hanzi);
     }
     const { options, correctIndex } = buildChoices(entry.hanzi, distractors);
-    return { mode, direction, promptLabel: labels.toHanzi, prompt: pick.value, promptType: pick.type, choices: options, correctIndex };
+    return { mode, direction, promptLabel: labels.toHanzi, prompt: pick.value, promptType: pick.type, cropStyle, choices: options, correctIndex };
   }
 
   const PICTURE_LABELS = { toRoman: '台語按怎唸?', toHanzi: '台語漢字按怎寫?' };
