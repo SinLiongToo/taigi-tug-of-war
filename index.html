@@ -48,6 +48,17 @@
         <label><input type="radio" name="romanSystem" value="poj"> 白話字(POJ)</label>
       </fieldset>
 
+      <fieldset>
+        <legend>難易度(可複選;只影響「詞義/羅馬字/聲調」這幾個查辭典的模式,
+          動物、九九乘法不受影響)</legend>
+        <label><input type="checkbox" class="levelCheckbox" value="elementary" checked> 國小</label>
+        <label><input type="checkbox" class="levelCheckbox" value="junior" checked> 國中</label>
+        <label><input type="checkbox" class="levelCheckbox" value="senior" checked> 高中</label>
+        <label><input type="checkbox" class="levelCheckbox" value="university" checked> 大學</label>
+        <p class="hint" style="margin: 4px 0 0;">難易度是 AI 依字數與辭典釋義文字概略判斷的,不是教育部官方分級
+          (教育部辭典本身沒有難易度資料),僅供參考。</p>
+      </fieldset>
+
       <button type="submit" id="startBtn" disabled>開始遊戲</button>
     </form>
     <p class="hint">搶答鍵:A隊按 <kbd>D</kbd>、B隊按 <kbd>K</kbd>;作答按 <kbd>1</kbd>~<kbd>4</kbd>(畫面按鈕也可以點)</p>

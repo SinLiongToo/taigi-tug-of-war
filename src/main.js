@@ -16,7 +16,7 @@
   }
 
   function nextRound() {
-    const q = Questions.generate(settings.modes, settings.romanSystem);
+    const q = Questions.generate(settings.modes, settings.romanSystem, settings.levels);
     gs.startRound(q);
     armTimer(settings.questionSeconds);
   }

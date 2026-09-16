@@ -78,13 +78,23 @@ const Questions = (() => {
     return a;
   }
 
-  function randomEntry(filterFn) {
-    if (!filterFn) return entries[Math.floor(Math.random() * entries.length)];
+  function randomEntry(pool, filterFn) {
+    if (!filterFn) return pool[Math.floor(Math.random() * pool.length)];
     for (let i = 0; i < 80; i++) {
-      const e = entries[Math.floor(Math.random() * entries.length)];
+      const e = pool[Math.floor(Math.random() * pool.length)];
       if (filterFn(e)) return e;
     }
-    return entries[Math.floor(Math.random() * entries.length)];
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // 依「已勾選的年級難易度」篩出候選詞池。level 是 build-questions.js 裡
+  // classifyLevel() 估算出來的近似分級(LLM 主觀判斷,非官方資料),見 README。
+  // 篩選只影響「題目本身考哪個詞」,干擾選項還是從全部詞庫挑,詳見程式註解。
+  function levelPool(levels) {
+    if (!levels || !levels.length) return entries;
+    const set = new Set(levels);
+    const filtered = entries.filter(e => set.has(e.level));
+    return filtered.length ? filtered : entries;
   }
 
   function shortDef(s) {
@@ -304,16 +314,17 @@ const Questions = (() => {
     return { mode: 'tone', direction: sub, promptLabel, prompt: entry.hanzi, choices: options, correctIndex };
   }
 
-  function generate(enabledModes, system) {
+  function generate(enabledModes, system, levels) {
     const modes = enabledModes && enabledModes.length ? enabledModes : ['meaning'];
     const mode = modes[Math.floor(Math.random() * modes.length)];
+    const pool = levelPool(levels);
 
     if (mode === 'meaning') {
-      const entry = randomEntry();
+      const entry = randomEntry(pool);
       return genMeaning(entry);
     }
     if (mode === 'romanization') {
-      const entry = randomEntry();
+      const entry = randomEntry(pool);
       const direction = Math.random() < 0.5 ? 'hanzi2roman' : 'roman2hanzi';
       return genRomanization(entry, direction, system);
     }
@@ -324,8 +335,8 @@ const Questions = (() => {
     if (mode === 'multiplication') {
       return genMultiplication(system);
     }
-    // tone
-    const entry = randomEntry(e => e.sylls.length >= 2);
+    // tone(年級篩選 + 至少雙音節才能出連讀變調子題)
+    const entry = randomEntry(pool, e => e.sylls.length >= 2);
     const canSandhi = entry.sylls.length >= 2;
     const sub = canSandhi && Math.random() < 0.6 ? 'sandhi' : 'base';
     return genTone(entry, sub, system);
