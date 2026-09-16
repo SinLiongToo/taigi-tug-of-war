@@ -39,6 +39,11 @@
 - **身體部位**:題目是身體部位 emoji(含骨頭類:骨、手骨、跤骨、頭殼),猜台語
   漢字或羅馬字。跟動物模式做法一樣,清單裡每個詞都逐一查證過教育部辭典確實
   收錄才放進去(`src/lib/questions.js` 的 `BODY_WORDS`)。
+- **樹仔/草仔**:題目是植物 emoji 或照片,猜台語漢字或羅馬字。跟動物模式做法
+  一樣,每個詞都查證過教育部辭典確實收錄才收(`src/lib/questions.js` 的
+  `PLANT_WORDS`)。常見植物(樹、草、花、竹、番麥、稻穗...)用現成 emoji;
+  相思仔、茄苳、林投、木麻黃、檳榔這幾種有台灣鄉土特色、但沒有對應 emoji
+  的樹種改用照片,授權見下方「圖片授權」。
 - **地名/溪流**:題目是台灣的車站名、山脈、溪流或地標,猜台語漢字或羅馬字。
   **這個模式完全不是查教育部辭典來的**——辭典裡標記「地名」的詞條只有 12 筆,
   扣掉「地號名」這種泛稱,真正的具體地名只剩「淡水」「西門町」兩個,溪流
@@ -90,7 +95,7 @@
 
 難易度篩選只影響「詞義/漢字↔羅馬字/聲調」這幾個查辭典的模式(篩的是題目考
 哪個詞,干擾選項還是照樣從全部詞庫挑,沒有跟著篩);「動物」「身體部位」
-「地名/溪流」「九九乘法」都是獨立的固定題庫,不受難易度設定影響。
+「樹仔/草仔」「地名/溪流」「九九乘法」都是獨立的固定題庫,不受難易度設定影響。
 
 ## 執行方式
 
@@ -135,8 +140,19 @@ node data/build-questions.js
 | `otter.jpg` | 歐亞水獺(配「水獺」) | CC BY 4.0 | Bouke ten Cate | [File:Otter - Eurasian otter - Lutra lutra.jpg](https://commons.wikimedia.org/wiki/File:Otter_-_Eurasian_otter_-_Lutra_lutra.jpg) |
 | `flying-squirrel.jpg` | 白面鼯鼠(配「飛鼠」) | CC BY 4.0 | Rejoice Gassah | [File:Petaurista alborufus 114800059.jpg](https://commons.wikimedia.org/wiki/File:Petaurista_alborufus_114800059.jpg) |
 
-這幾張都是 480px 寬的縮圖(從 Commons 的 thumbnail API 抓的),不是原始全解析度檔案,
-單張約 50~90KB,適合網頁載入。
+`data/images/tw-plants/` 底下 5 張台灣鄉土樹種照片,一樣來自 Wikimedia Commons、
+CC BY 或 CC BY-SA 授權:
+
+| 檔案 | 植物 | 授權 | 攝影者 | 來源 |
+|---|---|---|---|---|
+| `acacia.jpg` | 相思樹(配「相思仔」) | CC BY-SA 4.0 | FireFeather | [File:Acacia confusa, Taichung, Taiwan.jpg](https://commons.wikimedia.org/wiki/File:Acacia_confusa,_Taichung,_Taiwan.jpg) |
+| `bischofia.jpg` | 茄苳(配「茄苳」) | CC BY-SA 4.0 | Dolon Prova | [File:Bischofia javanica (1).jpg](https://commons.wikimedia.org/wiki/File:Bischofia_javanica_(1).jpg) |
+| `pandanus.jpg` | 林投果實(配「林投」) | CC BY-SA 4.0 | AntanO | [File:Pandanus tectorius fruit (riped).JPG](https://commons.wikimedia.org/wiki/File:Pandanus_tectorius_fruit_(riped).JPG) |
+| `casuarina.jpg` | 木麻黃(配「木麻黃」) | CC BY 3.0 | Ethel Aardvark | [File:Casuarina equesitifolia tree.jpg](https://commons.wikimedia.org/wiki/File:Casuarina_equesitifolia_tree.jpg) |
+| `areca.jpg` | 檳榔(配「檳榔」) | CC BY 2.0 | Dick Culbert | [File:Areca catechu, Betel Nut (14436668393).jpg](https://commons.wikimedia.org/wiki/File:Areca_catechu,_Betel_Nut_(14436668393).jpg) |
+
+這些跟野生動物照片一樣都是 480px 寬的縮圖(從 Commons 的 thumbnail API 抓的),不是原始全解析度檔案,
+單張約 60~200KB,適合網頁載入。
 
 **已知限制**:原始資料中少數詞條用空白分隔音節而非連字號(例如片語式的「一口灶」
 寫作 `tsi̍t kháu tsàu`),建置腳本會把空白當連字號處理以便解析,但這是簡化寫法,
@@ -155,6 +171,20 @@ node data/build-questions.js
 日後若 `project_claude_TTS_SST` 那份原始檔案有更新,可以重新複製覆蓋這份
 vendored 檔案,不需要修改遊戲其他程式碼。
 
+## 版本資訊
+
+畫面最下方會顯示版本號跟最後更新時間(例:`v1.0.0 · 更新於 2026-09-16 10:35`,
+台灣時區),資料來自 `data/version.js`。每次要發新版本前手動跑:
+
+```bash
+node data/bump-version.js          # patch 版號 +1(預設)
+node data/bump-version.js minor    # minor 版號 +1,patch 歸零
+node data/bump-version.js major    # major 版號 +1,minor/patch 歸零
+```
+
+這支腳本會重寫 `data/version.js`,commit 時一併帶上就會反映在畫面上。純粹是
+給人看的版本標示,跟遊戲邏輯無關。
+
 ## 專案結構
 
 ```
@@ -168,12 +198,21 @@ src/settings.js               讀取設定表單
 src/lib/romanize.js          台羅/白話字轉換 + 變調邏輯(vendored,未修改)
 src/lib/questions.js         出題引擎(讀題庫 + 動態組四選一)
 data/raw/                    下載下來的教育部辭典原始資料(不進版控)
-data/build-questions.js       題庫建置腳本
+data/build-questions.js       題庫建置腳本(含難易度分級 classifyLevel())
 data/questions.js            遊戲實際載入的離線題庫(<script> 標籤載入,非 fetch)
+data/bump-version.js          更新 data/version.js 版本號/時間戳記的小工具
+data/version.js               目前版本號/最後更新時間,畫面最下方顯示用
+data/images/tw-wildlife/      台灣保育動物照片(動物模式用)
+data/images/tw-plants/        台灣鄉土樹種照片(樹仔/草仔模式用)
 ```
 
 ## 開發紀錄
 
+- 2026-09-16:新增「樹仔/草仔」出題模式,做法跟動物模式一樣(逐一查證教育部
+  辭典收錄)。加上版本資訊顯示——畫面最下方顯示版本號+最後更新時間
+  (`data/version.js`,用 `data/bump-version.js` 手動更新),跟遊戲邏輯無關,
+  純粹方便判斷玩的是不是最新版。也把 `run-taigi-tug-of-war` skill 跟這份
+  README 更新到反映目前所有 6 種出題模式與難易度分級功能。
 - 2026-09-16:新增「身體部位」「地名/溪流」兩個出題模式。身體部位(含骨頭)
   做法跟動物模式一樣,每個詞都查證過教育部辭典確實收錄才收;地名/溪流查證
   過教育部辭典幾乎沒收錄具體地名(標記「地名」的詞條只有 12 筆,真正地名

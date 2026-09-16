@@ -311,3 +311,11 @@ kbd {
   .topBar { justify-content: flex-start; }
   .topBar h1 { flex: 1; text-align: center; }
 }
+
+/* ---- 版本資訊 ---- */
+#appVersion {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  padding: 20px 16px 4px;
+}

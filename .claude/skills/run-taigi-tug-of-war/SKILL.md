@@ -7,8 +7,16 @@ description: Launch, drive, and verify the 台語搶答拔河 (Taiwanese vocabul
 
 Single static page (`index.html` + `src/*.js` + `src/lib/*.js` + `data/questions.js`),
 no build step, no `package.json`. Script load order matters (set in `index.html`):
-`src/lib/romanize.js` → `data/questions.js` → `src/lib/questions.js` →
-`src/game-state.js` → `src/keyboard.js` → `src/ui.js` → `src/settings.js` → `src/main.js`.
+`data/version.js` → `src/lib/romanize.js` → `data/questions.js` →
+`src/lib/questions.js` → `src/game-state.js` → `src/keyboard.js` →
+`src/ui.js` → `src/settings.js` → `src/main.js`.
+
+Six question modes: `meaning`, `romanization`, `tone` (all three filter
+against `data/build-questions.js`'s `classifyLevel()` difficulty tag —
+`elementary`/`junior`/`senior`/`university`, itself an LLM approximation, not
+official data, see README), `animal`, `body`, `plant` (curated picture
+pools, see below), `place` (curated text pool, see below), and
+`multiplication` (pure numeral generation, no dictionary lookup at all).
 
 ## Serve — you usually don't need to
 
@@ -68,6 +76,56 @@ const q = vm.runInContext('Questions.generate(["animal"], "poj")', sandbox);
 
 `GameState` (`src/game-state.js`) is a plain top-level `class`, loads the same way.
 
+## Curated word-list modes (animal / body / plant / place)
+
+Four modes don't draw from the main dictionary-filtered `entries` pool —
+they're hand-curated lists in `src/lib/questions.js`, each cross-checked at
+`Questions.load()` time against the loaded dictionary (`byHanzi.get(hanzi)`)
+so a typo or a word the dictionary doesn't actually contain silently drops
+out rather than crashing:
+
+- `ANIMAL_WORDS`, `BODY_WORDS`, `PLANT_WORDS` — emoji or photo prompt,
+  `{ type: 'emoji'|'image', value, hanzi }`. Every `hanzi` here **was
+  individually verified to exist in the MOE dictionary** before being added
+  — don't add a new entry without checking `byHanzi.get('新詞')` first (load
+  `data/questions.js` via the `vm` pattern above and inspect `TAIGI_QUESTIONS.entries`).
+  Photo entries point at `data/images/tw-wildlife/*.jpg` or
+  `data/images/tw-plants/*.jpg` — see README's "圖片授權" for the CC
+  licenses/attribution; only add a new photo via the same Wikimedia Commons
+  API flow (search → `imageinfo` with `iiprop=url|extmetadata` → check
+  `LicenseShortName` is CC BY/BY-SA/CC0 before downloading — reject anything
+  else or anything with a missing/ambiguous license, like the Shoushan Zoo
+  boar photo that got swapped out for a clean CC BY-SA one instead).
+- `PLACE_RAW` — hanzi + raw romanization string, **not** MOE-dictionary
+  sourced (the dictionary has essentially zero place names — verified by
+  grepping `data/raw/dict-twblg.json` for `/^地名/`-tagged defs: 12 hits
+  total, only 2 are actual place names). Instead it's pulled from two other
+  local projects under `Projects_antigravity/` (same OneDrive parent folder):
+  the 73-station `stations` array in `台灣鐵路四界行/app.js`, and the
+  14-entry mountain/river/landmark list in `geo地理,動物,人體,車,蟲/app.js`.
+  **Read-only** — never edit either of those projects. Every `PLACE_RAW`
+  romanization was validated once via `Romanize.parseWord()` (one entry,
+  烏日/"O͘-ji̍t", failed to parse and was dropped); this is a structural
+  check only, not a correctness check against an authoritative dictionary —
+  README flags this mode as lower-confidence than the others.
+- `genFromPicturePool(pool, mode, direction, toRoman, labels, system)` is the
+  shared generator behind animal/body/plant — don't reimplement the
+  distractor logic per mode, extend this one if you add a fifth picture pool.
+
+## Bumping the version footer
+
+`data/version.js` drives the small `vX.Y.Z · 更新於 <date>` line at the
+bottom of the page (`#appVersion`, populated by `main.js`'s `showVersion()`).
+It's cosmetic only, not read by any game logic. Before a commit you want
+reflected there:
+
+```bash
+node data/bump-version.js          # patch bump (default)
+node data/bump-version.js minor    # or major
+```
+
+Commit the regenerated `data/version.js` alongside the actual change.
+
 ## Drive it: Playwright
 
 Same pattern as `project_claude_TTS_SST` — `chromium-cli` isn't available on
@@ -91,8 +149,16 @@ gets `Cannot find module 'playwright'` even though `npm install` succeeded.
   `data/questions.js` build. Works instantly (no network wait) since it's a
   `<script>` global, not a fetch.
 - Settings → game: fill `#targetScore`/`#questionSeconds`/`#teamAName`/`#teamBName`,
-  toggle `.modeCheckbox[value="meaning|romanization|tone|animal"]`, radio
-  `input[name="romanSystem"][value="tailo|poj"]`, click `#startBtn`.
+  toggle `.modeCheckbox[value="meaning|romanization|tone|animal|body|plant|place|multiplication"]`,
+  toggle `.levelCheckbox[value="elementary|junior|senior|university"]` (all
+  four checked by default; unchecking all falls back to unrestricted, not to
+  zero results), radio `input[name="romanSystem"][value="tailo|poj"]`, click
+  `#startBtn`.
+- `animal`/`body`/`plant` modes render either an emoji or an `<img>` inside
+  `#promptText` depending on `q.promptType` (`'emoji'` vs `'image'`) — assert
+  on `document.querySelector('#promptText img')` presence rather than text
+  content when you need to distinguish the two. `place` mode is text-only
+  (hanzi or romanization string, never an image).
 - Buzz keys are fixed, not configurable in the UI: `d` = Team A, `k` = Team B
   (`page.keyboard.press('d')`). Answer keys `1`–`4` work for whichever team
   currently holds `activeTeam`, no team-specific answer keys.

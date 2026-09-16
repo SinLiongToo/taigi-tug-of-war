@@ -86,11 +86,20 @@
     });
   }
 
+  function showVersion() {
+    const el = document.getElementById('appVersion');
+    if (!el || typeof APP_VERSION === 'undefined') return;
+    el.textContent = APP_VERSION.updatedAt
+      ? `${APP_VERSION.version} · 更新於 ${APP_VERSION.updatedAt}`
+      : APP_VERSION.version;
+  }
+
   async function init() {
     UI.cacheEls();
     UI.showScreen('settings');
     wireDom();
     initTheme();
+    showVersion();
     try {
       const info = await Questions.load();
       UI.setDictStatus(`題庫已就緒,共 ${info.count} 詞`, true);

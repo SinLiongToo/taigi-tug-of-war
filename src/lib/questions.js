@@ -13,6 +13,7 @@ const Questions = (() => {
   let animalPool = null;
   let bodyPool = null;
   let placePool = null;
+  let plantPool = null;
 
   // 「動物」模式的題庫:題目是emoji或照片(不是中文字),挑漢字剛好等於常見
   // 動物名、且在題庫裡查得到的詞。用圖像而不是中文動物名當題目,一樣避開
@@ -45,6 +46,31 @@ const Questions = (() => {
     { type: 'image', value: 'data/images/tw-wildlife/boar.jpg', hanzi: '山豬' },
     { type: 'image', value: 'data/images/tw-wildlife/otter.jpg', hanzi: '水獺' },
     { type: 'image', value: 'data/images/tw-wildlife/flying-squirrel.jpg', hanzi: '飛鼠' },
+  ];
+
+  // 「樹仔/草仔」模式的題庫:跟動物模式做法一樣,先逐一查證教育部辭典確實
+  // 收錄才放進來。常見的植物有現成 emoji;比較有台灣特色、沒有對應 emoji
+  // 的樹種改用照片(CC BY / CC BY-SA,授權與出處見 README「圖片授權」)。
+  const PLANT_WORDS = [
+    { type: 'emoji', value: '🌳', hanzi: '樹' },
+    { type: 'emoji', value: '🌱', hanzi: '草' },
+    { type: 'emoji', value: '🌸', hanzi: '花' },
+    { type: 'emoji', value: '🍃', hanzi: '葉' },
+    { type: 'emoji', value: '🎋', hanzi: '竹' },
+    { type: 'emoji', value: '🥭', hanzi: '檨仔' },
+    { type: 'emoji', value: '🌽', hanzi: '番麥' },
+    { type: 'emoji', value: '🌾', hanzi: '稻穗' },
+    { type: 'emoji', value: '🥥', hanzi: '椰子' },
+    { type: 'emoji', value: '🧄', hanzi: '蒜' },
+    { type: 'emoji', value: '🫚', hanzi: '薑' },
+    { type: 'emoji', value: '🥬', hanzi: '菜' },
+
+    // 台灣常見原生/鄉土樹種照片,辭典裡沒有現成 emoji 可以配,改用照片示意。
+    { type: 'image', value: 'data/images/tw-plants/acacia.jpg', hanzi: '相思仔' },
+    { type: 'image', value: 'data/images/tw-plants/bischofia.jpg', hanzi: '茄苳' },
+    { type: 'image', value: 'data/images/tw-plants/pandanus.jpg', hanzi: '林投' },
+    { type: 'image', value: 'data/images/tw-plants/casuarina.jpg', hanzi: '木麻黃' },
+    { type: 'image', value: 'data/images/tw-plants/areca.jpg', hanzi: '檳榔' },
   ];
 
   // 「身體部位」模式的題庫:跟動物模式做法一樣,題目是emoji,挑辭典裡查得到
@@ -153,6 +179,9 @@ const Questions = (() => {
       .map(a => ({ type: a.type, value: a.value, entry: byHanzi.get(a.hanzi) }))
       .filter(a => a.entry);
     bodyPool = BODY_WORDS
+      .map(a => ({ type: a.type, value: a.value, entry: byHanzi.get(a.hanzi) }))
+      .filter(a => a.entry);
+    plantPool = PLANT_WORDS
       .map(a => ({ type: a.type, value: a.value, entry: byHanzi.get(a.hanzi) }))
       .filter(a => a.entry);
     // PLACE_RAW 的羅馬字不是辭典查來的,要自己 parse 成 skeleton/tone(跟
@@ -330,6 +359,11 @@ const Questions = (() => {
     return genFromPicturePool(bodyPool, 'body', direction, direction === 'body2roman', PICTURE_LABELS, system);
   }
 
+  // ---- 模式:樹仔/草仔(題目是emoji或照片,答案選漢字或羅馬字) ----
+  function genPlant(direction, system) {
+    return genFromPicturePool(plantPool, 'plant', direction, direction === 'plant2roman', PICTURE_LABELS, system);
+  }
+
   // ---- 模式:地名/溪流(題目是台語漢字或羅馬字文字,不是emoji/照片) ----
   function genPlace(direction, system) {
     const pick = placePool[Math.floor(Math.random() * placePool.length)];
@@ -487,6 +521,10 @@ const Questions = (() => {
     if (mode === 'place' && placePool && placePool.length >= 4) {
       const direction = Math.random() < 0.5 ? 'place2hanzi' : 'place2roman';
       return genPlace(direction, system);
+    }
+    if (mode === 'plant' && plantPool && plantPool.length >= 4) {
+      const direction = Math.random() < 0.5 ? 'plant2hanzi' : 'plant2roman';
+      return genPlant(direction, system);
     }
     if (mode === 'multiplication') {
       return genMultiplication(system);
