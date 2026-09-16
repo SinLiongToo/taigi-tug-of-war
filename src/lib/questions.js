@@ -205,6 +205,67 @@ const Questions = (() => {
     return { mode: 'animal', direction, promptLabel: '台語漢字按怎寫?', prompt: pick.value, promptType: pick.type, choices: options, correctIndex };
   }
 
+  // ---- 模式:九九乘法(傳統乘法歌讀法) ----
+  // 不是查辭典來的——辭典只有一~十的單字,沒有「二十」「三十六」這種組合
+  // 數字詞。這裡自己刻台語數字組字規則(X十Y)+ 傳統九九乘法歌慣用的文讀音
+  // (一it、二jī、八也用正式音pat,不是日常口語的tsi̍t/nn̄g/peh)。逐字報數
+  // 不套用連讀變調,跟報電話號碼一樣一字一字唸原本的本調。
+  const NUM_READINGS = {
+    1: { skeleton: 'it', tone: 4 },
+    2: { skeleton: 'ji', tone: 7 },
+    3: { skeleton: 'sam', tone: 1 },
+    4: { skeleton: 'su', tone: 3 },
+    5: { skeleton: 'ngoo', tone: 2 },
+    6: { skeleton: 'liok', tone: 8 },
+    7: { skeleton: 'tshit', tone: 4 },
+    8: { skeleton: 'pat', tone: 4 },
+    9: { skeleton: 'kiu', tone: 2 },
+  };
+  const TEN_READING = { skeleton: 'sip', tone: 8 };
+
+  function numberToSylls(n) {
+    if (n <= 9) return [NUM_READINGS[n]];
+    if (n === 10) return [TEN_READING];
+    const tens = Math.floor(n / 10), ones = n % 10;
+    const sylls = [];
+    if (tens > 1) sylls.push(NUM_READINGS[tens]);
+    sylls.push(TEN_READING);
+    if (ones > 0) sylls.push(NUM_READINGS[ones]);
+    return sylls;
+  }
+
+  function renderNumber(n, system) {
+    const renderFn = system === 'poj' ? Romanize.toPojMark : Romanize.toTailoMark;
+    return numberToSylls(n).map(s => renderFn(s.skeleton, s.tone)).join('-');
+  }
+
+  function genMultiplication(system) {
+    const a = 1 + Math.floor(Math.random() * 9);
+    const b = 1 + Math.floor(Math.random() * 9);
+    const correct = a * b;
+    const correctLabel = renderNumber(correct, system);
+
+    const candidates = new Set();
+    const addCand = (n) => { if (n >= 1 && n <= 81 && n !== correct) candidates.add(n); };
+    addCand(a * (b - 1)); addCand(a * (b + 1));
+    addCand((a - 1) * b); addCand((a + 1) * b);
+    addCand(correct - a); addCand(correct + a);
+    addCand(correct - b); addCand(correct + b);
+
+    const distractorNums = shuffle([...candidates]).slice(0, 3);
+    while (distractorNums.length < 3) {
+      const n = 1 + Math.floor(Math.random() * 81);
+      if (n !== correct && !distractorNums.includes(n)) distractorNums.push(n);
+    }
+    const distractors = distractorNums.map(n => renderNumber(n, system));
+    const { options, correctIndex } = buildChoices(correctLabel, distractors);
+    return {
+      mode: 'multiplication', direction: 'guess-product',
+      promptLabel: '用台語唸出答案:', prompt: `${a} × ${b} = ?`,
+      choices: options, correctIndex,
+    };
+  }
+
   // ---- 模式三:聲調(本調 / 連讀變調) ----
   const REGULAR_TONES = [1, 2, 3, 4, 5, 7, 8];
 
@@ -259,6 +320,9 @@ const Questions = (() => {
     if (mode === 'animal' && animalPool && animalPool.length >= 4) {
       const direction = Math.random() < 0.5 ? 'animal2hanzi' : 'animal2roman';
       return genAnimal(direction, system);
+    }
+    if (mode === 'multiplication') {
+      return genMultiplication(system);
     }
     // tone
     const entry = randomEntry(e => e.sylls.length >= 2);
