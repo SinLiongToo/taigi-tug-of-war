@@ -134,8 +134,18 @@ const UI = (() => {
     const q = state.currentQuestion;
     if (q) {
       el.promptLabel.textContent = q.promptLabel;
-      el.promptText.textContent = q.prompt;
-      el.promptText.classList.toggle('emojiPrompt', q.mode === 'animal');
+      if (q.promptType === 'image') {
+        el.promptText.classList.remove('emojiPrompt');
+        el.promptText.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = q.prompt;
+        img.alt = '';
+        img.className = 'animalPhoto';
+        el.promptText.appendChild(img);
+      } else {
+        el.promptText.textContent = q.prompt;
+        el.promptText.classList.toggle('emojiPrompt', q.mode === 'animal');
+      }
       el.choiceBtns.forEach((btn, idx) => {
         btn.querySelector('.choiceText').textContent = q.choices[idx];
         btn.classList.remove('correct', 'wrong');

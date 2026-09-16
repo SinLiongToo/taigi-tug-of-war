@@ -12,24 +12,37 @@ const Questions = (() => {
   let bySyllCount = null;
   let animalPool = null;
 
-  // 「動物」模式的題庫:題目是emoji(不是中文字),挑漢字剛好等於常見動物名、
-  // 且在題庫裡查得到的詞。用 emoji 而不是中文動物名當題目,一樣避開題目是
-  // 中文的問題,而且對這個主題來說比文字更直覺。
+  // 「動物」模式的題庫:題目是emoji或照片(不是中文字),挑漢字剛好等於常見
+  // 動物名、且在題庫裡查得到的詞。用圖像而不是中文動物名當題目,一樣避開
+  // 題目是中文的問題,而且對這個主題來說比文字更直覺。
   const ANIMAL_WORDS = [
-    { emoji: '🐶', hanzi: '狗' }, { emoji: '🐱', hanzi: '貓' },
-    { emoji: '🐮', hanzi: '牛' }, { emoji: '🐃', hanzi: '水牛' },
-    { emoji: '🐴', hanzi: '馬' }, { emoji: '🐷', hanzi: '豬' },
-    { emoji: '🐑', hanzi: '羊' }, { emoji: '🐔', hanzi: '雞' },
-    { emoji: '🦆', hanzi: '鴨' }, { emoji: '🦢', hanzi: '鵝' },
-    { emoji: '🐟', hanzi: '魚' }, { emoji: '🦐', hanzi: '蝦' },
-    { emoji: '🦀', hanzi: '蟳' }, { emoji: '🐦', hanzi: '鳥' },
-    { emoji: '🐰', hanzi: '兔' }, { emoji: '🐘', hanzi: '象' },
-    { emoji: '🐯', hanzi: '虎' }, { emoji: '🦁', hanzi: '獅' },
-    { emoji: '🐵', hanzi: '猴' }, { emoji: '🐍', hanzi: '蛇' },
-    { emoji: '🐢', hanzi: '龜' }, { emoji: '🐝', hanzi: '蜂' },
-    { emoji: '🐭', hanzi: '鼠' }, { emoji: '🐻', hanzi: '熊' },
-    { emoji: '🦌', hanzi: '鹿' }, { emoji: '🐫', hanzi: '駱駝' },
-    { emoji: '🕷️', hanzi: '蜘蛛' }, { emoji: '🐸', hanzi: '田蛤仔' },
+    { type: 'emoji', value: '🐶', hanzi: '狗' }, { type: 'emoji', value: '🐱', hanzi: '貓' },
+    { type: 'emoji', value: '🐮', hanzi: '牛' }, { type: 'emoji', value: '🐃', hanzi: '水牛' },
+    { type: 'emoji', value: '🐴', hanzi: '馬' }, { type: 'emoji', value: '🐷', hanzi: '豬' },
+    { type: 'emoji', value: '🐑', hanzi: '羊' }, { type: 'emoji', value: '🐔', hanzi: '雞' },
+    { type: 'emoji', value: '🦆', hanzi: '鴨' }, { type: 'emoji', value: '🦢', hanzi: '鵝' },
+    { type: 'emoji', value: '🐟', hanzi: '魚' }, { type: 'emoji', value: '🦐', hanzi: '蝦' },
+    { type: 'emoji', value: '🦀', hanzi: '蟳' }, { type: 'emoji', value: '🐦', hanzi: '鳥' },
+    { type: 'emoji', value: '🐰', hanzi: '兔' }, { type: 'emoji', value: '🐘', hanzi: '象' },
+    { type: 'emoji', value: '🐯', hanzi: '虎' }, { type: 'emoji', value: '🦁', hanzi: '獅' },
+    { type: 'emoji', value: '🐵', hanzi: '猴' }, { type: 'emoji', value: '🐍', hanzi: '蛇' },
+    { type: 'emoji', value: '🐢', hanzi: '龜' }, { type: 'emoji', value: '🐝', hanzi: '蜂' },
+    { type: 'emoji', value: '🐭', hanzi: '鼠' }, { type: 'emoji', value: '🐻', hanzi: '熊' },
+    { type: 'emoji', value: '🦌', hanzi: '鹿' }, { type: 'emoji', value: '🐫', hanzi: '駱駝' },
+    { type: 'emoji', value: '🕷️', hanzi: '蜘蛛' }, { type: 'emoji', value: '🐸', hanzi: '田蛤仔' },
+
+    // 台灣野生保育動物照片(CC BY / CC BY-SA,授權與出處見 README「圖片授權」)。
+    // 辭典裡沒有「台灣黑熊」「石虎」這種物種專有名詞,所以這些照片配的是辭典
+    // 裡真正存在的通用詞(熊、鹿、猴、羊),用台灣的特有種照片來示意——不是
+    // 宣稱有一個專屬該物種的台語詞。山豬/水獺/飛鼠則是辭典裡本來就有、剛好
+    // 詞跟物種對得上的乾淨案例。
+    { type: 'image', value: 'data/images/tw-wildlife/bear.jpg', hanzi: '熊' },
+    { type: 'image', value: 'data/images/tw-wildlife/deer.jpg', hanzi: '鹿' },
+    { type: 'image', value: 'data/images/tw-wildlife/monkey.jpg', hanzi: '猴' },
+    { type: 'image', value: 'data/images/tw-wildlife/goat.jpg', hanzi: '羊' },
+    { type: 'image', value: 'data/images/tw-wildlife/boar.jpg', hanzi: '山豬' },
+    { type: 'image', value: 'data/images/tw-wildlife/otter.jpg', hanzi: '水獺' },
+    { type: 'image', value: 'data/images/tw-wildlife/flying-squirrel.jpg', hanzi: '飛鼠' },
   ];
 
   async function load() {
@@ -47,7 +60,7 @@ const Questions = (() => {
       if (!byHanzi.has(e.hanzi)) byHanzi.set(e.hanzi, e);
     }
     animalPool = ANIMAL_WORDS
-      .map(a => ({ emoji: a.emoji, entry: byHanzi.get(a.hanzi) }))
+      .map(a => ({ type: a.type, value: a.value, entry: byHanzi.get(a.hanzi) }))
       .filter(a => a.entry);
     return { count: entries.length, source: data.source };
   }
@@ -177,7 +190,7 @@ const Questions = (() => {
         distractors.push(label);
       }
       const { options, correctIndex } = buildChoices(correctLabel, distractors);
-      return { mode: 'animal', direction, promptLabel: '台語按怎唸?', prompt: pick.emoji, choices: options, correctIndex };
+      return { mode: 'animal', direction, promptLabel: '台語按怎唸?', prompt: pick.value, promptType: pick.type, choices: options, correctIndex };
     }
 
     const distractors = [];
@@ -189,7 +202,7 @@ const Questions = (() => {
       distractors.push(a.entry.hanzi);
     }
     const { options, correctIndex } = buildChoices(entry.hanzi, distractors);
-    return { mode: 'animal', direction, promptLabel: '台語漢字按怎寫?', prompt: pick.emoji, choices: options, correctIndex };
+    return { mode: 'animal', direction, promptLabel: '台語漢字按怎寫?', prompt: pick.value, promptType: pick.type, choices: options, correctIndex };
   }
 
   // ---- 模式三:聲調(本調 / 連讀變調) ----

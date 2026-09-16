@@ -222,6 +222,17 @@ kbd {
 #promptLabel { color: var(--muted); margin-bottom: 8px; }
 #promptText { font-size: clamp(1.3rem, 6vw, 1.8rem); font-weight: bold; word-break: break-word; }
 #promptText.emojiPrompt { font-size: clamp(2.5rem, 12vw, 4rem); line-height: 1; }
+.animalPhoto {
+  display: block;
+  margin: 0 auto;
+  max-width: min(220px, 100%);
+  max-height: 220px;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+}
 
 /* ---- 選項 ---- */
 #choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }

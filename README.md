@@ -27,10 +27,15 @@
   - **本調**:詞的第一字單獨唸是第幾聲。
   - **連讀變調**:詞的第一字在連讀時該變成第幾聲(僅雙音節以上的詞才會出這題);
     干擾選項一定包含「忘記變調、直接唸本調」這個最常見的誤答。
-- **動物**:題目是一個動物 emoji(不是中文字),猜這個動物的台語漢字或羅馬字。
-  干擾選項也是從動物題庫裡挑的,比較有「猜動物」的主題感。題庫是一份精選的
-  常見動物清單(`src/lib/questions.js` 裡的 `ANIMAL_WORDS`),跟教育部辭典
-  資料比對過漢字確實查得到才收錄。
+- **動物**:題目是一個動物 emoji 或照片(不是中文字),猜這個動物的台語漢字或
+  羅馬字。干擾選項也是從動物題庫裡挑的,比較有「猜動物」的主題感。題庫是一份
+  精選清單(`src/lib/questions.js` 裡的 `ANIMAL_WORDS`),跟教育部辭典資料
+  比對過漢字確實查得到才收錄。
+  - 其中 7 種是**台灣野生保育動物照片**(台灣黑熊、梅花鹿、台灣獼猴、長鬃
+    山羊、山豬、水獺、飛鼠)。辭典裡沒有「台灣黑熊」「石虎」這種物種專有
+    名詞,所以熊/鹿/猴/羊這幾張照片配的是辭典裡真正存在的**通用詞**,用台灣
+    特有種的照片示意,不是宣稱該物種有專屬的台語詞;山豬、水獺、飛鼠則是
+    辭典裡本來就有、詞跟物種剛好對得上的乾淨案例。照片授權見下方「圖片授權」。
 
 開始畫面可複選多種模式,複選時每題隨機挑一種出題,等於混合模式。
 
@@ -60,6 +65,25 @@ node data/build-questions.js
 `data/build-questions.js` 會篩選出 1~4 字、羅馬字可正確解析、至少有一則中文釋義的
 詞條,輸出成 `data/questions.js`(離線,不需要網路;內容是一份指定給全域變數
 `TAIGI_QUESTIONS` 的 JS 檔,遊戲用 `<script>` 標籤直接載入,不是 `fetch()` 讀 JSON)。
+
+## 圖片授權
+
+`data/images/tw-wildlife/` 底下 7 張台灣野生動物照片,全部來自
+[Wikimedia Commons](https://commons.wikimedia.org),都是 CC BY 或 CC BY-SA
+授權(可自由使用、修改、散布,但要保留出處標示,這裡照著做):
+
+| 檔案 | 動物 | 授權 | 攝影者 | 來源 |
+|---|---|---|---|---|
+| `bear.jpg` | 台灣黑熊(配「熊」) | CC BY-SA 3.0 | smartneddy | [File:Formosan Black Bear01.jpg](https://commons.wikimedia.org/wiki/File:Formosan_Black_Bear01.jpg) |
+| `deer.jpg` | 梅花鹿(配「鹿」) | CC BY-SA 3.0 | 玄史生 | [File:Formosan Sika Deer Rest beside Wall in Taipei Zoo 20131002.jpg](https://commons.wikimedia.org/wiki/File:Formosan_Sika_Deer_Rest_beside_Wall_in_Taipei_Zoo_20131002.jpg) |
+| `monkey.jpg` | 台灣獼猴(配「猴」) | CC BY 2.0 | ufoncz | [File:Formosan rock macaque 2013-06-10 01.jpg](https://commons.wikimedia.org/wiki/File:Formosan_rock_macaque_2013-06-10_01.jpg) |
+| `goat.jpg` | 長鬃山羊(配「羊」) | CC BY 4.0 | Licheng Shih | [File:Capricornis swinhoei 206048818.jpg](https://commons.wikimedia.org/wiki/File:Capricornis_swinhoei_206048818.jpg) |
+| `boar.jpg` | 台灣野豬(配「山豬」) | CC BY-SA 3.0 | Lord Koxinga | [File:2010 07 19400 7206 ... Sus scrofa taivanus.JPG](https://commons.wikimedia.org/wiki/File:2010_07_19400_7206_Wenshan_District,_Taipei,_Zoo,_Sus_scrofa_taivanus,_Formosan_wild_boar,_Taiwan.JPG) |
+| `otter.jpg` | 歐亞水獺(配「水獺」) | CC BY 4.0 | Bouke ten Cate | [File:Otter - Eurasian otter - Lutra lutra.jpg](https://commons.wikimedia.org/wiki/File:Otter_-_Eurasian_otter_-_Lutra_lutra.jpg) |
+| `flying-squirrel.jpg` | 白面鼯鼠(配「飛鼠」) | CC BY 4.0 | Rejoice Gassah | [File:Petaurista alborufus 114800059.jpg](https://commons.wikimedia.org/wiki/File:Petaurista_alborufus_114800059.jpg) |
+
+這幾張都是 480px 寬的縮圖(從 Commons 的 thumbnail API 抓的),不是原始全解析度檔案,
+單張約 50~90KB,適合網頁載入。
 
 **已知限制**:原始資料中少數詞條用空白分隔音節而非連字號(例如片語式的「一口灶」
 寫作 `tsi̍t kháu tsàu`),建置腳本會把空白當連字號處理以便解析,但這是簡化寫法,
@@ -97,6 +121,14 @@ data/questions.js            遊戲實際載入的離線題庫(<script> 標籤�
 
 ## 開發紀錄
 
+- 2026-09-16:「動物」模式加入 7 張台灣野生保育動物照片(台灣黑熊、梅花鹿、
+  台灣獼猴、長鬃山羊、山豬、水獺、飛鼠),取代原本純 emoji 題目的一部分。
+  照片全部從 Wikimedia Commons 找 CC BY / CC BY-SA 授權的圖,下載存進
+  `data/images/tw-wildlife/`,授權與攝影者列在「圖片授權」章節。辭典查不到
+  「台灣黑熊」「石虎」這種物種專有詞,熊/鹿/猴/羊這四張改成配辭典裡真正
+  存在的通用詞,誠實呈現、不假裝有物種專屬台語詞;山豬/水獺/飛鼠則是辭典
+  本來就有的乾淨對應。`Questions` 出題引擎新增 `promptType`(`'emoji'` 或
+  `'image'`),`ui.js` 依此決定題目要 render 文字還是 `<img>`。
 - 2026-09-16:新增「動物」出題模式——題目是動物 emoji,猜台語漢字或羅馬字
   (兩個方向隨機)。動物清單是手動精選、逐一跟題庫資料核對漢字確實存在
   (`src/lib/questions.js` 的 `ANIMAL_WORDS`,共 27 種常見動物),不是用
