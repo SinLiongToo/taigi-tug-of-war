@@ -11,7 +11,7 @@ no build step, no `package.json`. Script load order matters (set in `index.html`
 `src/lib/questions.js` → `src/game-state.js` → `src/keyboard.js` →
 `src/ui.js` → `src/settings.js` → `src/main.js`.
 
-Six question modes: `meaning`, `romanization`, `tone` (all three filter
+Eight question modes: `meaning`, `romanization`, `tone` (all three filter
 against `data/build-questions.js`'s `classifyLevel()` difficulty tag —
 `elementary`/`junior`/`senior`/`university`, itself an LLM approximation, not
 official data, see README), `animal`, `body`, `plant` (curated picture
