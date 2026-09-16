@@ -101,7 +101,7 @@
    這類專業/正式用語關鍵字,有的話拉高到高中或大學。
 3. 都沒命中的話,用字數當基礎訊號:1字→國小、2字→國中、3字→高中、4字→大學。
 
-13,876 詞目前的分佈:國小 2,383、國中 8,400、高中 2,461、大學 632。這只是
+19,821 詞目前的分佈:國小 3,985、國中 12,306、高中 2,731、大學 799。這只是
 概略分類,不保證每個詞都準——想微調的話直接改 `build-questions.js` 裡的
 `ELEMENTARY_WORDS`/`DEFINITION_UNIVERSITY_KEYWORDS`/`DEFINITION_SENIOR_KEYWORDS`
 清單,再重跑 `node data/build-questions.js` 就會套用。
@@ -122,20 +122,31 @@
 ## 題庫來源與授權
 
 題庫資料來自教育部《臺灣台語常用詞辭典》開放資料,經
-[g0v/moedict-data-twblg](https://github.com/g0v/moedict-data-twblg) 整理成的
-`dict-twblg.json`(萌典的資料來源)。使用前請確認該資料集當下的授權條款並保留出處標示。
+[g0v/moedict-data-twblg](https://github.com/g0v/moedict-data-twblg) 整理成兩個
+檔案:主辭典 `dict-twblg.json`(萌典的資料來源)跟擴充辭典
+`dict-twblg-ext.json`(參考自 `project_claude_TTS_SST/dict.js` 的做法,它
+也是把這兩份合併使用)。擴充辭典扣掉跟主辭典重複的詞,實際多帶來約 6,100
+個全新詞條。使用前請確認該資料集當下的授權條款並保留出處標示。
 
 重新產生題庫:
 
 ```bash
 curl -L -o data/raw/dict-twblg.json \
   https://raw.githubusercontent.com/g0v/moedict-data-twblg/master/dict-twblg.json
+curl -L -o data/raw/dict-twblg-ext.json \
+  https://raw.githubusercontent.com/g0v/moedict-data-twblg/master/dict-twblg-ext.json
 node data/build-questions.js
 ```
 
+擴充辭典是可選的——沒有這個檔案時建置腳本只印警告、照樣用主辭典建出題庫,
+不會壞掉,只是詞會少很多。
+
 `data/build-questions.js` 會篩選出 1~4 字、羅馬字可正確解析、至少有一則中文釋義的
-詞條,輸出成 `data/questions.js`(離線,不需要網路;內容是一份指定給全域變數
-`TAIGI_QUESTIONS` 的 JS 檔,遊戲用 `<script>` 標籤直接載入,不是 `fetch()` 讀 JSON)。
+詞條(主辭典跟擴充辭典用同一套規則,先處理主辭典、擴充辭典裡重複的詞會被
+跳過,主辭典優先),輸出成 `data/questions.js`(離線,不需要網路;內容是一份
+指定給全域變數 `TAIGI_QUESTIONS` 的 JS 檔,遊戲用 `<script>` 標籤直接載入,
+不是 `fetch()` 讀 JSON)。目前(主辭典+擴充辭典)共 19,821 詞,其中 15,769
+詞可出聲調模式。
 
 ## 圖片授權
 
@@ -227,6 +238,15 @@ data/images/tw-plants/        台灣鄉土樹種照片(樹仔/草仔模式用)
 
 ## 開發紀錄
 
+- 2026-09-16:題庫從 13,876 詞擴充到 19,821 詞(+43%)。使用者記得
+  `project_claude_TTS_SST/dict.js` 有合併兩個辭典檔案,查了一下確實
+  如此——除了原本用的主辭典 `dict-twblg.json`,g0v/moedict-data-twblg
+  專案還有一份 `dict-twblg-ext.json` 擴充辭典(6,793 筆,扣掉跟主辭典
+  重複的 678 筆,淨增 6,115 個全新詞)。`build-questions.js` 的篩選邏輯
+  抽成 `processItems()` 共用函式,主辭典跟擴充辭典都跑同一套規則、共用
+  同一份查重集合(主辭典先處理,重複詞以主辭典為準)。擴充辭典的羅馬字
+  格式跟主辭典相容,19,821 詞全部零解析失敗。4000 題跨全部 8 種模式的
+  批次測試零錯誤。
 - 2026-09-16:骨頭類題目原本全部共用同一顆 🦴 emoji,使用者反應「圖片都一樣」
   沒有辨識度。改成用一張沒有文字標籤、已公版的人骨全身圖(1896年出版),
   依骨頭部位裁成頭骨上/下半、胸腔、脊椎、骨盆、大腿、膝蓋、小腿、腳、上臂、

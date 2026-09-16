@@ -31,17 +31,23 @@ python -m http.server 8000   # optional; not required for the game to work
 
 ## Regenerating the question bank
 
-`data/questions.js` (~3MB, committed to git) is generated from the MOE
-Taiwanese dictionary open data. Regenerate it after changing
-`data/build-questions.js`:
+`data/questions.js` (~4.6MB, committed to git) is generated from two MOE
+Taiwanese dictionary open data files — main + `-ext` — merged by
+`build-questions.js`'s `processItems()` (called twice, main dict first so it
+wins on any hanzi collision with the extended dict; ~678 overlap out of
+6,793 ext entries). Regenerate after changing `data/build-questions.js`:
 
 ```bash
 curl -L -o data/raw/dict-twblg.json \
   https://raw.githubusercontent.com/g0v/moedict-data-twblg/master/dict-twblg.json
+curl -L -o data/raw/dict-twblg-ext.json \
+  https://raw.githubusercontent.com/g0v/moedict-data-twblg/master/dict-twblg-ext.json
 node data/build-questions.js
 ```
 
-`data/raw/` is gitignored (~8MB source dump); `data/questions.js` is not.
+The ext file is optional — its absence only prints a warning and falls back
+to main-dict-only (fewer words), doesn't error out. `data/raw/` is gitignored
+(~10.5MB combined source dump); `data/questions.js` is not.
 
 **Never edit `src/lib/romanize.js`.** It's vendored byte-for-byte from
 `project_claude_TTS_SST/romanize.js` (sibling project, same parent folder).
@@ -145,9 +151,10 @@ gets `Cannot find module 'playwright'` even though `npm install` succeeded.
 
 ### Known-good assertions (smoke checks)
 
-- `#dictStatus` reaches `/已就緒|失敗/` — 13,876 words as of the last
-  `data/questions.js` build. Works instantly (no network wait) since it's a
-  `<script>` global, not a fetch.
+- `#dictStatus` reaches `/已就緒|失敗/` — 19,821 words as of the last
+  `data/questions.js` build (main dict + the `dict-twblg-ext.json` extended
+  dict, merged in `build-questions.js`'s `processItems()`). Works instantly
+  (no network wait) since it's a `<script>` global, not a fetch.
 - Settings → game: fill `#targetScore`/`#questionSeconds`/`#teamAName`/`#teamBName`,
   toggle `.modeCheckbox[value="meaning|romanization|tone|animal|body|plant|place|multiplication"]`,
   toggle `.levelCheckbox[value="elementary|junior|senior|university"]` (all

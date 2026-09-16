@@ -1,5 +1,6 @@
 // 把教育部臺灣台語常用詞辭典開放資料(經 g0v/moedict-data-twblg 整理的
-// dict-twblg.json)整理成遊戲用的題庫 data/questions.json。
+// dict-twblg.json + dict-twblg-ext.json 擴充辭典)整理成遊戲用的題庫
+// data/questions.js。
 //
 // 只做「篩選 + 解析 + 留存必要欄位」,實際出題(選項組合、台羅/白話字呈現、
 // 變調計算)留到瀏覽器執行期用 src/lib/romanize.js 動態產生,這樣切換
@@ -13,11 +14,16 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 const SOURCE_PATH = path.join(ROOT, 'data', 'raw', 'dict-twblg.json');
+// 擴充辭典:一樣是 g0v/moedict-data-twblg 專案的資料,跟主辭典是分開的兩個
+// 檔案(參考自 project_claude_TTS_SST/dict.js 的做法,它也是 main+ext 兩份
+// 合併使用)。扣掉跟主辭典重複的詞,實測多出約 6,100 個全新詞條。
+const EXT_SOURCE_PATH = path.join(ROOT, 'data', 'raw', 'dict-twblg-ext.json');
 // .js 而不是 .json:用 <script> 標籤載入,瀏覽器在 file:// 底下開頁面也能讀,
 // 不像 fetch() 一份本機 JSON 那樣會被瀏覽器的同源限制擋下來,不需要架本機伺服器。
 const OUTPUT_PATH = path.join(ROOT, 'data', 'questions.js');
 const ROMANIZE_PATH = path.join(ROOT, 'src', 'lib', 'romanize.js');
 const SOURCE_URL = 'https://raw.githubusercontent.com/g0v/moedict-data-twblg/master/dict-twblg.json';
+const EXT_SOURCE_URL = 'https://raw.githubusercontent.com/g0v/moedict-data-twblg/master/dict-twblg-ext.json';
 
 // romanize.js 是給瀏覽器 <script> 標籤用的全域變數寫法(const Romanize = (()=>{...})()),
 // 這裡透過 vm 執行同一份「未修改」的原始碼來取得 Romanize,而不是改寫這個檔案
@@ -102,30 +108,19 @@ function classifyLevel(hanzi, defText) {
   return level;
 }
 
-function main() {
-  const Romanize = loadRomanize();
-
-  if (!fs.existsSync(SOURCE_PATH)) {
-    console.error(`找不到來源檔案: ${SOURCE_PATH}`);
-    console.error(`請先下載: curl -L -o data/raw/dict-twblg.json ${SOURCE_URL}`);
-    process.exit(1);
-  }
-  const raw = JSON.parse(fs.readFileSync(SOURCE_PATH, 'utf8'));
-  console.log(`來源詞條數: ${raw.length}`);
-
-  const seenHanzi = new Set();
-  const entries = [];
-  let skippedLength = 0, skippedParse = 0, skippedNoDef = 0, skippedDup = 0;
-
-  for (const item of raw) {
+// 處理一批原始辭典詞條(main 或 ext 都用這支),邊處理邊累加進共用的
+// entries/seenHanzi/stats,讓兩個來源檔案用同一套篩選規則、同一份查重集合
+// (先處理的來源優先——main 先跑,ext 裡跟 main 重複的詞會被 seenHanzi 擋掉)。
+function processItems(items, Romanize, seenHanzi, entries, stats) {
+  for (const item of items) {
     const hanzi = (item.title || '').trim();
     if (!hanzi || hanzi.length > MAX_HANZI_LEN || !HANZI_ONLY.test(hanzi)) {
-      skippedLength++;
+      stats.skippedLength++;
       continue;
     }
-    if (seenHanzi.has(hanzi)) { skippedDup++; continue; }
+    if (seenHanzi.has(hanzi)) { stats.skippedDup++; continue; }
     const heteronym = (item.heteronyms || [])[0];
-    if (!heteronym || !heteronym.trs) { skippedParse++; continue; }
+    if (!heteronym || !heteronym.trs) { stats.skippedParse++; continue; }
 
     // 來源資料裡常見兩種 romanize.js 原生不處理的寫法,在這裡(建置腳本)先
     // 正規化,不去動 romanize.js 本身:
@@ -135,13 +130,13 @@ function main() {
     //     猜詞遊戲已經足夠堪用,見 README 的已知限制說明。
     const trsNormalized = heteronym.trs.split('/')[0].trim().replace(/\s+/g, '-');
     const sylls = Romanize.parseWord(trsNormalized);
-    if (!sylls) { skippedParse++; continue; }
+    if (!sylls) { stats.skippedParse++; continue; }
 
     const defs = (heteronym.definitions || [])
       .map(d => ({ pos: (d.type || '').trim(), def: (d.def || '').trim() }))
       .filter(d => d.def)
       .slice(0, 2);
-    if (!defs.length) { skippedNoDef++; continue; }
+    if (!defs.length) { stats.skippedNoDef++; continue; }
 
     seenHanzi.add(hanzi);
     const level = classifyLevel(hanzi, defs.map(d => d.def).join(' '));
@@ -153,11 +148,39 @@ function main() {
       level,
     });
   }
+}
 
-  console.log(`略過(長度/非漢字): ${skippedLength}`);
-  console.log(`略過(重複詞): ${skippedDup}`);
-  console.log(`略過(羅馬字無法解析): ${skippedParse}`);
-  console.log(`略過(無中文釋義): ${skippedNoDef}`);
+function main() {
+  const Romanize = loadRomanize();
+
+  if (!fs.existsSync(SOURCE_PATH)) {
+    console.error(`找不到來源檔案: ${SOURCE_PATH}`);
+    console.error(`請先下載: curl -L -o data/raw/dict-twblg.json ${SOURCE_URL}`);
+    process.exit(1);
+  }
+  const raw = JSON.parse(fs.readFileSync(SOURCE_PATH, 'utf8'));
+  console.log(`主辭典詞條數: ${raw.length}`);
+
+  let extRaw = [];
+  if (fs.existsSync(EXT_SOURCE_PATH)) {
+    extRaw = JSON.parse(fs.readFileSync(EXT_SOURCE_PATH, 'utf8'));
+    console.log(`擴充辭典詞條數: ${extRaw.length}`);
+  } else {
+    console.warn(`找不到擴充辭典(略過,題庫會比較少): ${EXT_SOURCE_PATH}`);
+    console.warn(`可以下載: curl -L -o data/raw/dict-twblg-ext.json ${EXT_SOURCE_URL}`);
+  }
+
+  const seenHanzi = new Set();
+  const entries = [];
+  const stats = { skippedLength: 0, skippedParse: 0, skippedNoDef: 0, skippedDup: 0 };
+
+  processItems(raw, Romanize, seenHanzi, entries, stats);
+  processItems(extRaw, Romanize, seenHanzi, entries, stats);
+
+  console.log(`略過(長度/非漢字): ${stats.skippedLength}`);
+  console.log(`略過(重複詞): ${stats.skippedDup}`);
+  console.log(`略過(羅馬字無法解析): ${stats.skippedParse}`);
+  console.log(`略過(無中文釋義): ${stats.skippedNoDef}`);
   console.log(`最終題庫詞數: ${entries.length}`);
 
   const toneEligible = entries.filter(e => e.sylls.length >= 2).length;
@@ -172,8 +195,9 @@ function main() {
   const output = {
     generatedAt: new Date().toISOString(),
     source: {
-      name: 'g0v/moedict-data-twblg (教育部臺灣台語常用詞辭典開放資料)',
+      name: 'g0v/moedict-data-twblg (教育部臺灣台語常用詞辭典開放資料,主辭典+擴充辭典)',
       url: SOURCE_URL,
+      extUrl: EXT_SOURCE_URL,
     },
     count: entries.length,
     entries,
