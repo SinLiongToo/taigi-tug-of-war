@@ -93,6 +93,32 @@ const Questions = (() => {
     { type: 'emoji', value: '🦴', hanzi: '跤骨' },
     { type: 'emoji', value: '💀', hanzi: '頭殼' },
     { type: 'emoji', value: '🍑', hanzi: '尻川' },
+
+    // 人骨圖詳細部位(使用者提供的骨骼圖,作者:藍采琍)。大部分辭典裡也查
+    // 得到、讀音跟圖上完全一致(等於互相驗證過);辭典沒收錄的幾個(鼻骨、
+    // 頂胘骨、算仔骨、尾錐、腸骨、盆胲骨、跤頭碗、跤指頭仔骨)才用 `poj`
+    // 欄位——這幾個是圖片本身標示的羅馬字,不是辭典查來的,只做過格式驗證
+    // (Romanize.parseWord 解析得出來),沒辦法像辭典詞一樣逐字確認發音,
+    // 請比較保留地看待。
+    { type: 'emoji', value: '🦴', hanzi: '頭殼碗' },
+    { type: 'emoji', value: '🦴', hanzi: '牙槽骨' },
+    { type: 'emoji', value: '🦴', hanzi: '鼻骨', poj: 'phīnn-kut' },
+    { type: 'emoji', value: '🦴', hanzi: '飯匙骨' },
+    { type: 'emoji', value: '🦴', hanzi: '頂胘骨', poj: 'tíng-kong-kut' },
+    { type: 'emoji', value: '🦴', hanzi: '胸掛骨' },
+    { type: 'emoji', value: '🦴', hanzi: '胸坎骨' },
+    { type: 'emoji', value: '🦴', hanzi: '算仔骨', poj: 'pín-á-kut' },
+    { type: 'emoji', value: '🦴', hanzi: '龍骨' },
+    { type: 'emoji', value: '🦴', hanzi: '尾胴骨' },
+    { type: 'emoji', value: '🦴', hanzi: '尾錐', poj: 'bué-tsui' },
+    { type: 'emoji', value: '🦴', hanzi: '腸骨', poj: 'tn̄g-kut' },
+    { type: 'emoji', value: '🦴', hanzi: '盆胲骨', poj: 'phûn-kha-kut' },
+    { type: 'emoji', value: '🦴', hanzi: '尻川骨' },
+    { type: 'emoji', value: '🦴', hanzi: '大腿骨' },
+    { type: 'emoji', value: '🦴', hanzi: '跤頭碗', poj: 'kha-thâu-uánn' },
+    { type: 'emoji', value: '🦴', hanzi: '跤肚骨' },
+    { type: 'emoji', value: '🦴', hanzi: '跤胴骨' },
+    { type: 'emoji', value: '🦴', hanzi: '跤指頭仔骨', poj: 'kha-tsíng-thâu-á-kut' },
   ];
 
   // 「地名/溪流」模式的題庫:教育部辭典幾乎沒收錄具體地名(查證過,標記
@@ -175,15 +201,24 @@ const Questions = (() => {
       bySyllCount.get(n).push(e);
       if (!byHanzi.has(e.hanzi)) byHanzi.set(e.hanzi, e);
     }
-    animalPool = ANIMAL_WORDS
-      .map(a => ({ type: a.type, value: a.value, entry: byHanzi.get(a.hanzi) }))
-      .filter(a => a.entry);
-    bodyPool = BODY_WORDS
-      .map(a => ({ type: a.type, value: a.value, entry: byHanzi.get(a.hanzi) }))
-      .filter(a => a.entry);
-    plantPool = PLANT_WORDS
-      .map(a => ({ type: a.type, value: a.value, entry: byHanzi.get(a.hanzi) }))
-      .filter(a => a.entry);
+    // 圖片題庫(動物/身體部位/植物)共用的組池邏輯:優先查辭典,辭典沒有
+    // 但清單本身帶了 `poj`(例如人骨圖上有、辭典沒收錄的骨頭名)才退而求其次
+    // 直接 parse 那個羅馬字——來源不是辭典,見各清單上方註解與 README。
+    function buildPicturePool(words) {
+      return words
+        .map(a => {
+          let entry = byHanzi.get(a.hanzi);
+          if (!entry && a.poj) {
+            const sylls = Romanize.parseWord(a.poj.replace(/\s+/g, '-'));
+            if (sylls) entry = { hanzi: a.hanzi, sylls: sylls.map(s => ({ skeleton: s.skeleton, tone: s.tone, neutral: !!s.neutral })) };
+          }
+          return { type: a.type, value: a.value, entry };
+        })
+        .filter(a => a.entry);
+    }
+    animalPool = buildPicturePool(ANIMAL_WORDS);
+    bodyPool = buildPicturePool(BODY_WORDS);
+    plantPool = buildPicturePool(PLANT_WORDS);
     // PLACE_RAW 的羅馬字不是辭典查來的,要自己 parse 成 skeleton/tone(跟
     // build-questions.js 對一般辭典詞條做的事一樣),parse 失敗的直接跳過。
     placePool = PLACE_RAW
