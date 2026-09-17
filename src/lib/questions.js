@@ -82,6 +82,24 @@ const Questions = (() => {
     { type: 'image', value: 'data/images/tw-plants/bodhi.jpg', hanzi: '菩提樹' },
     { type: 'image', value: 'data/images/tw-plants/longan.jpg', hanzi: '龍眼' },
     { type: 'image', value: 'data/images/tw-plants/litchi.jpg', hanzi: '荔枝' },
+
+    // 水果類照片(2026-09-17 新增)。同一套查證流程:先確認教育部辭典有
+    // 收錄這個詞才找圖。「鳳梨」辭典查無此字,改用辭典實際收錄的台語正字
+    // 「王梨」;「番石榴」「百香果」同理改用辭典正字「菝仔」「時計果」;
+    // 辭典裡的「釋迦」詞條定義是「釋迦牟尼佛」,不是水果,所以沒有收錄
+    // 這個常見水果詞,避免掛錯圖配錯義。
+    { type: 'image', value: 'data/images/tw-plants/banana.jpg', hanzi: '弓蕉' },
+    { type: 'image', value: 'data/images/tw-plants/watermelon.jpg', hanzi: '西瓜' },
+    { type: 'image', value: 'data/images/tw-plants/pineapple.jpg', hanzi: '王梨' },
+    { type: 'image', value: 'data/images/tw-plants/grape.jpg', hanzi: '葡萄' },
+    { type: 'image', value: 'data/images/tw-plants/guava.jpg', hanzi: '菝仔' },
+    { type: 'image', value: 'data/images/tw-plants/papaya.jpg', hanzi: '木瓜' },
+    { type: 'image', value: 'data/images/tw-plants/persimmon.jpg', hanzi: '柿仔' },
+    { type: 'image', value: 'data/images/tw-plants/loquat.jpg', hanzi: '枇杷' },
+    { type: 'image', value: 'data/images/tw-plants/strawberry.jpg', hanzi: '草莓' },
+    { type: 'image', value: 'data/images/tw-plants/waxapple.jpg', hanzi: '蓮霧' },
+    { type: 'image', value: 'data/images/tw-plants/starfruit.jpg', hanzi: '楊桃' },
+    { type: 'image', value: 'data/images/tw-plants/passionfruit.jpg', hanzi: '時計果' },
   ];
 
   // 骨頭類題目共用同一張人骨全身圖(見 data/images/tw-body/,來源與授權見
@@ -589,20 +607,20 @@ const Questions = (() => {
       const direction = Math.random() < 0.5 ? 'hanzi2roman' : 'roman2hanzi';
       return genRomanization(entry, direction, system);
     }
-    if (mode === 'animal' && animalPool && animalPool.length >= 4) {
-      const direction = Math.random() < 0.5 ? 'animal2hanzi' : 'animal2roman';
+    if ((mode === 'animal-hanzi' || mode === 'animal-roman') && animalPool && animalPool.length >= 4) {
+      const direction = mode === 'animal-roman' ? 'animal2roman' : 'animal2hanzi';
       return genAnimal(direction, system);
     }
-    if (mode === 'body' && bodyPool && bodyPool.length >= 4) {
-      const direction = Math.random() < 0.5 ? 'body2hanzi' : 'body2roman';
+    if ((mode === 'body-hanzi' || mode === 'body-roman') && bodyPool && bodyPool.length >= 4) {
+      const direction = mode === 'body-roman' ? 'body2roman' : 'body2hanzi';
       return genBody(direction, system);
     }
     if (mode === 'place' && placePool && placePool.length >= 4) {
       const direction = Math.random() < 0.5 ? 'place2hanzi' : 'place2roman';
       return genPlace(direction, system);
     }
-    if (mode === 'plant' && plantPool && plantPool.length >= 4) {
-      const direction = Math.random() < 0.5 ? 'plant2hanzi' : 'plant2roman';
+    if ((mode === 'plant-hanzi' || mode === 'plant-roman') && plantPool && plantPool.length >= 4) {
+      const direction = mode === 'plant-roman' ? 'plant2roman' : 'plant2hanzi';
       return genPlant(direction, system);
     }
     if (mode === 'multiplication') {

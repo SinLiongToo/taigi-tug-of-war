@@ -18,12 +18,18 @@ screen: **team** (`team`, the original two-team buzzer game, `GameState`) and
 "Solo/practice mode" below). Both share the same `Questions.generate()`
 question bank and modes.
 
-Eight question modes: `meaning`, `romanization`, `tone` (all three filter
-against `data/build-questions.js`'s `classifyLevel()` difficulty tag —
-`elementary`/`junior`/`senior`/`university`, itself an LLM approximation, not
-official data, see README), `animal`, `body`, `plant` (curated picture
-pools, see below), `place` (curated text pool, see below), and
-`multiplication` (pure numeral generation, no dictionary lookup at all).
+Eight question *categories* backed by 11 checkbox mode values (`enabledModes`
+entries, `.modeCheckbox` values in `index.html`): `meaning`, `romanization`,
+`tone` (all three filter against `data/build-questions.js`'s
+`classifyLevel()` difficulty tag — `elementary`/`junior`/`senior`/
+`university`, itself an LLM approximation, not official data, see README),
+`animal-hanzi`/`animal-roman`, `body-hanzi`/`body-roman`,
+`plant-hanzi`/`plant-roman` (curated picture pools, see below — each of
+these three categories is two independent checkboxes, one per direction,
+*not* one checkbox that randomizes direction internally, unlike
+`romanization`/`tone`/`place` which still do randomize hanzi⇄roman per
+question within a single checkbox), `place` (curated text pool, see below),
+and `multiplication` (pure numeral generation, no dictionary lookup at all).
 
 ## Serve — you usually don't need to
 
@@ -84,7 +90,7 @@ load('src/lib/questions.js');
 load('data/questions.js'); // defines TAIGI_QUESTIONS
 sandbox.fetch = async () => ({ ok: true, json: async () => sandbox.TAIGI_QUESTIONS }); // unused now, Questions.load() reads the global directly
 await vm.runInContext('Questions.load()', sandbox);
-const q = vm.runInContext('Questions.generate(["animal"], "poj")', sandbox);
+const q = vm.runInContext('Questions.generate(["animal-hanzi"], "poj")', sandbox);
 ```
 
 `GameState` (`src/game-state.js`) is a plain top-level `class`, loads the same way.
@@ -102,6 +108,10 @@ out rather than crashing:
   individually verified to exist in the MOE dictionary** before being added
   — don't add a new entry without checking `byHanzi.get('新詞')` first (load
   `data/questions.js` via the `vm` pattern above and inspect `TAIGI_QUESTIONS.entries`).
+  Each of these three pools backs *two* checkbox modes (`animal-hanzi`/
+  `animal-roman`, etc.) — `generate()` picks the direction directly from
+  which checkbox fired rather than randomizing internally, see
+  `generate()`'s dispatch block in `src/lib/questions.js`.
   Photo entries point at `data/images/tw-wildlife/*.jpg` or
   `data/images/tw-plants/*.jpg` — see README's "圖片授權" for the CC
   licenses/attribution; only add a new photo via the same Wikimedia Commons
@@ -212,12 +222,12 @@ gets `Cannot find module 'playwright'` even though `npm install` succeeded.
   dict, merged in `build-questions.js`'s `processItems()`). Works instantly
   (no network wait) since it's a `<script>` global, not a fetch.
 - Settings → game: fill `#targetScore`/`#questionSeconds`/`#teamAName`/`#teamBName`,
-  toggle `.modeCheckbox[value="meaning|romanization|tone|animal|body|plant|place|multiplication"]`,
+  toggle `.modeCheckbox[value="meaning|romanization|tone|animal-hanzi|animal-roman|body-hanzi|body-roman|plant-hanzi|plant-roman|place|multiplication"]`,
   toggle `.levelCheckbox[value="elementary|junior|senior|university"]` (all
   four checked by default; unchecking all falls back to unrestricted, not to
   zero results), radio `input[name="romanSystem"][value="tailo|poj"]`, click
   `#startBtn`.
-- `animal`/`body`/`plant` modes render an emoji, a whole photo, or (body only)
+- `animal-*`/`body-*`/`plant-*` modes render an emoji, a whole photo, or (body only)
   a cropped region of the shared skeleton chart inside `#promptText`,
   depending on `q.promptType`: `'emoji'` (text), `'image'` (`<img>`), or
   `'crop'` (a `<div class="boneCrop">` with `background-image`/`-size`/

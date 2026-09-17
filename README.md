@@ -40,7 +40,9 @@
   - **連讀變調**:詞的第一字在連讀時該變成第幾聲(僅雙音節以上的詞才會出這題);
     干擾選項一定包含「忘記變調、直接唸本調」這個最常見的誤答。
 - **動物**:題目是一個動物 emoji 或照片(不是中文字),猜這個動物的台語漢字或
-  羅馬字。干擾選項也是從動物題庫裡挑的,比較有「猜動物」的主題感。題庫是一份
+  羅馬字。「看漢字」「看羅馬字」是兩個獨立的勾選框(`animal-hanzi`/
+  `animal-roman`),只想練羅馬字或只想練漢字可以只勾一個,兩個都勾就混合出。
+  干擾選項也是從動物題庫裡挑的,比較有「猜動物」的主題感。題庫是一份
   精選清單(`src/lib/questions.js` 裡的 `ANIMAL_WORDS`),跟教育部辭典資料
   比對過漢字確實查得到才收錄。
   - 其中 7 種是**台灣野生保育動物照片**(台灣黑熊、梅花鹿、台灣獼猴、長鬃
@@ -49,7 +51,8 @@
     特有種的照片示意,不是宣稱該物種有專屬的台語詞;山豬、水獺、飛鼠則是
     辭典裡本來就有、詞跟物種剛好對得上的乾淨案例。照片授權見下方「圖片授權」。
 - **身體部位**:題目是身體部位 emoji 或照片,猜台語漢字或羅馬字。跟動物模式
-  做法一樣,清單裡每個詞都逐一查證過教育部辭典是否收錄(`src/lib/questions.js`
+  一樣拆成 `body-hanzi`/`body-roman` 兩個獨立勾選框。清單裡每個詞都逐一查證
+  過教育部辭典是否收錄(`src/lib/questions.js`
   的 `BODY_WORDS`)。骨頭類詞彙特別多,除了基本的骨、手骨、跤骨、頭殼,還有
   一份詳細人骨部位(頭殼碗、牙槽骨、飯匙骨、胸掛骨、胸坎骨、龍骨、尻川骨、
   大腿骨、跤肚骨、跤胴骨……共 18 個)是照使用者提供的骨骼圖(作者:藍采琍)
@@ -65,7 +68,8 @@
     對著真實圖片反覆截圖校正出來的,規則跟座標表在 `src/lib/questions.js`
     的 `BONE_CROPS`。
 - **樹仔/草仔**:題目是植物 emoji 或照片,猜台語漢字或羅馬字。跟動物模式做法
-  一樣,每個詞都查證過教育部辭典確實收錄才收(`src/lib/questions.js` 的
+  一樣拆成 `plant-hanzi`/`plant-roman` 兩個獨立勾選框,每個詞都查證過教育部
+  辭典確實收錄才收(`src/lib/questions.js` 的
   `PLANT_WORDS`)。常見植物(樹、草、花、竹、番麥、稻穗...)用現成 emoji;
   相思仔、茄苳、林投、木麻黃、檳榔這幾種有台灣鄉土特色、但沒有對應 emoji
   的樹種改用照片,授權見下方「圖片授權」。
@@ -194,9 +198,21 @@ CC BY 或 CC BY-SA 授權:
 | `bodhi.jpg` | 菩提樹(配「菩提樹」) | CC BY-SA 3.0 | Mokkie | [File:Sacred fig (Ficus religiosa), College Green, Singapore Management University - 20131209.jpg](https://commons.wikimedia.org/wiki/File:Sacred_fig_(Ficus_religiosa),_College_Green,_Singapore_Management_University_-_20131209.jpg) |
 | `longan.jpg` | 龍眼樹(配「龍眼」) | CC BY-SA 3.0 | Pouletic | [File:Longan tree at Pine Island Nursery.jpg](https://commons.wikimedia.org/wiki/File:Longan_tree_at_Pine_Island_Nursery.jpg) |
 | `litchi.jpg` | 荔枝樹(配「荔枝」) | CC BY-SA 4.0 | Nishantv069 | [File:A litchi tree.jpg](https://commons.wikimedia.org/wiki/File:A_litchi_tree.jpg) |
+| `banana.jpg` | 香蕉(配「弓蕉」) | CC BY-SA 4.0 | Samsule2 | [File:A Bunch of Bananas displayed by a roadside seller 02.jpg](https://commons.wikimedia.org/wiki/File:A_Bunch_of_Bananas_displayed_by_a_roadside_seller_02.jpg) |
+| `watermelon.jpg` | 西瓜(配「西瓜」) | CC BY-SA 4.0 | ChimaBee | [File:Whole Watermelons At Local Fruit Vendor.jpg](https://commons.wikimedia.org/wiki/File:Whole_Watermelons_At_Local_Fruit_Vendor.jpg) |
+| `pineapple.jpg` | 台灣鳳梨(配「王梨」) | CC0 | Syced | [File:Taiwan pineapples sold out despite being much more expensive, they are delicious though.jpg](https://commons.wikimedia.org/wiki/File:Taiwan_pineapples_sold_out_despite_being_much_more_expensive,_they_are_delicious_though.jpg) |
+| `grape.jpg` | 葡萄(配「葡萄」) | CC BY-SA 4.0 | Jules Verne Times Two | [File:Bunch of grapes amidst vine leaves, Ponte de Sor...jpg](https://commons.wikimedia.org/wiki/File:Bunch_of_grapes_amidst_vine_leaves,_Ponte_de_Sor_(approx._GPS_location)_julesvernex2.jpg) |
+| `guava.jpg` | 芭樂(配「菝仔」) | CC BY-SA 4.0 | Thamizhpparithi Maari | [File:Guava - Psidium guajava fruit of Tamilnadu.jpg](https://commons.wikimedia.org/wiki/File:Guava_-_Psidium_guajava_fruit_of_Tamilnadu.jpg) |
+| `papaya.jpg` | 木瓜(配「木瓜」) | CC BY-SA 4.0 | Anak Sago | [File:Papaya fruit hanging from the tree.jpg](https://commons.wikimedia.org/wiki/File:Papaya_fruit_hanging_from_the_tree.jpg) |
+| `persimmon.jpg` | 柿子(配「柿仔」) | CC BY-SA 4.0 | Rhododendrites | [File:Persimmon (fuyu).jpg](https://commons.wikimedia.org/wiki/File:Persimmon_(fuyu).jpg) |
+| `loquat.jpg` | 枇杷(配「枇杷」) | CC BY 2.0 | Ed Uthman | [File:Loquat fruit and foliage (Eriobotrya japonica).jpg](https://commons.wikimedia.org/wiki/File:Loquat_fruit_and_foliage_(Eriobotrya_japonica).jpg) |
+| `strawberry.jpg` | 草莓(配「草莓」) | CC BY-SA 4.0 | Ivar Leidus | [File:Garden strawberry (Fragaria × ananassa) single2.jpg](https://commons.wikimedia.org/wiki/File:Garden_strawberry_(Fragaria_%C3%97_ananassa)_single2.jpg) |
+| `waxapple.jpg` | 蓮霧(配「蓮霧」) | CC BY-SA 4.0 | Salil Kumar Mukherjee | [File:Wax apple (Syzygium samarangense).jpg](https://commons.wikimedia.org/wiki/File:Wax_apple_(Syzygium_samarangense).jpg) |
+| `starfruit.jpg` | 楊桃(配「楊桃」) | CC BY-SA 4.0 | Salil Kumar Mukherjee | [File:Star fruit (Averrhoa carambola) 01.jpg](https://commons.wikimedia.org/wiki/File:Star_fruit_(Averrhoa_carambola)_01.jpg) |
+| `passionfruit.jpg` | 百香果(配「時計果」) | CC BY-SA 4.0 | Ivar Leidus | [File:Passion fruits - whole and halved.jpg](https://commons.wikimedia.org/wiki/File:Passion_fruits_-_whole_and_halved.jpg) |
 
 這些跟野生動物照片一樣都是縮圖,不是原始全解析度檔案,單張約 60~230KB,適合網頁載入
-(前 5 張是 480px 寬的 Commons thumbnail API 縮圖;2026-09-17 新增的 8 張樹種照片是
+(前 5 張是 480px 寬的 Commons thumbnail API 縮圖;2026-09-17 新增的樹種與水果照片是
 本機用 Pillow 等比縮到長邊 900px、JPEG 品質 78 壓縮出來的,原始檔案解析度較高,
 縮圖方式不同但同樣符合授權條款的再散布要求)。
 
@@ -260,6 +276,23 @@ data/images/tw-plants/        台灣鄉土樹種照片(樹仔/草仔模式用)
 
 ## 開發紀錄
 
+- 2026-09-18:「動物」「身體部位」「樹仔/草仔」三個看圖模式,原本各自是一個
+  勾選框、每題內部隨機決定考漢字還是考羅馬字;使用者反應想要能分開只選一種
+  方向練習,所以拆成 `-hanzi`/`-roman` 兩個獨立勾選框(例如「動物(看圖猜台語
+  漢字)」「動物(看圖猜羅馬字)」),兩個都勾就跟以前一樣混合出。技術上
+  `Questions.generate()` 的 dispatch 邏輯從「命中 `animal` 就內部擲骰子選
+  方向」改成「命中 `animal-hanzi`/`animal-roman` 就直接對應方向,不用再擲
+  骰子」,`genAnimal`/`genBody`/`genPlant` 本身邏輯沒動。「漢字↔羅馬字」
+  「聲調」「地名/溪流」這三個仍然維持原本單一勾選框、內部隨機兩個方向的
+  做法沒有改,只有這三個看圖模式拆開。
+- 2026-09-18:「樹仔/草仔」模式加 12 種水果照片:弓蕉(香蕉)、西瓜、
+  王梨(鳳梨)、葡萄、菝仔(芭樂)、木瓜、柿仔、枇杷、草莓、蓮霧、楊桃、
+  時計果(百香果)。查證過程中發現「鳳梨」「番石榴」「百香果」都不是
+  辭典正字,改用辭典實際收錄的台語詞「王梨」「菝仔」「時計果」;另外
+  「釋迦」這個詞在辭典裡的定義是「釋迦牟尼佛」,不是水果,所以沒有收錄
+  這個常見水果詞,避免掛錯圖配錯義(資料誠實原則,寧可少收一個常見詞,
+  不要把辭典裡意思不對的詞硬套上水果照片)。圖片一樣是 Wikimedia Commons
+  CC0/CC BY/CC BY-SA 授權,本機用 Pillow 等比縮到長邊 900px 壓縮。
 - 2026-09-17:「樹仔/草仔」模式再加 8 個常見樹種照片:榕、樟、松、柳、
   鳳凰木、菩提樹、龍眼、荔枝。做法跟原本 5 種鄉土樹種一樣——先查證教育部
   辭典確實收錄這 8 個詞(都有,詳細定義見 `src/lib/questions.js` 的
