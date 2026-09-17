@@ -71,6 +71,17 @@ const Questions = (() => {
     { type: 'image', value: 'data/images/tw-plants/pandanus.jpg', hanzi: '林投' },
     { type: 'image', value: 'data/images/tw-plants/casuarina.jpg', hanzi: '木麻黃' },
     { type: 'image', value: 'data/images/tw-plants/areca.jpg', hanzi: '檳榔' },
+
+    // 更多常見樹種照片(2026-09-17 新增),同樣是辭典裡查得到詞、但沒有
+    // 對應 emoji 的情況。
+    { type: 'image', value: 'data/images/tw-plants/banyan.jpg', hanzi: '榕' },
+    { type: 'image', value: 'data/images/tw-plants/camphor.jpg', hanzi: '樟' },
+    { type: 'image', value: 'data/images/tw-plants/pine.jpg', hanzi: '松' },
+    { type: 'image', value: 'data/images/tw-plants/willow.jpg', hanzi: '柳' },
+    { type: 'image', value: 'data/images/tw-plants/flame.jpg', hanzi: '鳳凰木' },
+    { type: 'image', value: 'data/images/tw-plants/bodhi.jpg', hanzi: '菩提樹' },
+    { type: 'image', value: 'data/images/tw-plants/longan.jpg', hanzi: '龍眼' },
+    { type: 'image', value: 'data/images/tw-plants/litchi.jpg', hanzi: '荔枝' },
   ];
 
   // 骨頭類題目共用同一張人骨全身圖(見 data/images/tw-body/,來源與授權見

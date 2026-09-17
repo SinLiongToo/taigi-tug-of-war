@@ -186,9 +186,19 @@ CC BY 或 CC BY-SA 授權:
 | `pandanus.jpg` | 林投果實(配「林投」) | CC BY-SA 4.0 | AntanO | [File:Pandanus tectorius fruit (riped).JPG](https://commons.wikimedia.org/wiki/File:Pandanus_tectorius_fruit_(riped).JPG) |
 | `casuarina.jpg` | 木麻黃(配「木麻黃」) | CC BY 3.0 | Ethel Aardvark | [File:Casuarina equesitifolia tree.jpg](https://commons.wikimedia.org/wiki/File:Casuarina_equesitifolia_tree.jpg) |
 | `areca.jpg` | 檳榔(配「檳榔」) | CC BY 2.0 | Dick Culbert | [File:Areca catechu, Betel Nut (14436668393).jpg](https://commons.wikimedia.org/wiki/File:Areca_catechu,_Betel_Nut_(14436668393).jpg) |
+| `banyan.jpg` | 榕樹(配「榕」) | CC0 | noroi | [File:Old Ficus Banyan tree in Fengyuan, Taichung.jpg](https://commons.wikimedia.org/wiki/File:Old_Ficus_Banyan_tree_in_Fengyuan,_Taichung.jpg) |
+| `camphor.jpg` | 樟樹(配「樟」) | CC BY-SA 4.0 | Martinvl | [File:Cinnamomum camphora Vergelegen.jpg](https://commons.wikimedia.org/wiki/File:Cinnamomum_camphora_Vergelegen.jpg) |
+| `pine.jpg` | 台灣二葉松(配「松」) | CC0 | leaf0605 | [File:Pinus taiwanensis, Guanwu, Miaoli, Taiwan 01.jpg](https://commons.wikimedia.org/wiki/File:Pinus_taiwanensis,_Guanwu,_Miaoli,_Taiwan_01.jpg) |
+| `willow.jpg` | 柳樹(配「柳」) | CC BY-SA 4.0 | Joseolgon | [File:Salix babylonica in Braga.jpg](https://commons.wikimedia.org/wiki/File:Salix_babylonica_in_Braga.jpg) |
+| `flame.jpg` | 鳳凰木(配「鳳凰木」) | CC BY-SA 4.0 | Vengolis | [File:Delonix regia 09297.jpg](https://commons.wikimedia.org/wiki/File:Delonix_regia_09297.jpg) |
+| `bodhi.jpg` | 菩提樹(配「菩提樹」) | CC BY-SA 3.0 | Mokkie | [File:Sacred fig (Ficus religiosa), College Green, Singapore Management University - 20131209.jpg](https://commons.wikimedia.org/wiki/File:Sacred_fig_(Ficus_religiosa),_College_Green,_Singapore_Management_University_-_20131209.jpg) |
+| `longan.jpg` | 龍眼樹(配「龍眼」) | CC BY-SA 3.0 | Pouletic | [File:Longan tree at Pine Island Nursery.jpg](https://commons.wikimedia.org/wiki/File:Longan_tree_at_Pine_Island_Nursery.jpg) |
+| `litchi.jpg` | 荔枝樹(配「荔枝」) | CC BY-SA 4.0 | Nishantv069 | [File:A litchi tree.jpg](https://commons.wikimedia.org/wiki/File:A_litchi_tree.jpg) |
 
-這些跟野生動物照片一樣都是 480px 寬的縮圖(從 Commons 的 thumbnail API 抓的),不是原始全解析度檔案,
-單張約 60~200KB,適合網頁載入。
+這些跟野生動物照片一樣都是縮圖,不是原始全解析度檔案,單張約 60~230KB,適合網頁載入
+(前 5 張是 480px 寬的 Commons thumbnail API 縮圖;2026-09-17 新增的 8 張樹種照片是
+本機用 Pillow 等比縮到長邊 900px、JPEG 品質 78 壓縮出來的,原始檔案解析度較高,
+縮圖方式不同但同樣符合授權條款的再散布要求)。
 
 `data/images/tw-body/skeleton.webp` 是身體部位模式骨頭類題目共用的人骨全身圖:
 
@@ -250,6 +260,14 @@ data/images/tw-plants/        台灣鄉土樹種照片(樹仔/草仔模式用)
 
 ## 開發紀錄
 
+- 2026-09-17:「樹仔/草仔」模式再加 8 個常見樹種照片:榕、樟、松、柳、
+  鳳凰木、菩提樹、龍眼、荔枝。做法跟原本 5 種鄉土樹種一樣——先查證教育部
+  辭典確實收錄這 8 個詞(都有,詳細定義見 `src/lib/questions.js` 的
+  `PLANT_WORDS` 註解對應),再到 Wikimedia Commons 搜圖、用 `imageinfo`
+  確認授權是 CC0/CC BY-SA 才下載。這批圖片跟先前 5 張不同的是直接抓原始檔、
+  用 Pillow 在本機等比縮到長邊 900px、JPEG 品質 78 壓縮(先前 5 張是直接用
+  Commons 的 480px thumbnail API),兩種縮圖方式效果接近,壓縮後單張
+  110~230KB,一樣適合網頁載入。詳細授權/攝影者列在「圖片授權」章節。
 - 2026-09-17:新增「一人刷題」模式,設定畫面可以切換「雙人搶答拔河」/
   「一人刷題」。一人模式沒有搶答/隊伍機制,單純出題→按 1~4 或點按鈕作答
   →立刻看到對/錯與正解→自動跳下一題,可以拿來單純練習台語詞彙。成績分
