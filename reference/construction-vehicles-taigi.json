@@ -1,0 +1,239 @@
+{
+  "_meta": {
+    "description": "「常見的工程車台語1」reference/ 資料夾裡那份 .md 檔案的結構化 JSON 版本,逐段手動轉錄、對照原始檔案核對過,給其他工具使用。",
+    "sourceFile": "reference/《常見的工程車台語1》.md",
+    "sourceType": "使用者提供的參考資料(臉書貼文截圖整理),不是教育部辭典,也不是教育部辭典的一部分",
+    "verification": "這份 JSON 只是把原始文字轉成結構化格式,羅馬字本身沒有重新查證發音是否正確——這是原始資料本來就有的內容,轉錄過程只有核對有沒有打字/斷詞打錯,沒有對每一筆額外做語言學驗證。",
+    "usedInGameNote": "台語搶答拔河遊戲(這個 repo 的 index.html)只從這份清單裡挑了 15 個詞放進「工程車」出題模式(src/lib/questions.js 的 VEHICLE_WORDS),每個詞用之前都個別查證過教育部辭典——有 6 個辭典查得到、定義也對得上(吊車/怪手/攄塗機/卡車/發財仔車/油罐車);有 5 個辭典完全沒收錄,只做過羅馬字格式驗證,沒有逐字核對發音(堆高機/流籠車/沙石仔車/鴨母車/鐵輪);有 4 個辭典查得到同樣的漢字,但辭典本身的定義是完全不同的東西,是把辭典既有字借去當工程車俗稱用(山貓/豬哥牙/干樂/田螺)。這份 JSON 裡每一筆有 `usedInGame: true` 的詞條,可以到上述三類找對應說明,`usedInGame` 沒出現或是 false 的詞條沒有做過這層查證,不代表對或錯,只是這個遊戲專案沒有另外核對過。",
+    "generatedAt": "2026-09-19"
+  },
+  "categories": [
+    {
+      "description": "工程用車的通稱",
+      "terms": [
+        { "hanzi": "工程車", "poj": "kang-tîng-tshia" }
+      ]
+    },
+    {
+      "description": "通稱吊車",
+      "terms": [
+        { "hanzi": "吊車", "poj": "tiàu-tshia", "usedInGame": true },
+        { "hanzi": "釣竿仔", "poj": "tiò-kuann-á" }
+      ]
+    },
+    {
+      "description": "貨吊車、有吊臂裝備的貨斗車",
+      "terms": [
+        { "hanzi": "秤仔車", "poj": "tshìn-á-tshia" },
+        { "hanzi": "吊秤", "poj": "tiàu-tshìn" },
+        { "hanzi": "吊卡", "poj": "tiàu-khah" }
+      ]
+    },
+    {
+      "description": "起重機",
+      "terms": [
+        { "hanzi": "千斤秤", "poj": "tshian-kin-tshìn" },
+        { "hanzi": "鐵人", "poj": "thih-lâng" },
+        { "hanzi": "銅人", "poj": "tâng-lâng" }
+      ]
+    },
+    {
+      "description": "安裝在室內,搬運建材工具的吊車",
+      "terms": [
+        { "hanzi": "天車", "poj": "thian-tshia" }
+      ]
+    },
+    {
+      "description": "夾子車,利用夾爪進行廢棄物收集、裝載、搬運及分類整理",
+      "terms": [
+        { "hanzi": "鋏仔車", "poj": "giap-á-tshia" },
+        { "hanzi": "挾仔車", "poj": "gia̍p-á-tshia" }
+      ]
+    },
+    {
+      "description": "泛指高空作業車,例如清理大樓玻璃圍幕的、修剪樹木的、消防雲梯車",
+      "terms": [
+        { "hanzi": "流籠車", "poj": "liû-lông-tshia", "usedInGame": true },
+        { "hanzi": "流籠仔車", "poj": "liû-lông-á-tshia" },
+        { "hanzi": "流籠仔", "poj": "liû-lông-á" }
+      ]
+    },
+    {
+      "description": "鏟土機、推土機",
+      "terms": [
+        { "hanzi": null, "poj": "siah-bah", "note": "較大台的" },
+        { "hanzi": "山貓", "poj": "suann-niau", "note": "較小台的", "usedInGame": true },
+        { "hanzi": "黜塗機", "poj": "thuh-thôo-ki" },
+        { "hanzi": "攄塗機", "poj": "lu-thôo-ki", "usedInGame": true },
+        { "hanzi": "攄塗車", "poj": "lu-thôo-tshia" },
+        { "hanzi": "攄仔車", "poj": "lu-á-tshia" }
+      ]
+    },
+    {
+      "description": "挖土機、怪手",
+      "terms": [
+        { "hanzi": "怪手", "poj": "kuài-tshiú", "usedInGame": true },
+        { "hanzi": "黜塗機", "poj": "thuh-thôo-ki" },
+        { "hanzi": "𣁳仔車", "poj": "khat-á-tshia" },
+        { "hanzi": "挖土機", "poj": "óo-thóo-ki" }
+      ]
+    },
+    {
+      "description": "怪手前面的挖斗",
+      "terms": [
+        { "hanzi": "𣁳仔", "poj": "khat-á" },
+        { "hanzi": "攕斗", "poj": "tshiam-táu" }
+      ]
+    },
+    {
+      "description": "怪手前面的破碎機,看起來很像鴨頭",
+      "terms": [
+        { "hanzi": "鴨頭仔", "poj": "ah-thâu-á" }
+      ]
+    },
+    {
+      "description": "怪手前面的夾物器、夾碎器",
+      "terms": [
+        { "hanzi": "鋼牙", "poj": "kǹg-gê" },
+        { "hanzi": "大鋼牙", "poj": "tuā-kǹg-gê" }
+      ]
+    },
+    {
+      "description": "怪手前面的大型電磁鐵、吸鐵怪手",
+      "terms": [
+        { "hanzi": "吸石仔", "poj": "khip-tsio̍h-á" },
+        { "hanzi": "吸鐵", "poj": "khip-thih" },
+        { "hanzi": "電仔", "poj": "tiān-á" }
+      ]
+    },
+    {
+      "description": "油壓式長臂挖掘機。過去多由日本MASAGO公司出產。利用鋼製抓斗之爪牙嵌鑿土石,裝入抓斗內,再利用吊車將抓斗提出槽外卸渣,不需將連續壁內穩定液瀝出槽外,不必再經一道泥漿分離處理",
+      "terms": [
+        { "hanzi": "鯊魚頭", "poj": "sua-hî-thâu" },
+        { "hanzi": null, "poj": "mā-sah-kooh" }
+      ]
+    },
+    {
+      "description": "壓路機",
+      "terms": [
+        { "hanzi": "鐵輪", "poj": "thih-lián", "usedInGame": true },
+        { "hanzi": "研路機", "poj": "gíng-lōo-ki" },
+        { "hanzi": null, "poj": "lőo-lah" }
+      ]
+    },
+    {
+      "description": "堆高機",
+      "terms": [
+        { "hanzi": "豬哥仔", "poj": "ti-ko-á" },
+        { "hanzi": "豬哥機", "poj": "ti-ko-ki" },
+        { "hanzi": "豬哥機仔", "poj": "ti-ko-ki-á" },
+        { "hanzi": "堆高仔", "poj": "tui-ko-á" },
+        { "hanzi": "堆高機", "poj": "tui-ko-ki", "usedInGame": true },
+        { "hanzi": "堆高機仔", "poj": "tui-ko-ki-á" }
+      ]
+    },
+    {
+      "description": "推高機前兩支放貨的",
+      "terms": [
+        { "hanzi": "豬哥牙", "poj": "ti-ko-gê", "usedInGame": true }
+      ]
+    },
+    {
+      "description": "混凝土攪拌車、預拌混凝土車",
+      "terms": [
+        { "hanzi": null, "poj": "lâm-a-khóng-tshia", "raw": "lâm-a-khóng車lâm-a-khóng-tshia" },
+        { "hanzi": null, "poj": "na-má-khóng-tshia", "raw": "na-má-khóng車na-má-khóng-tshia" },
+        { "hanzi": null, "poj": "lâm-a-khóng" },
+        { "hanzi": null, "poj": "na-má-khóng" },
+        { "hanzi": "干樂", "poj": "kan-lo̍k", "usedInGame": true },
+        { "hanzi": "田螺", "poj": "tshân-lê", "usedInGame": true },
+        { "hanzi": "鹹橄欖", "poj": "kiâm-kan-ná" }
+      ]
+    },
+    {
+      "description": "裝水泥熟料的車",
+      "terms": [
+        { "hanzi": "紅毛塗車", "poj": "âng-mn̂g-thôo-tshia" },
+        { "hanzi": null, "poj": "khōng-ku-lí-tshia", "raw": "khōng-ku-lí車khōng-ku-lí-tshia" }
+      ]
+    },
+    {
+      "description": "水泥泵浦車、水泥灌漿車",
+      "terms": [
+        { "hanzi": "鴨母車", "poj": "ah-bó-tshia", "note": "也可用來稱呼偉士牌(uê-sut-pah)機車", "usedInGame": true }
+      ]
+    },
+    {
+      "description": "放置工地地面的混凝土攪拌機",
+      "terms": [
+        { "hanzi": "塗牛", "poj": "thôo-gû" },
+        { "hanzi": null, "poj": "mi-kí-sah" }
+      ]
+    },
+    {
+      "description": "手持水泥攪拌器",
+      "terms": [
+        { "hanzi": "電紡仔", "poj": "tiān-pháng-á" }
+      ]
+    },
+    {
+      "description": "建築工地搬運建材的三輪拖車",
+      "terms": [
+        { "hanzi": null, "poj": "li-á-khah" }
+      ]
+    },
+    {
+      "description": "拖車",
+      "terms": [
+        { "hanzi": "拖車", "poj": "thua-tshia" }
+      ]
+    },
+    {
+      "description": "卡車、貨車",
+      "terms": [
+        { "hanzi": null, "poj": "thoo-lá-khuh" },
+        { "hanzi": "卡車", "poj": "khah-tshia", "usedInGame": true },
+        { "hanzi": "貨車", "poj": "huè-tshia" }
+      ]
+    },
+    {
+      "description": "卡車司機",
+      "terms": [
+        { "hanzi": null, "poj": "thoo-lá-khuh tuā--ê", "raw": "thoo-lá-khuh大的thoo-lá-khuh tuā--ê" }
+      ]
+    },
+    {
+      "description": "小貨車專門用來裝載貨物的箱形部分",
+      "terms": [
+        { "hanzi": "車後斗", "poj": "tshia-āu-táu" }
+      ]
+    },
+    {
+      "description": "發財車、輕型貨車",
+      "terms": [
+        { "hanzi": "發財仔車", "poj": "huat-tsâi-á-tshia", "usedInGame": true },
+        { "hanzi": "三噸半", "poj": "sann tòng puànn" }
+      ]
+    },
+    {
+      "description": "沙石車",
+      "terms": [
+        { "hanzi": "沙石仔車", "poj": "sua-tsio̍h-á-tshia", "usedInGame": true }
+      ]
+    },
+    {
+      "description": "油罐車",
+      "terms": [
+        { "hanzi": "油罐車", "poj": "iû-kuàn-tshia", "usedInGame": true }
+      ]
+    },
+    {
+      "description": "貓車、工地搬運使用用手推動的獨輪車",
+      "terms": [
+        { "hanzi": null, "poj": "lián-kóo-tshia", "raw": "lián-kóo車lián-kóo-tshia" },
+        { "hanzi": null, "poj": "lìn-gòo-tshia", "raw": "lìn-gòo車lìn-gòo-tshia" },
+        { "hanzi": "單輪的", "poj": "tuann-lián--ê" }
+      ]
+    }
+  ]
+}
