@@ -14,6 +14,7 @@ const Questions = (() => {
   let bodyPool = null;
   let placePool = null;
   let plantPool = null;
+  let vehiclePool = null;
 
   // 「動物」模式的題庫:題目是emoji或照片(不是中文字),挑漢字剛好等於常見
   // 動物名、且在題庫裡查得到的詞。用圖像而不是中文動物名當題目,一樣避開
@@ -100,6 +101,56 @@ const Questions = (() => {
     { type: 'image', value: 'data/images/tw-plants/waxapple.jpg', hanzi: '蓮霧' },
     { type: 'image', value: 'data/images/tw-plants/starfruit.jpg', hanzi: '楊桃' },
     { type: 'image', value: 'data/images/tw-plants/passionfruit.jpg', hanzi: '時計果' },
+  ];
+
+  // 工程車照片(2026-09-18 新增)。使用者提供 reference/《常見的工程車台語1》.md
+  // (一份台語工程車詞彙的臉書貼文截圖整理),裡面每種車都列了好幾種同義詞。
+  // 查證方式:先逐一查教育部辭典有沒有收錄同一個漢字詞——
+  //   - 有收錄、而且辭典定義就是這個工程車意思的 6 個詞,直接讓
+  //     buildPicturePool() 用辭典本身的讀音(不用這份參考資料的羅馬字):
+  //     吊車、攄塗機、怪手、卡車、發財仔車、油罐車。
+  //   - 辭典查得到同一個漢字、但定義完全是另一件事的 5 個詞——「山貓」
+  //     辭典是雲豹/石虎、「鋼牙」辭典是不鏽鋼假牙、「豬哥牙」辭典是犬齒、
+  //     「干樂」辭典是陀螺、「田螺」辭典是水生螺類——工程車俗稱這個義項
+  //     辭典完全沒收。使用者確認可以直接用 reference 檔案裡的漢字,只要
+  //     清楚標明來源,所以還是收錄了,但這裡要老實講清楚:這是「同一個
+  //     漢字被借去當工程車暱稱用」(跟英語把 skid loader 暱稱叫 "Bobcat"
+  //     是同一種構詞方式——山貓正是台語版的「Bobcat」哏),不是辭典本身
+  //     承認這個字有工程車的意思。實際核對過這 5 個詞在辭典裡的讀音跟
+  //     reference 檔案標注的羅馬字完全一致(山貓 suann-niau、鋼牙 kǹg-gê、
+  //     豬哥牙 ti-ko-gê、干樂 kan-lo̍k、田螺 tshân-lê),所以還是讓
+  //     buildPicturePool() 用 byHanzi 查到的辭典讀音(不用另外帶 poj)——
+  //     發音沒有問題,問題只在辭典的字義跟這裡的工程車用法不同,已經在
+  //     README「出題模式」跟這裡說明。找不到「鋼牙」(液壓剪/破碎爪)的
+  //     乾淨、授權清楚的照片,這批沒收錄,純粹是圖片素材問題。「干樂」
+  //     「田螺」都是同一種車(混凝土攪拌車)的不同暱稱,各自配一張不同的
+  //     照片,不是重複用同一張圖硬湊兩題。
+  //   - 剩下辭典完全查不到的常見工程車,改用參考資料本身的羅馬字,只做過
+  //     Romanize.parseWord() 格式驗證,沒有逐字跟辭典核對發音,帶 `poj`
+  //     欄位標明來源:堆高機、流籠車、沙石仔車、鴨母車、鐵輪。
+  //   - 「lâm-a-khóng 車」(混凝土攪拌車的其中一種俗稱)沒有對應的正式漢字
+  //     寫法(是外來語借音,參考資料本身也是用羅馬字代替漢字),沒辦法放進
+  //     只接受「hanzi」欄位的題庫格式,所以沒有收錄這個詞。
+  //     「拖車」雖然辭典查無此字且格式驗證得過,但找不到跟卡車/貨車照片
+  //     視覺上有明顯區隔、授權又乾淨的拖車照片(找到的候選不是被拖車上又
+  //     載了別的機具造成混淆,就是跟卡車外觀太像沒有辨識度),所以這批
+  //     沒有收錄,不是查證失敗,是圖片素材沒找到夠好的。
+  const VEHICLE_WORDS = [
+    { type: 'image', value: 'data/images/tw-vehicles/crane.jpg', hanzi: '吊車' },
+    { type: 'image', value: 'data/images/tw-vehicles/excavator.jpg', hanzi: '怪手' },
+    { type: 'image', value: 'data/images/tw-vehicles/bulldozer.jpg', hanzi: '攄塗機' },
+    { type: 'image', value: 'data/images/tw-vehicles/truck.jpg', hanzi: '卡車' },
+    { type: 'image', value: 'data/images/tw-vehicles/pickup.jpg', hanzi: '發財仔車' },
+    { type: 'image', value: 'data/images/tw-vehicles/tanker.jpg', hanzi: '油罐車' },
+    { type: 'image', value: 'data/images/tw-vehicles/forklift.jpg', hanzi: '堆高機', poj: 'tui-ko-ki' },
+    { type: 'image', value: 'data/images/tw-vehicles/aerial-platform.jpg', hanzi: '流籠車', poj: 'liû-lông-tshia' },
+    { type: 'image', value: 'data/images/tw-vehicles/dump-truck.jpg', hanzi: '沙石仔車', poj: 'sua-tsio̍h-á-tshia' },
+    { type: 'image', value: 'data/images/tw-vehicles/skid-loader.jpg', hanzi: '山貓' },
+    { type: 'image', value: 'data/images/tw-vehicles/fork-tines.jpg', hanzi: '豬哥牙' },
+    { type: 'image', value: 'data/images/tw-vehicles/mixer-truck-1.jpg', hanzi: '干樂' },
+    { type: 'image', value: 'data/images/tw-vehicles/mixer-truck-2.jpg', hanzi: '田螺' },
+    { type: 'image', value: 'data/images/tw-vehicles/concrete-pump.jpg', hanzi: '鴨母車', poj: 'ah-bó-tshia' },
+    { type: 'image', value: 'data/images/tw-vehicles/roller.jpg', hanzi: '鐵輪', poj: 'thih-lián' },
   ];
 
   // 骨頭類題目共用同一張人骨全身圖(見 data/images/tw-body/,來源與授權見
@@ -279,6 +330,7 @@ const Questions = (() => {
     animalPool = buildPicturePool(ANIMAL_WORDS);
     bodyPool = buildPicturePool(BODY_WORDS);
     plantPool = buildPicturePool(PLANT_WORDS);
+    vehiclePool = buildPicturePool(VEHICLE_WORDS);
     // PLACE_RAW 的羅馬字不是辭典查來的,要自己 parse 成 skeleton/tone(跟
     // build-questions.js 對一般辭典詞條做的事一樣),parse 失敗的直接跳過。
     placePool = PLACE_RAW
@@ -461,6 +513,11 @@ const Questions = (() => {
     return genFromPicturePool(plantPool, 'plant', direction, direction === 'plant2roman', PICTURE_LABELS, system);
   }
 
+  // ---- 模式:工程車(題目是照片,答案選漢字或羅馬字) ----
+  function genVehicle(direction, system) {
+    return genFromPicturePool(vehiclePool, 'vehicle', direction, direction === 'vehicle2roman', PICTURE_LABELS, system);
+  }
+
   // ---- 模式:地名/溪流(題目是台語漢字或羅馬字文字,不是emoji/照片) ----
   function genPlace(direction, system) {
     const pick = placePool[Math.floor(Math.random() * placePool.length)];
@@ -622,6 +679,10 @@ const Questions = (() => {
     if ((mode === 'plant-hanzi' || mode === 'plant-roman') && plantPool && plantPool.length >= 4) {
       const direction = mode === 'plant-roman' ? 'plant2roman' : 'plant2hanzi';
       return genPlant(direction, system);
+    }
+    if ((mode === 'vehicle-hanzi' || mode === 'vehicle-roman') && vehiclePool && vehiclePool.length >= 4) {
+      const direction = mode === 'vehicle-roman' ? 'vehicle2roman' : 'vehicle2hanzi';
+      return genVehicle(direction, system);
     }
     if (mode === 'multiplication') {
       return genMultiplication(system);

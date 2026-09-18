@@ -73,6 +73,27 @@
   `PLANT_WORDS`)。常見植物(樹、草、花、竹、番麥、稻穗...)用現成 emoji;
   相思仔、茄苳、林投、木麻黃、檳榔這幾種有台灣鄉土特色、但沒有對應 emoji
   的樹種改用照片,授權見下方「圖片授權」。
+- **工程車**:題目是工程車照片,猜台語漢字或羅馬字,一樣拆成 `vehicle-hanzi`/
+  `vehicle-roman` 兩個獨立勾選框(`src/lib/questions.js` 的 `VEHICLE_WORDS`,
+  共 15 個詞)。使用者提供了一份台語工程車詞彙的參考資料
+  (`reference/《常見的工程車台語1》.md`,一份臉書貼文截圖整理),裡面每種車
+  列了好幾個台語同義詞。查證方式:
+  - 吊車、攄塗機、怪手、卡車、發財仔車、油罐車這 6 個詞,辭典查得到、
+    定義也對得上,直接用辭典本身的讀音。
+  - 堆高機、流籠車、沙石仔車、鴨母車、鐵輪這 5 個詞辭典查不到,改用參考
+    資料本身的羅馬字,只做過 `Romanize.parseWord()` 格式驗證。
+  - 山貓、鋼牙、豬哥牙、干樂、田螺這 5 個工程車俗稱,辭典裡剛好都有同樣的
+    漢字,但定義完全是別的東西(山貓是雲豹/石虎、鋼牙是假牙、豬哥牙是虎齒、
+    干樂是陀螺、田螺是水生螺類)——**這是同一個漢字被借去當工程車暱稱用,
+    跟英語把 skid loader 暱稱叫「Bobcat」是同一種構詞方式(山貓就是台語版
+    的「Bobcat」哏),不是辭典本身承認這個字有工程車的意思**。使用者確認
+    這種用法可以收錄,只要清楚標明來源就好。有實際核對過這 5 個詞辭典裡的
+    讀音跟參考資料標注的羅馬字完全一致(不是另外查到的其他發音),所以發音
+    沒有疑慮,問題只在字義跟辭典本身的主要義項不同,這裡老實說明來源跟
+    這個限制。其中「鋼牙」(液壓剪/破碎爪)沒找到乾淨、授權清楚的照片,
+    這批沒收錄,純粹是圖片素材問題;「干樂」「田螺」是同一種車(混凝土
+    攪拌車)的不同暱稱,各自配一張不同照片。另外「拖車」查證得過,但一樣
+    找不到跟卡車視覺上有明顯區隔、授權又乾淨的照片,這批也沒收錄。
 - **地名/溪流**:題目是台灣的車站名、山脈、溪流或地標,猜台語漢字或羅馬字。
   **這個模式完全不是查教育部辭典來的**——辭典裡標記「地名」的詞條只有 12 筆,
   扣掉「地號名」這種泛稱,真正的具體地名只剩「淡水」「西門町」兩個,溪流
@@ -124,7 +145,7 @@
 
 難易度篩選只影響「詞義/漢字↔羅馬字/聲調」這幾個查辭典的模式(篩的是題目考
 哪個詞,干擾選項還是照樣從全部詞庫挑,沒有跟著篩);「動物」「身體部位」
-「樹仔/草仔」「地名/溪流」「九九乘法」都是獨立的固定題庫,不受難易度設定影響。
+「樹仔/草仔」「工程車」「地名/溪流」「九九乘法」都是獨立的固定題庫,不受難易度設定影響。
 
 ## 執行方式
 
@@ -216,6 +237,30 @@ CC BY 或 CC BY-SA 授權:
 本機用 Pillow 等比縮到長邊 900px、JPEG 品質 78 壓縮出來的,原始檔案解析度較高,
 縮圖方式不同但同樣符合授權條款的再散布要求)。
 
+`data/images/tw-vehicles/` 底下 11 張工程車照片(2026-09-18 新增),同樣來自
+Wikimedia Commons、CC0/CC BY-SA 授權:
+
+| 檔案 | 工程車 | 授權 | 攝影者 | 來源 |
+|---|---|---|---|---|
+| `crane.jpg` | 吊車(配「吊車」) | CC BY-SA 4.0 | Tbatb | [File:A Liebherr LTM 1500-8.1 crane truck lifting a Genie S-85 Lift Crane.jpg](https://commons.wikimedia.org/wiki/File:A_Liebherr_LTM_1500-8.1_crane_truck_lifting_a_Genie_S-85_Lift_Crane.jpg) |
+| `excavator.jpg` | 輪式挖土機(配「怪手」) | CC BY 3.0 de | High Contrast | [File:Caterpillar M315C excavator.JPG](https://commons.wikimedia.org/wiki/File:Caterpillar_M315C_excavator.JPG) |
+| `bulldozer.jpg` | 推土機(配「攄塗機」) | CC BY-SA 4.0 | Srđan Popović | [File:Caterpillar dozer.jpg](https://commons.wikimedia.org/wiki/File:Caterpillar_dozer.jpg) |
+| `truck.jpg` | 貨車(配「卡車」) | CC BY-SA 4.0 | Bin Moicka Markosie | [File:HK 中環 Central 皇后大道中 Queen's Road outdoor sidewalk carpark red Isuzu lorry June 2017 IX1.jpg](https://commons.wikimedia.org/wiki/File:HK_%E4%B8%AD%E7%92%B0_Central_%E7%9A%87%E5%90%8E%E5%A4%A7%E9%81%93%E4%B8%AD_Queen%27s_Road_outdoor_sidewalk_carpark_red_Isuzu_lorry_June_2017_IX1.jpg) |
+| `pickup.jpg` | 輕型小貨車(配「發財仔車」) | CC0 | ITakePhotosOfCars | [File:Autozam Scrum Pickup left side view.jpg](https://commons.wikimedia.org/wiki/File:Autozam_Scrum_Pickup_left_side_view.jpg) |
+| `tanker.jpg` | 油罐車(配「油罐車」) | CC BY-SA 3.0 | Horacio Cambeiro | [File:Shell Fuel Tanker Truck at Capioví Service Station, Misiones, Argentina.jpg](https://commons.wikimedia.org/wiki/File:Shell_Fuel_Tanker_Truck_at_Capiov%C3%AD_Service_Station,_Misiones,_Argentina.jpg) |
+| `forklift.jpg` | 堆高機(配「堆高機」) | CC BY 4.0 | Goterrestrial | [File:Container loading with forklift at warehouse in Thailand.jpg](https://commons.wikimedia.org/wiki/File:Container_loading_with_forklift_at_warehouse_in_Thailand.jpg) |
+| `aerial-platform.jpg` | 剪式高空作業車(配「流籠車」) | CC BY-SA 4.0 | Wasiul Bahar | [File:JCB S1930E Scissor Lift at Rajiv Gandhi International Airport, hyderabad.jpg](https://commons.wikimedia.org/wiki/File:JCB_S1930E_Scissor_Lift_at_Rajiv_Gandhi_International_Airport,_hyderabad.jpg) |
+| `dump-truck.jpg` | 砂石車(配「沙石仔車」) | CC0 | Retired electrician | [File:Moscow, Scania 4-axle dump truck, tight squeeze, Mar 2026 01.jpg](https://commons.wikimedia.org/wiki/File:Moscow,_Scania_4-axle_dump_truck,_tight_squeeze,_Mar_2026_01.jpg) |
+| `concrete-pump.jpg` | 混凝土泵浦車(配「鴨母車」) | CC0 | Daderot | [File:Concrete pump truck - Arlington, MA.jpg](https://commons.wikimedia.org/wiki/File:Concrete_pump_truck_-_Arlington,_MA.jpg) |
+| `roller.jpg` | 壓路機(配「鐵輪」) | CC BY-SA 4.0 | Cjp24 | [File:Ammann road roller, Boulleret.jpg](https://commons.wikimedia.org/wiki/File:Ammann_road_roller,_Boulleret.jpg) |
+| `skid-loader.jpg` | Bobcat 鏟裝機(配「山貓」) | CC BY 3.0 | Gabinho | [File:Bobcat 751 Compact Skid Steer Loader in Bucharest January 2011.jpg](https://commons.wikimedia.org/wiki/File:Bobcat_751_Compact_Skid_Steer_Loader_in_Bucharest_January_2011.jpg) |
+| `fork-tines.jpg` | 堆高機貨叉載貨(配「豬哥牙」) | CC BY-SA 2.0 | Anne Burgess | [File:The Last Palletload - geograph.org.uk - 763432.jpg](https://commons.wikimedia.org/wiki/File:The_Last_Palletload_-_geograph.org.uk_-_763432.jpg) |
+| `mixer-truck-1.jpg` | 混凝土攪拌車(配「干樂」) | CC0 | Spielvogel | [File:CAMC concrete mixer truck Xing Kaima. Spielvogel 1.jpg](https://commons.wikimedia.org/wiki/File:CAMC_concrete_mixer_truck_Xing_Kaima._Spielvogel_1.jpg) |
+| `mixer-truck-2.jpg` | 混凝土攪拌車(配「田螺」) | CC0 | Spielvogel | [File:CAMC concrete mixer truck Xing Kaima. Spielvogel 2.jpg](https://commons.wikimedia.org/wiki/File:CAMC_concrete_mixer_truck_Xing_Kaima._Spielvogel_2.jpg) |
+
+這批一樣是本機用 Pillow 等比縮到長邊 900px、JPEG 品質 78 壓縮出來的,單張約
+85~240KB。
+
 `data/images/tw-body/skeleton.webp` 是身體部位模式骨頭類題目共用的人骨全身圖:
 
 | 檔案 | 說明 | 授權 | 作者 | 來源 |
@@ -276,6 +321,32 @@ data/images/tw-plants/        台灣鄉土樹種照片(樹仔/草仔模式用)
 
 ## 開發紀錄
 
+- 2026-09-18:「工程車」模式補回「山貓」「豬哥牙」「干樂」「田螺」4 個詞
+  (原本因為辭典裡同樣的漢字定義是別的東西而排除,見下一條紀錄)。使用者
+  確認:這幾個是工程車圈子把辭典本來就有的字借去當暱稱用(跟英語把
+  skid loader 暱稱叫「Bobcat」同一種構詞方式),只要清楚標明來源就可以
+  收錄,不用因為辭典主要義項對不上就整個排除。動手前先逐一核對這幾個詞
+  在辭典裡的實際讀音跟參考資料標注的羅馬字是否一致——山貓 suann-niau、
+  豬哥牙 ti-ko-gê、干樂 kan-lo̍k、田螺 tshân-lê,全部一致,確認發音沒有
+  疑慮才收錄(還是用 `byHanzi` 查到的辭典讀音,不是另外編的)。「鋼牙」
+  (液壓剪/破碎爪這種挖土機用的拆除工具)因為找不到授權乾淨的照片,這次
+  還是沒收錄,純粹是圖片素材問題,不是資料查證問題。「干樂」「田螺」
+  指的是同一種車(混凝土攪拌車)的不同暱稱,刻意各配一張不同照片,不是
+  同一張圖重複掛兩題。工程車題庫現在共 15 個詞。
+- 2026-09-18:新增「工程車」出題模式(11 張照片,`vehicle-hanzi`/`vehicle-roman`
+  兩個獨立勾選框,做法跟動物/身體部位/樹仔草仔一致)。使用者把一份台語工程車
+  詞彙整理(臉書貼文截圖)放進 `reference/《常見的工程車台語1》.md`,裡面
+  每種工程車列了好幾個台語同義詞。查證時發現這份資料裡有幾個常見俗稱——
+  「山貓」(鏟裝機)、「鋼牙」(液壓剪)、「豬哥牙」(堆高機貨叉)、「干樂」
+  「田螺」(混凝土攪拌車暱稱)——雖然辭典裡查得到同樣的漢字,但辭典對這幾個
+  字的定義完全是別的東西(雲豹/假牙/虎牙/陀螺/水生螺類),不是這裡要的工程車
+  意思,所以沒有收錄,不能因為「漢字剛好存在」就當作查證通過。最後收錄
+  11 個詞:吊車、攄塗機、怪手、卡車、發財仔車、油罐車這 6 個辭典查得到且
+  定義對得上;堆高機、流籠車、沙石仔車、鴨母車、鐵輪這 5 個辭典沒收錄,改用
+  參考資料本身的羅馬字,只做過 `Romanize.parseWord()` 格式驗證。混凝土攪拌車
+  的其中一個俗稱是外來語借音、沒有對應漢字寫法,格式上放不進題庫,所以沒收;
+  「拖車」查證得過,但找不到跟卡車照片有明顯區隔、授權又乾淨的圖,這批也沒收。
+  照片一樣是 Wikimedia Commons CC0/CC BY-SA,授權列在「圖片授權」。
 - 2026-09-18:「動物」「身體部位」「樹仔/草仔」三個看圖模式,原本各自是一個
   勾選框、每題內部隨機決定考漢字還是考羅馬字;使用者反應想要能分開只選一種
   方向練習,所以拆成 `-hanzi`/`-roman` 兩個獨立勾選框(例如「動物(看圖猜台語

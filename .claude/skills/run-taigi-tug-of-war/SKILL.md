@@ -18,18 +18,19 @@ screen: **team** (`team`, the original two-team buzzer game, `GameState`) and
 "Solo/practice mode" below). Both share the same `Questions.generate()`
 question bank and modes.
 
-Eight question *categories* backed by 11 checkbox mode values (`enabledModes`
+Nine question *categories* backed by 13 checkbox mode values (`enabledModes`
 entries, `.modeCheckbox` values in `index.html`): `meaning`, `romanization`,
 `tone` (all three filter against `data/build-questions.js`'s
 `classifyLevel()` difficulty tag — `elementary`/`junior`/`senior`/
 `university`, itself an LLM approximation, not official data, see README),
 `animal-hanzi`/`animal-roman`, `body-hanzi`/`body-roman`,
-`plant-hanzi`/`plant-roman` (curated picture pools, see below — each of
-these three categories is two independent checkboxes, one per direction,
-*not* one checkbox that randomizes direction internally, unlike
-`romanization`/`tone`/`place` which still do randomize hanzi⇄roman per
-question within a single checkbox), `place` (curated text pool, see below),
-and `multiplication` (pure numeral generation, no dictionary lookup at all).
+`plant-hanzi`/`plant-roman`, `vehicle-hanzi`/`vehicle-roman` (curated picture
+pools, see below — each of these four categories is two independent
+checkboxes, one per direction, *not* one checkbox that randomizes direction
+internally, unlike `romanization`/`tone`/`place` which still do randomize
+hanzi⇄roman per question within a single checkbox), `place` (curated text
+pool, see below), and `multiplication` (pure numeral generation, no
+dictionary lookup at all).
 
 ## Serve — you usually don't need to
 
@@ -95,30 +96,58 @@ const q = vm.runInContext('Questions.generate(["animal-hanzi"], "poj")', sandbox
 
 `GameState` (`src/game-state.js`) is a plain top-level `class`, loads the same way.
 
-## Curated word-list modes (animal / body / plant / place)
+## Curated word-list modes (animal / body / plant / vehicle / place)
 
-Four modes don't draw from the main dictionary-filtered `entries` pool —
+Five modes don't draw from the main dictionary-filtered `entries` pool —
 they're hand-curated lists in `src/lib/questions.js`, each cross-checked at
 `Questions.load()` time against the loaded dictionary (`byHanzi.get(hanzi)`)
 so a typo or a word the dictionary doesn't actually contain silently drops
 out rather than crashing:
 
-- `ANIMAL_WORDS`, `BODY_WORDS`, `PLANT_WORDS` — emoji or photo prompt,
-  `{ type: 'emoji'|'image', value, hanzi }`. Every `hanzi` here **was
-  individually verified to exist in the MOE dictionary** before being added
-  — don't add a new entry without checking `byHanzi.get('新詞')` first (load
-  `data/questions.js` via the `vm` pattern above and inspect `TAIGI_QUESTIONS.entries`).
-  Each of these three pools backs *two* checkbox modes (`animal-hanzi`/
+- `ANIMAL_WORDS`, `BODY_WORDS`, `PLANT_WORDS`, `VEHICLE_WORDS` — emoji or
+  photo prompt, `{ type: 'emoji'|'image', value, hanzi }`. Every `hanzi`
+  here **was individually verified to exist in the MOE dictionary** before
+  being added — don't add a new entry without checking `byHanzi.get('新詞')`
+  first (load `data/questions.js` via the `vm` pattern above and inspect
+  `TAIGI_QUESTIONS.entries`). **Existence of the hanzi alone isn't enough —
+  check the dictionary's own `defs` text actually matches the intended
+  meaning.** `VEHICLE_WORDS` hit this for real: `byHanzi.get('山貓')` returns
+  a real entry, but its definition is "雲豹、石虎、狸貓" (clouded leopard),
+  not "skid loader" — same trap for 鋼牙 (dictionary: dentures, not a
+  hydraulic shear attachment), 豬哥牙 (canine tooth, not a forklift fork),
+  干樂 (spinning top, not a concrete mixer truck nickname), 田螺 (a
+  freshwater snail, not a concrete mixer truck nickname either).
+  `buildPicturePool()` has no way to detect this automatically (it only
+  checks existence, not semantic match), so it's a manual read-the-definition
+  step every time a curated word list borrows vocabulary from a
+  non-dictionary reference source. The project owner explicitly signed off
+  on keeping these four anyway (`山貓`/`豬哥牙`/`干樂`/`田螺` — 鋼牙 stayed
+  out for lack of a clean photo, not a data decision) once the *pronunciation*
+  was cross-checked to match between the dictionary reading and the
+  reference source's romanization exactly — this is a same-hanzi-repurposed-
+  as-slang case (parallel to English reusing "Bobcat" for a skid loader),
+  not a fabricated reading, and both `VEHICLE_WORDS`' own comment block and
+  README disclose it. Don't generalize this as "dictionary definition
+  mismatches are fine to ignore" — it only holds here because (a) the
+  pronunciation was verified to be identical, not just assumed, and (b) the
+  project owner explicitly approved this specific case after being shown the
+  mismatch, not because the check itself doesn't matter.
+  Each of these four pools backs *two* checkbox modes (`animal-hanzi`/
   `animal-roman`, etc.) — `generate()` picks the direction directly from
   which checkbox fired rather than randomizing internally, see
   `generate()`'s dispatch block in `src/lib/questions.js`.
-  Photo entries point at `data/images/tw-wildlife/*.jpg` or
-  `data/images/tw-plants/*.jpg` — see README's "圖片授權" for the CC
-  licenses/attribution; only add a new photo via the same Wikimedia Commons
-  API flow (search → `imageinfo` with `iiprop=url|extmetadata` → check
-  `LicenseShortName` is CC BY/BY-SA/CC0 before downloading — reject anything
-  else or anything with a missing/ambiguous license, like the Shoushan Zoo
-  boar photo that got swapped out for a clean CC BY-SA one instead).
+  Photo entries point at `data/images/tw-wildlife/*.jpg`,
+  `data/images/tw-plants/*.jpg`, or `data/images/tw-vehicles/*.jpg` — see
+  README's "圖片授權" for the CC licenses/attribution; only add a new photo
+  via the same Wikimedia Commons API flow (search → `imageinfo` with
+  `iiprop=url|extmetadata` → check `LicenseShortName` is CC BY/BY-SA/CC0
+  before downloading — reject anything else or anything with a
+  missing/ambiguous license, like the Shoushan Zoo boar photo that got
+  swapped out for a clean CC BY-SA one instead). For `VEHICLE_WORDS`
+  specifically, also reject a technically-licensed photo if it's too visually
+  busy/confusable with another entry in the same pool to answer correctly
+  from (e.g. a dump truck photo that also has an excavator and a road roller
+  strapped to a trailer behind it — swapped for a cleaner single-vehicle shot).
 - `PLACE_RAW` — hanzi + raw romanization string, **not** MOE-dictionary
   sourced (the dictionary has essentially zero place names — verified by
   grepping `data/raw/dict-twblg.json` for `/^地名/`-tagged defs: 12 hits
@@ -222,12 +251,12 @@ gets `Cannot find module 'playwright'` even though `npm install` succeeded.
   dict, merged in `build-questions.js`'s `processItems()`). Works instantly
   (no network wait) since it's a `<script>` global, not a fetch.
 - Settings → game: fill `#targetScore`/`#questionSeconds`/`#teamAName`/`#teamBName`,
-  toggle `.modeCheckbox[value="meaning|romanization|tone|animal-hanzi|animal-roman|body-hanzi|body-roman|plant-hanzi|plant-roman|place|multiplication"]`,
+  toggle `.modeCheckbox[value="meaning|romanization|tone|animal-hanzi|animal-roman|body-hanzi|body-roman|plant-hanzi|plant-roman|vehicle-hanzi|vehicle-roman|place|multiplication"]`,
   toggle `.levelCheckbox[value="elementary|junior|senior|university"]` (all
   four checked by default; unchecking all falls back to unrestricted, not to
   zero results), radio `input[name="romanSystem"][value="tailo|poj"]`, click
   `#startBtn`.
-- `animal-*`/`body-*`/`plant-*` modes render an emoji, a whole photo, or (body only)
+- `animal-*`/`body-*`/`plant-*`/`vehicle-*` modes render an emoji, a whole photo, or (body only)
   a cropped region of the shared skeleton chart inside `#promptText`,
   depending on `q.promptType`: `'emoji'` (text), `'image'` (`<img>`), or
   `'crop'` (a `<div class="boneCrop">` with `background-image`/`-size`/
