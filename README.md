@@ -75,7 +75,8 @@
   的樹種改用照片,授權見下方「圖片授權」。
 - **工程車**:題目是工程車照片,猜台語漢字或羅馬字,一樣拆成 `vehicle-hanzi`/
   `vehicle-roman` 兩個獨立勾選框(`src/lib/questions.js` 的 `VEHICLE_WORDS`,
-  共 15 個詞)。使用者提供了一份台語工程車詞彙的參考資料
+  共 15 個詞、16 張照片——「豬哥牙」對應兩張不同照片,見下方說明)。使用者
+  提供了一份台語工程車詞彙的參考資料
   (`reference/《常見的工程車台語1》.md`,一份臉書貼文截圖整理),裡面每種車
   列了好幾個台語同義詞。查證方式:
   - 吊車、攄塗機、怪手、卡車、發財仔車、油罐車這 6 個詞,辭典查得到、
@@ -243,7 +244,7 @@ Wikimedia Commons、CC0/CC BY-SA 授權:
 | 檔案 | 工程車 | 授權 | 攝影者 | 來源 |
 |---|---|---|---|---|
 | `crane.jpg` | 吊車(配「吊車」) | CC BY-SA 4.0 | Tbatb | [File:A Liebherr LTM 1500-8.1 crane truck lifting a Genie S-85 Lift Crane.jpg](https://commons.wikimedia.org/wiki/File:A_Liebherr_LTM_1500-8.1_crane_truck_lifting_a_Genie_S-85_Lift_Crane.jpg) |
-| `excavator.jpg` | 輪式挖土機(配「怪手」) | CC BY 3.0 de | High Contrast | [File:Caterpillar M315C excavator.JPG](https://commons.wikimedia.org/wiki/File:Caterpillar_M315C_excavator.JPG) |
+| `excavator.jpg` | 履帶式挖土機(配「怪手」) | CC0 | Daderot | [File:Komatsu excavator - Arlington, MA.jpg](https://commons.wikimedia.org/wiki/File:Komatsu_excavator_-_Arlington,_MA.jpg) |
 | `bulldozer.jpg` | 推土機(配「攄塗機」) | CC BY-SA 4.0 | Srđan Popović | [File:Caterpillar dozer.jpg](https://commons.wikimedia.org/wiki/File:Caterpillar_dozer.jpg) |
 | `truck.jpg` | 貨車(配「卡車」) | CC BY-SA 4.0 | Bin Moicka Markosie | [File:HK 中環 Central 皇后大道中 Queen's Road outdoor sidewalk carpark red Isuzu lorry June 2017 IX1.jpg](https://commons.wikimedia.org/wiki/File:HK_%E4%B8%AD%E7%92%B0_Central_%E7%9A%87%E5%90%8E%E5%A4%A7%E9%81%93%E4%B8%AD_Queen%27s_Road_outdoor_sidewalk_carpark_red_Isuzu_lorry_June_2017_IX1.jpg) |
 | `pickup.jpg` | 輕型小貨車(配「發財仔車」) | CC0 | ITakePhotosOfCars | [File:Autozam Scrum Pickup left side view.jpg](https://commons.wikimedia.org/wiki/File:Autozam_Scrum_Pickup_left_side_view.jpg) |
@@ -257,6 +258,7 @@ Wikimedia Commons、CC0/CC BY-SA 授權:
 | `fork-tines.jpg` | 堆高機貨叉載貨(配「豬哥牙」) | CC BY-SA 2.0 | Anne Burgess | [File:The Last Palletload - geograph.org.uk - 763432.jpg](https://commons.wikimedia.org/wiki/File:The_Last_Palletload_-_geograph.org.uk_-_763432.jpg) |
 | `mixer-truck-1.jpg` | 混凝土攪拌車(配「干樂」) | CC0 | Spielvogel | [File:CAMC concrete mixer truck Xing Kaima. Spielvogel 1.jpg](https://commons.wikimedia.org/wiki/File:CAMC_concrete_mixer_truck_Xing_Kaima._Spielvogel_1.jpg) |
 | `mixer-truck-2.jpg` | 混凝土攪拌車(配「田螺」) | CC0 | Spielvogel | [File:CAMC concrete mixer truck Xing Kaima. Spielvogel 2.jpg](https://commons.wikimedia.org/wiki/File:CAMC_concrete_mixer_truck_Xing_Kaima._Spielvogel_2.jpg) |
+| `wheeled-excavator.jpg` | 輪式挖土機(配「豬哥牙」) | CC BY 3.0 de | High Contrast | [File:Caterpillar M315C excavator.JPG](https://commons.wikimedia.org/wiki/File:Caterpillar_M315C_excavator.JPG) |
 
 這批一樣是本機用 Pillow 等比縮到長邊 900px、JPEG 品質 78 壓縮出來的,單張約
 85~240KB。
@@ -321,6 +323,16 @@ data/images/tw-plants/        台灣鄉土樹種照片(樹仔/草仔模式用)
 
 ## 開發紀錄
 
+- 2026-09-18:使用者反應「怪手的照片應該是豬哥牙」,追問後確認:原本配
+  「怪手」的輪式挖土機照片(CAT M315C)其實是要拿來配「豬哥牙」的。
+  處理方式:把那張照片改名成 `wheeled-excavator.jpg`,改標「豬哥牙」,
+  跟原本已經有的 `fork-tines.jpg`(堆高機貨叉載貨那張)並列——現在「豬哥牙」
+  對應兩張不同照片,使用者確認 `fork-tines.jpg` 不用動。「怪手」另外換一張
+  新的履帶式挖土機照片(Komatsu excavator,CC0,Daderot)。工程車題庫維持
+  15 個詞,但照片變成 16 張。技術上確認過:兩個「豬哥牙」項目雖然共用同一個
+  辭典 entry 物件參考,但 `genFromPicturePool()` 的干擾選項過濾邏輯是比對
+  entry 物件參考(不是比對漢字字串),所以不會出現「豬哥牙」同時是正解又是
+  自己的干擾選項這種重複情形,批次測試 3000 題零重複選項。
 - 2026-09-18:「工程車」模式補回「山貓」「豬哥牙」「干樂」「田螺」4 個詞
   (原本因為辭典裡同樣的漢字定義是別的東西而排除,見下一條紀錄)。使用者
   確認:這幾個是工程車圈子把辭典本來就有的字借去當暱稱用(跟英語把

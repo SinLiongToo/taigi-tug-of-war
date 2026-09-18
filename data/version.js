@@ -1,2 +1,2 @@
 // 自動產生,勿手動編輯。重新產生: node data/bump-version.js [major|minor|patch]
-const APP_VERSION = { version: 'v1.8.0', updatedAt: "2026-09-18 08:04" };
+const APP_VERSION = { version: 'v1.8.1', updatedAt: "2026-09-18 08:47" };

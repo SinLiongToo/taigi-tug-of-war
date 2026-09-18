@@ -135,6 +135,11 @@ const Questions = (() => {
   //     視覺上有明顯區隔、授權又乾淨的拖車照片(找到的候選不是被拖車上又
   //     載了別的機具造成混淆,就是跟卡車外觀太像沒有辨識度),所以這批
   //     沒有收錄,不是查證失敗,是圖片素材沒找到夠好的。
+  //   - 2026-09-18 修正:原本配「怪手」的輪式挖土機照片(CAT M315C)其實
+  //     使用者是要拿來配「豬哥牙」的,所以改名成 `wheeled-excavator.jpg`
+  //     並改標「豬哥牙」,跟 `fork-tines.jpg` 並列成兩張不同照片、同一個
+  //     漢字答案(使用者確認保留 `fork-tines.jpg` 不用動)。「怪手」另外
+  //     換一張新的履帶式挖土機照片(`excavator.jpg`,檔名不變、內容換掉)。
   const VEHICLE_WORDS = [
     { type: 'image', value: 'data/images/tw-vehicles/crane.jpg', hanzi: '吊車' },
     { type: 'image', value: 'data/images/tw-vehicles/excavator.jpg', hanzi: '怪手' },
@@ -147,6 +152,7 @@ const Questions = (() => {
     { type: 'image', value: 'data/images/tw-vehicles/dump-truck.jpg', hanzi: '沙石仔車', poj: 'sua-tsio̍h-á-tshia' },
     { type: 'image', value: 'data/images/tw-vehicles/skid-loader.jpg', hanzi: '山貓' },
     { type: 'image', value: 'data/images/tw-vehicles/fork-tines.jpg', hanzi: '豬哥牙' },
+    { type: 'image', value: 'data/images/tw-vehicles/wheeled-excavator.jpg', hanzi: '豬哥牙' },
     { type: 'image', value: 'data/images/tw-vehicles/mixer-truck-1.jpg', hanzi: '干樂' },
     { type: 'image', value: 'data/images/tw-vehicles/mixer-truck-2.jpg', hanzi: '田螺' },
     { type: 'image', value: 'data/images/tw-vehicles/concrete-pump.jpg', hanzi: '鴨母車', poj: 'ah-bó-tshia' },
