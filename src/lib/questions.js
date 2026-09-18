@@ -101,6 +101,17 @@ const Questions = (() => {
     { type: 'image', value: 'data/images/tw-plants/waxapple.jpg', hanzi: '蓮霧' },
     { type: 'image', value: 'data/images/tw-plants/starfruit.jpg', hanzi: '楊桃' },
     { type: 'image', value: 'data/images/tw-plants/passionfruit.jpg', hanzi: '時計果' },
+
+    // 七里香、福木、芙蓉(2026-09-18 新增)。教育部辭典(主辭典+擴充辭典,
+    // 共 21,282 筆原始資料)完全查不到這三個詞,常見同義詞(月橘、九里香、
+    // 十里香、木芙蓉)也查不到,三個姐妹專案(project_claude_TTS_SST、
+    // 台灣鐵路四界行、geo地理,動物,人體,車,蟲)也都沒有這類植物資料。
+    // 如實跟使用者回報查無此詞之後,使用者直接提供白話字/教部羅雙欄對照的
+    // 羅馬字,只做過 `Romanize.parseWord()` 格式驗證,不是辭典查來的,也
+    // 沒有逐字跟辭典核對發音(因為辭典根本沒收這三個詞可以核對)。
+    { type: 'image', value: 'data/images/tw-plants/murraya.jpg', hanzi: '七里香', poj: 'tshit-lí-hiong' },
+    { type: 'image', value: 'data/images/tw-plants/fukugi.jpg', hanzi: '福木', poj: 'hok-bo̍k' },
+    { type: 'image', value: 'data/images/tw-plants/hibiscus-mutabilis.jpg', hanzi: '芙蓉', poj: 'Phû-iông' },
   ];
 
   // 工程車照片(2026-09-18 新增)。使用者提供 reference/《常見的工程車台語1》.md

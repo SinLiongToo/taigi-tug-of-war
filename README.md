@@ -72,7 +72,11 @@
   辭典確實收錄才收(`src/lib/questions.js` 的
   `PLANT_WORDS`)。常見植物(樹、草、花、竹、番麥、稻穗...)用現成 emoji;
   相思仔、茄苳、林投、木麻黃、檳榔這幾種有台灣鄉土特色、但沒有對應 emoji
-  的樹種改用照片,授權見下方「圖片授權」。
+  的樹種改用照片,授權見下方「圖片授權」。「七里香」「福木」「芙蓉」這
+  三個詞教育部辭典(主辭典+擴充辭典,共 21,282 筆)查無此詞,常見同義詞
+  (月橘、九里香、十里香、木芙蓉)也查不到,三個姐妹專案也沒有這類植物
+  資料;如實回報給使用者之後,使用者直接提供羅馬字,只做過格式驗證,不是
+  辭典查來的。
 - **工程車**:題目是工程車照片,猜台語漢字或羅馬字,一樣拆成 `vehicle-hanzi`/
   `vehicle-roman` 兩個獨立勾選框(`src/lib/questions.js` 的 `VEHICLE_WORDS`,
   共 15 個詞、16 張照片——「豬哥牙」對應兩張不同照片,見下方說明)。使用者
@@ -232,6 +236,9 @@ CC BY 或 CC BY-SA 授權:
 | `waxapple.jpg` | 蓮霧(配「蓮霧」) | CC BY-SA 4.0 | Salil Kumar Mukherjee | [File:Wax apple (Syzygium samarangense).jpg](https://commons.wikimedia.org/wiki/File:Wax_apple_(Syzygium_samarangense).jpg) |
 | `starfruit.jpg` | 楊桃(配「楊桃」) | CC BY-SA 4.0 | Salil Kumar Mukherjee | [File:Star fruit (Averrhoa carambola) 01.jpg](https://commons.wikimedia.org/wiki/File:Star_fruit_(Averrhoa_carambola)_01.jpg) |
 | `passionfruit.jpg` | 百香果(配「時計果」) | CC BY-SA 4.0 | Ivar Leidus | [File:Passion fruits - whole and halved.jpg](https://commons.wikimedia.org/wiki/File:Passion_fruits_-_whole_and_halved.jpg) |
+| `murraya.jpg` | 七里香樹(配「七里香」) | CC BY 4.0 | Shuvaev | [File:Murraya paniculata, Longwood Gardens 2023 01.jpg](https://commons.wikimedia.org/wiki/File:Murraya_paniculata,_Longwood_Gardens_2023_01.jpg) |
+| `fukugi.jpg` | 福木葉子(配「福木」) | CC BY-SA 3.0 | Mokkie | [File:Fukugi Tree (Garcinia subelliptica).jpg](https://commons.wikimedia.org/wiki/File:Fukugi_Tree_(Garcinia_subelliptica).jpg) |
+| `hibiscus-mutabilis.jpg` | 木芙蓉花(配「芙蓉」) | CC BY-SA 4.0 | Wee Hong | [File:Hibiscus mutabilis (190111-1618).jpg](https://commons.wikimedia.org/wiki/File:Hibiscus_mutabilis_(190111-1618).jpg) |
 
 這些跟野生動物照片一樣都是縮圖,不是原始全解析度檔案,單張約 60~230KB,適合網頁載入
 (前 5 張是 480px 寬的 Commons thumbnail API 縮圖;2026-09-17 新增的樹種與水果照片是
@@ -323,6 +330,16 @@ data/images/tw-plants/        台灣鄉土樹種照片(樹仔/草仔模式用)
 
 ## 開發紀錄
 
+- 2026-09-18:「樹仔/草仔」模式加 3 個常見台灣行道樹/園藝植物:七里香、
+  福木、芙蓉(木芙蓉)。教育部辭典(主辭典+擴充辭典,共 21,282 筆原始
+  資料)完全查不到這三個詞,常見同義詞(月橘、九里香、十里香、木芙蓉)
+  也查不到;順手查了三個姐妹專案(project_claude_TTS_SST、台灣鐵路
+  四界行、geo地理,動物,人體,車,蟲)確認也沒有這類植物資料。如實跟
+  使用者回報查證結果之後,使用者直接提供白話字/教部羅雙欄對照的羅馬字
+  (七里香 tshit-lí-hiong、福木 hok-bo̍k、芙蓉 Phû-iông),只做過
+  `Romanize.parseWord()` 格式驗證,不是辭典查來的,程式碼註解跟這裡都
+  有清楚標明。照片一樣是 Wikimedia Commons CC BY/CC BY-SA 授權,列在
+  「圖片授權」。
 - 2026-09-18:使用者反應「怪手的照片應該是豬哥牙」,追問後確認:原本配
   「怪手」的輪式挖土機照片(CAT M315C)其實是要拿來配「豬哥牙」的。
   處理方式:把那張照片改名成 `wheeled-excavator.jpg`,改標「豬哥牙」,
