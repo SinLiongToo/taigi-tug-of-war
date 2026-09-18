@@ -10,6 +10,8 @@
     const defsHtml = entry.defs
       .map((d) => `<li>${d.pos ? `<span class="findDefPos">${escapeHtml(d.pos)}</span>` : ''}${escapeHtml(d.def)}</li>`)
       .join('');
+    const slangNote = Find.VEHICLE_SLANG_NOTE[entry.hanzi];
+    const slangHtml = slangNote ? `<div class="findCardSlangNote">⚠️ ${escapeHtml(slangNote)}</div>` : '';
     return `
       <div class="findCard">
         <div class="findCardHanzi">${escapeHtml(entry.hanzi)}</div>
@@ -17,6 +19,7 @@
           <span><span class="findRomanLabel">台羅</span>${escapeHtml(tailo)}</span>
           <span><span class="findRomanLabel">白話字</span>${escapeHtml(poj)}</span>
         </div>
+        ${slangHtml}
         <ul class="findCardDefs">${defsHtml}</ul>
         <div class="findCardLevel">難易度:${escapeHtml(levelLabel)}(AI 依字數與辭典釋義概略判斷,非官方分級)</div>
       </div>`;

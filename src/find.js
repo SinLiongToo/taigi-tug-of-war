@@ -80,6 +80,20 @@ const Find = (() => {
     return { type: 'roman', exact, toneless, fuzzy, parsedOk: !!parsed };
   }
 
+  // 「工程車」模式(src/lib/questions.js 的 VEHICLE_WORDS)裡有 4 個詞是把
+  // 辭典本來就有的漢字借去當工程車俗稱用,讀音跟辭典一致、但辭典本身的
+  // 釋義是完全不同的東西(跟英語把 skid loader 暱稱叫 "Bobcat" 是同一種
+  // 構詞方式)。這裡查到的是辭典本身的釋義,沒問題、不是錯誤,但使用者
+  // 如果是想確認「工程車俗稱」這個用法,光看辭典釋義會看不出來,所以額外
+  // 附註一下,避免誤會成查詢結果錯誤。來源見 questions.js 裡 VEHICLE_WORDS
+  // 上方那段更完整的說明跟 README 的對應開發紀錄。
+  const VEHICLE_SLANG_NOTE = {
+    山貓: '這個漢字在工程車俗稱裡也用來指「鏟裝機(skid loader)」,跟英語把同款機具暱稱叫「Bobcat」是同一種構詞方式,跟下面辭典本身的釋義是不同的用法。',
+    豬哥牙: '這個漢字在工程車俗稱裡也用來指「堆高機前面放貨的貨叉」,跟下面辭典本身的釋義是不同的用法。',
+    干樂: '這個漢字在工程車俗稱裡也用來指「混凝土攪拌車」的暱稱之一,跟下面辭典本身的釋義是不同的用法。',
+    田螺: '這個漢字在工程車俗稱裡也用來指「混凝土攪拌車」的另一個暱稱,跟下面辭典本身的釋義是不同的用法。',
+  };
+
   function search(q) {
     q = (q || '').trim();
     if (!q) return null;
@@ -87,5 +101,5 @@ const Find = (() => {
     return isHanRequest(q) ? searchHanzi(q) : searchRoman(q);
   }
 
-  return { search };
+  return { search, VEHICLE_SLANG_NOTE };
 })();

@@ -623,6 +623,16 @@ kbd {
   margin-right: 6px;
   vertical-align: middle;
 }
+.findCardSlangNote {
+  background: rgba(217, 119, 6, 0.1);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--fg);
+  margin-bottom: 10px;
+}
 .findCardDefs { margin: 0 0 8px; padding-left: 20px; color: var(--fg); }
 .findCardDefs li { margin-bottom: 3px; }
 .findDefPos {

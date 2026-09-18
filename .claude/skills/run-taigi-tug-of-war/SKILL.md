@@ -292,6 +292,21 @@ same as `Questions`); `src/find-ui.js` does the DOM rendering/wiring.
   directly (already embedded in `data/questions.js` by
   `build-questions.js`) rather than a hand-written string, so it can't drift
   out of sync with whatever dictionary files were actually merged.
+- **`Find.VEHICLE_SLANG_NOTE`** (2026-09-19): a small hanzi → note-text map
+  for the 4 words in `VEHICLE_WORDS` (`src/lib/questions.js`) that reuse a
+  real dictionary hanzi as construction-vehicle slang with an unrelated
+  dictionary definition (山貓/豬哥牙/干樂/田螺 — see the big comment above
+  `VEHICLE_WORDS` for the full writeup). `find-ui.js`'s `entryCard()` checks
+  this map and, if present, renders an amber `.findCardSlangNote` box above
+  the dictionary definition so a lookup of e.g. "山貓" doesn't look like a
+  wrong result just because it shows "雲豹" instead of "skid loader". This
+  is *not* the same gap as the 8 reference-only words below — those aren't
+  in the dictionary at all and stay unfindable on this page by design (the
+  page only searches what the MOE dictionary actually contains); these 4
+  *are* real dictionary words, just with a second, unrelated colloquial
+  sense the dictionary itself doesn't record. If you add another
+  `VEHICLE_WORDS`/`PLANT_WORDS`/etc. entry that reuses an existing
+  dictionary hanzi for an unrelated meaning, add it to this map too.
 - Testing: `vm`-load `romanize.js` + `data/questions.js` + `find.js` (no DOM
   needed) and call `Find.search(...)` directly — sample real entries out of
   `TAIGI_QUESTIONS.entries` at random rather than hand-typing expected
