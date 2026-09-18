@@ -1,16 +1,29 @@
 ---
 name: run-taigi-tug-of-war
-description: Launch, drive, and verify the 台語搶答拔河 (Taiwanese vocabulary tug-of-war buzzer game) static web app in this repo — plain HTML/CSS/JS, no build step, no framework. Use this whenever asked to run, test, screenshot, or verify a change to index.html/src/**/data/questions.js in this project.
+description: Launch, drive, and verify the 台語搶答拔河 (Taiwanese vocabulary tug-of-war buzzer game) static web app in this repo — plain HTML/CSS/JS, no build step, no framework. Covers both index.html (the buzzer game) and find.html (the dictionary lookup page). Use this whenever asked to run, test, screenshot, or verify a change to index.html/find.html/src/**/data/questions.js in this project.
 ---
 
 # Running 台語搶答拔河
 
-Single static page (`index.html` + `src/*.js` + `src/lib/*.js` + `data/questions.js`),
-no build step, no `package.json`. Script load order matters (set in `index.html`):
-`data/version.js` → `src/lib/romanize.js` → `data/questions.js` →
-`src/lib/questions.js` → `src/game-state.js` → `src/solo-state.js` →
-`src/solo-stats.js` → `src/keyboard.js` → `src/ui.js` → `src/settings.js` →
-`src/main.js`.
+Two static pages sharing one `data/questions.js` dictionary, no build step,
+no `package.json`:
+
+- **`index.html`** — the buzzer/quiz game. Script load order matters:
+  `data/version.js` → `src/lib/romanize.js` → `data/questions.js` →
+  `src/lib/questions.js` → `src/game-state.js` → `src/solo-state.js` →
+  `src/solo-stats.js` → `src/keyboard.js` → `src/ui.js` → `src/settings.js` →
+  `src/theme.js` → `src/main.js`.
+- **`find.html`** — a standalone dictionary lookup page (2026-09-18), styled
+  by an ChhoeTaigi/找台語-like search box. Load order:
+  `data/version.js` → `src/lib/romanize.js` → `data/questions.js` →
+  `src/find.js` → `src/find-ui.js` → `src/theme.js`. Deliberately does
+  *not* load `src/lib/questions.js` (the quiz's question-generation engine) —
+  `find.js` only needs `TAIGI_QUESTIONS.entries` and `Romanize` directly, see
+  "Dictionary lookup page" below.
+
+`src/theme.js` (dark/light toggle) and `src/style.css` are shared by both
+pages; a `localStorage` key (`theme`) keeps the toggle in sync across them.
+Each page's header has a `.navLinkLeft` link to the other.
 
 Two game types, chosen via the `input[name="gameType"]` radio on the settings
 screen: **team** (`team`, the original two-team buzzer game, `GameState`) and
@@ -218,6 +231,59 @@ which reset every time the page reloads or a new solo session starts.
   Both instances were only caught by screenshotting the *other* game type,
   not by reading the CSS. Any future element toggled via `.hidden` needs this
   checked every time it also gets a `display:` rule of its own.
+
+## Dictionary lookup page (`find.html`)
+
+Standalone reverse-lookup search, separate from the quiz. `src/find.js` is
+the pure-logic module (`Find.search(query)`, no DOM — trivially `vm`-loadable
+same as `Questions`); `src/find-ui.js` does the DOM rendering/wiring.
+
+- **Why it doesn't need `src/lib/questions.js`**: the quiz's `Questions`
+  module builds curated picture pools (`ANIMAL_WORDS` etc.) and handles
+  distractor generation — none of that applies to a plain lookup. `find.js`
+  reads `TAIGI_QUESTIONS.entries` directly and calls `Romanize` itself, so
+  it only needs `data/questions.js` + `src/lib/romanize.js`.
+- **The search key trick**: `Romanize.wordToKey(parsedSylls)` (already
+  present in `romanize.js`, with a comment saying it exists for exactly
+  this — "供辭典反查索引使用") turns a syllable list into a
+  `skeleton+tone` string like `tsiah8-png7`. Build this key once per
+  dictionary entry at index time, then parse the user's query with
+  `Romanize.parseWord()` (which already accepts POJ *or* Tâi-lô spelling,
+  diacritic *or* numeric tone — see the big comment block at the top of
+  `parseSyllable()` in `romanize.js`) and compare keys directly. This means
+  a query typed in POJ finds entries whose canonical form is Tâi-lô and vice
+  versa, with no need to pre-render every entry into both systems for string
+  matching.
+- **Three-tier fallback for romanized queries** (`searchRoman()` in
+  `find.js`): (1) exact `key` match (tone-correct) → (2) if none, match on
+  skeleton only ignoring tone (`skeletonKey`, e.g. user typed "to-sia"
+  without a tone mark) → (3) if still none, a diacritic-stripped substring
+  match against the rendered Tâi-lô/POJ strings (handles inputs
+  `Romanize.parseWord()` can't parse at all, e.g. typos or partial
+  syllables). The UI (`find-ui.js`) shows whichever tier actually produced
+  results, with a one-line note explaining which tier it fell back to.
+- **Hanzi queries are ambiguous on purpose**: a CJK-containing query (tested
+  via `/[一-鿿㐀-䶿]/`) searches *both* the `hanzi` field
+  and the Chinese `defs[].def` text, in three ranked buckets (exact hanzi →
+  partial hanzi → definition-text substring) — there's no way to tell from
+  the input alone whether the user meant "look up this Taiwanese hanzi
+  word" or "search by this Chinese meaning", so both run and get displayed
+  in separate labeled sections rather than picking one interpretation.
+- **Source citation**: `#findMeta` reads `TAIGI_QUESTIONS.source.name`/`.url`
+  directly (already embedded in `data/questions.js` by
+  `build-questions.js`) rather than a hand-written string, so it can't drift
+  out of sync with whatever dictionary files were actually merged.
+- Testing: `vm`-load `romanize.js` + `data/questions.js` + `find.js` (no DOM
+  needed) and call `Find.search(...)` directly — sample real entries out of
+  `TAIGI_QUESTIONS.entries` at random rather than hand-typing expected
+  romanizations (don't guess pronunciations, even in a test script). A
+  known-good regression check: 800 random entries, searched by hanzi/Tâi-lô/
+  POJ, should all resolve to themselves via `exact` with 0 failures.
+- Playwright: fill `#findInput`, click `#findSubmitBtn` (or submit the
+  `#findForm`), read `#findResults`. `#findMeta` is populated on
+  `DOMContentLoaded`, no async wait needed (no fetch, same as `#dictStatus`
+  on the game page — though `find.html` has no dictionary-loading gate at
+  all since there's no `Questions.load()` step to await).
 
 ## Bumping the version footer
 

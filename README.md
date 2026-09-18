@@ -32,6 +32,41 @@
    - 偷答也答錯,或時間到都沒人成功作答 → 這題作廢,直接出下一題。
 5. 任一隊答對數先達到 N → 遊戲結束,顯示獲勝隊伍。
 
+## 辭典查詢
+
+**線上玩**: https://sinliongtoo.github.io/taigi-tug-of-war/find.html
+
+跟搶答拔河遊戲分開的獨立頁面(`find.html`),遊戲畫面右上角有連結可以互相
+切換。單純的台語辭典查詢工具,靈感來自
+[ChhoeTaigi](https://itaigi.tw/)(找台語)這類查詢網站,輸入框接受四種
+輸入方式,自動判斷:
+
+- **中文意思關鍵字**:例如輸入「感謝」,會列出漢字本身完全符合「感謝」的
+  詞,以及中文釋義文字裡有出現「感謝」這個字串的其他詞(例如「多謝」
+  「感恩」的釋義裡都有「感謝」兩個字)。
+- **台語漢字**:例如輸入「食飯」,列出完全符合跟部分符合(例如「食飯廳」
+  「食飯會」)的詞。
+- **台語白話字**:例如 `to-siā`,不管有沒有打調號都可以查——有打調號會
+  先找調號完全符合的;沒打調號(或調號沒打對)就退而求其次,列出同音節、
+  不同調號的候選詞。
+- **台語羅馬字(教育部台羅)加音調**:跟白話字同一個輸入框,系統會自動判斷
+  是台羅拼法還是白話字拼法,兩種寫法查到的是同一批詞(內部靠
+  `Romanize.parseWord()` 把兩種拼法都正規化成同一套「音節骨架+調號」再
+  比對,不是各自存一份索引)。
+
+每筆查詢結果顯示:漢字、台羅、白話字、中文釋義(含詞性)、難易度(跟遊戲
+裡「詞義/羅馬字/聲調」模式用的同一套 AI 概略判斷,非官方分級)。頁面最上方
+固定顯示資料來源(教育部臺灣台語常用詞辭典開放資料,連結到 g0v 的
+moedict-data-twblg)跟目前題庫詞數,滑鼠移過去可以點連結。
+
+技術上 `find.html` 只載入 `data/questions.js`(共用的離線題庫)跟
+`src/lib/romanize.js`(vendored,未修改),**不載入** `src/lib/questions.js`
+(遊戲用的出題引擎)——查詢邏輯自己一支 `src/find.js`,純函式、不碰 DOM,
+方便直接用 Node `vm` 測試;`src/find-ui.js` 才是負責畫面渲染跟事件綁定的
+部分。深色/淺色模式的切換邏輯原本寫在遊戲的 `main.js` 裡,抽成獨立的
+`src/theme.js` 讓兩個頁面共用,同一個 `localStorage` key 讓兩頁切換的深淺色
+模式保持一致。
+
 ## 出題模式
 
 - **詞義**:題目一律是台語詞(漢字),四個選項是中文意思——題目本身永遠是台語,
@@ -161,9 +196,10 @@
 
 ## 執行方式
 
-直接用瀏覽器雙擊開啟 `index.html` 就能玩,不需要架任何伺服器。題庫是用
-`<script src="data/questions.js">` 載入(不是 `fetch()` 讀 JSON),瀏覽器的
-同源限制不會擋這種本機檔案讀取方式,所以 `file://` 直開也沒問題。
+直接用瀏覽器雙擊開啟 `index.html`(遊戲)或 `find.html`(辭典查詢)就能用,
+不需要架任何伺服器。題庫是用 `<script src="data/questions.js">` 載入(不是
+`fetch()` 讀 JSON),瀏覽器的同源限制不會擋這種本機檔案讀取方式,所以
+`file://` 直開也沒問題。
 
 (如果你偏好還是想跑本機伺服器,例如要用瀏覽器開發工具的 network 面板除錯,
 一樣可以: `python -m http.server 8000`,再連到 http://localhost:8000。)
@@ -344,26 +380,51 @@ node data/bump-version.js major    # major 版號 +1,minor/patch 歸零
 ## 專案結構
 
 ```
-index.html                 遊戲頁面(設定/遊戲/結算三個畫面)
-src/style.css               樣式
-src/main.js                  進入點,串接各模組、管理回合計時器
-src/game-state.js            狀態機(搶答/作答/偷答/勝負判定),不碰 DOM
+index.html                 遊戲頁面(設定/遊戲/結算/一人刷題四個畫面)
+find.html                   辭典查詢頁面(獨立頁面,見下方「辭典查詢」)
+src/style.css               樣式(兩個頁面共用同一份,含淺色/深色 design token)
+src/theme.js                 深色/淺色模式切換,index.html 跟 find.html 共用
+src/main.js                  遊戲頁進入點,串接各模組、管理回合計時器
+src/game-state.js            雙人搶答狀態機(搶答/作答/偷答/勝負判定),不碰 DOM
+src/solo-state.js            一人刷題狀態機,不碰 DOM
+src/solo-stats.js            一人刷題的 localStorage 永久累計成績
 src/keyboard.js              鍵盤搶答/作答輸入
-src/ui.js                    畫面渲染(拔河繩、面板、題目卡)
-src/settings.js               讀取設定表單
+src/ui.js                    遊戲頁畫面渲染(拔河繩、面板、題目卡)
+src/settings.js               讀取遊戲設定表單
+src/find.js                  辭典查詢邏輯(純查詢,不碰 DOM,方便 vm 測試)
+src/find-ui.js                辭典查詢頁畫面渲染跟事件綁定
 src/lib/romanize.js          台羅/白話字轉換 + 變調邏輯(vendored,未修改)
-src/lib/questions.js         出題引擎(讀題庫 + 動態組四選一)
+src/lib/questions.js         出題引擎(讀題庫 + 動態組四選一,遊戲頁專用)
 data/raw/                    下載下來的教育部辭典原始資料(不進版控)
 data/build-questions.js       題庫建置腳本(含難易度分級 classifyLevel())
-data/questions.js            遊戲實際載入的離線題庫(<script> 標籤載入,非 fetch)
+data/questions.js            兩個頁面共用的離線題庫(<script> 標籤載入,非 fetch)
 data/bump-version.js          更新 data/version.js 版本號/時間戳記的小工具
-data/version.js               目前版本號/最後更新時間,畫面最下方顯示用
-data/images/tw-wildlife/      台灣保育動物照片(動物模式用)
-data/images/tw-plants/        台灣鄉土樹種照片(樹仔/草仔模式用)
+data/version.js               目前版本號/最後更新時間,兩個頁面最下方都會顯示
+data/images/tw-wildlife/      台灣野生動物 + 常見家畜家禽照片(動物模式用)
+data/images/tw-plants/        台灣鄉土樹種 + 水果照片(樹仔/草仔模式用)
+data/images/tw-vehicles/      工程車照片(工程車模式用)
+data/images/tw-body/          人骨全身圖(身體部位模式的骨頭類題目用)
 ```
 
 ## 開發紀錄
 
+- 2026-09-18:新增獨立的辭典查詢頁面 `find.html`,使用者的原話是想要一個
+  像 ChhoeTaigi(找台語)那樣的頁面,可以輸入中文、台語漢字、白話字或台羅
+  (含調號)查詢,結果要註記來源。技術上重用既有的
+  `Romanize.parseWord()`/`Romanize.wordToKey()`(這兩支本來就是為了「辭典
+  反查索引」設計的,romanize.js 裡原本就有對應註解),把每筆辭典資料的
+  音節骨架+調號算成一個 key,查詢時把使用者輸入(不管是白話字還是台羅拼法、
+  有沒有打調號)也解析成同一套 key 比對,不需要對每筆資料另外存兩份拼法
+  字串。查無完全符合調號的詞會退而求其次列出「同音節、不同調號」的候選,
+  查無漢字或羅馬字才會退到寬鬆的子字串比對。頁面同時查漢字欄位跟中文釋義
+  欄位,因為輸入的漢字沒辦法從字面就分辨使用者是要查「台語漢字本身」還是
+  「中文意思關鍵字」,乾脆兩種都查、分開列出。資料來源直接讀
+  `TAIGI_QUESTIONS.source`(build-questions.js 產生 `data/questions.js` 時
+  已經內建的來源資訊)顯示在頁面上方,不是另外手動寫一份會跟實際題庫來源
+  兜不起來。深色/淺色模式切換邏輯順便從 `main.js` 抽成獨立的 `src/theme.js`
+  給兩個頁面共用。批次測試:隨機抽樣 800 筆辭典資料,逐一用漢字、台羅、
+  白話字分別查詢,三種輸入方式都 100% 能查到自己,含連讀輕聲(`--`)的
+  多音節詞也測過。
 - 2026-09-18:使用者反應「現在這個畫面太單調了」,整個 app 視覺重新設計成
   「簡約現代、乾淨有質感」風格(使用者自己選的方向)。純 CSS/HTML 改動,
   沒有動任何 JS 邏輯:

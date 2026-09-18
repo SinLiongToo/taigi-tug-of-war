@@ -102,6 +102,16 @@ section { max-width: 720px; margin: 0 auto; }
   transition: border-color 0.15s, transform 0.1s;
 }
 #themeToggle:hover { border-color: var(--primary); }
+
+.navLink {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.navLink:hover { color: var(--primary); }
+.navLinkLeft { position: absolute; left: 0; }
 #themeToggle:active { transform: scale(0.94); }
 
 /* ---- 設定畫面 ---- */
@@ -505,6 +515,89 @@ kbd {
 }
 #playAgainBtn:hover { background: var(--primary-hover); }
 
+/* ---- 辭典查詢畫面(find.html) ---- */
+#findScreen { max-width: 720px; }
+.findForm { display: flex; gap: 8px; margin-bottom: 8px; }
+#findInput {
+  flex: 1;
+  padding: 11px 14px;
+  font-size: 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+  color: var(--fg);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+#findInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+#findSubmitBtn {
+  padding: 11px 20px;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: var(--on-primary);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+#findSubmitBtn:hover { background: var(--primary-hover); }
+.findMeta { margin: 4px 0 20px; font-size: 0.78rem; }
+.findMeta a { color: var(--muted); }
+.findMeta a:hover { color: var(--primary); }
+
+.findSectionTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin: 20px 0 10px;
+}
+.findSectionTitle:first-child { margin-top: 0; }
+.findSectionEmpty { color: var(--muted); text-align: left; margin: 8px 0 16px; }
+
+.findCard {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.findCardHanzi { font-size: 1.6rem; font-weight: bold; margin-bottom: 6px; }
+.findCardRoman {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  color: var(--fg);
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+.findRomanLabel {
+  display: inline-block;
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.findCardDefs { margin: 0 0 8px; padding-left: 20px; color: var(--fg); }
+.findCardDefs li { margin-bottom: 3px; }
+.findDefPos {
+  display: inline-block;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 6px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-right: 6px;
+}
+.findCardLevel { font-size: 0.78rem; color: var(--muted); }
+
 @media (max-width: 700px) {
   #arena {
     grid-template-columns: 1fr 1fr;
@@ -530,6 +623,11 @@ kbd {
   .topBar { justify-content: flex-start; }
   .topBar h1 { flex: 1; text-align: center; }
   .segmented .options { flex-wrap: wrap; }
+  /* 手機寬度下標題置中、左邊 navLink 跟右邊 themeToggle 都是絕對定位,
+     文字版的連結太長會跟置中的標題疊在一起,窄螢幕只留 icon。 */
+  .navLinkText { display: none; }
+  .findForm { flex-direction: column; }
+  .findCardRoman { flex-direction: column; gap: 4px; }
 }
 
 /* ---- 版本資訊 ---- */

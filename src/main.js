@@ -108,19 +108,6 @@
     UI.showScreen('settings');
   }
 
-  function initTheme() {
-    const root = document.documentElement;
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'light') root.dataset.theme = saved;
-    document.getElementById('themeToggle').addEventListener('click', () => {
-      const current = root.dataset.theme
-        || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      const next = current === 'dark' ? 'light' : 'dark';
-      root.dataset.theme = next;
-      localStorage.setItem('theme', next);
-    });
-  }
-
   function wireDom() {
     document.getElementById('settingsForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -174,7 +161,6 @@
     UI.applyGameTypeVisibility('solo');
     UI.renderSoloStats(SoloStats.load());
     wireDom();
-    initTheme();
     showVersion();
     try {
       const info = await Questions.load();

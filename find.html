@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台語辭典查詢</title>
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+
+  <header class="topBar">
+    <a href="index.html" class="navLink navLinkLeft">← <span class="navLinkText">搶答拔河遊戲</span></a>
+    <h1>台語辭典查詢</h1>
+    <button type="button" id="themeToggle" title="切換深色/淺色模式" aria-label="切換深色/淺色模式">🌓</button>
+  </header>
+
+  <section id="findScreen">
+    <form id="findForm" class="findForm">
+      <input type="text" id="findInput" placeholder="中文意思、台語漢字、白話字或台羅(教羅)…" autocomplete="off">
+      <button type="submit" id="findSubmitBtn">查詢</button>
+    </form>
+    <p class="hint">可以輸入:中文意思關鍵字、台語漢字、台語羅馬字(白話字或台羅,有沒有調號都可以)</p>
+
+    <p id="findMeta" class="hint findMeta"></p>
+    <div id="findResults"></div>
+  </section>
+
+  <footer id="appVersion"></footer>
+
+  <script src="data/version.js"></script>
+  <script src="src/lib/romanize.js"></script>
+  <script src="data/questions.js"></script>
+  <script src="src/find.js"></script>
+  <script src="src/find-ui.js"></script>
+  <script src="src/theme.js"></script>
+</body>
+</html>
