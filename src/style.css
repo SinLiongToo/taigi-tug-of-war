@@ -562,6 +562,30 @@ kbd {
   white-space: nowrap;
 }
 #findSubmitBtn:hover { background: var(--primary-hover); }
+
+.findHelp {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: var(--fg);
+}
+.findHelp summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 4px 0;
+  user-select: none;
+}
+.findHelp summary:hover { color: var(--primary); }
+.findHelp[open] summary { color: var(--primary); margin-bottom: 6px; }
+.findHelp ul { margin: 8px 0; padding-left: 20px; }
+.findHelp li { margin-bottom: 8px; line-height: 1.6; }
+.findHelp li:last-child { margin-bottom: 0; }
+.findHelp strong { color: var(--primary); }
+
 .findMeta { margin: 4px 0 20px; font-size: 0.78rem; }
 .findMeta a { color: var(--muted); }
 .findMeta a:hover { color: var(--primary); }
