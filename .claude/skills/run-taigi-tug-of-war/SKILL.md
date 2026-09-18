@@ -231,6 +231,25 @@ which reset every time the page reloads or a new solo session starts.
   Both instances were only caught by screenshotting the *other* game type,
   not by reading the CSS. Any future element toggled via `.hidden` needs this
   checked every time it also gets a `display:` rule of its own.
+- **Another bug from the same "elements are reused across renders, not
+  recreated" family**: `.choiceBtn`/`.buzzBtn` are the same 4/2 DOM nodes
+  every round (`ui.js` just updates `.textContent`/`disabled`/classes on
+  them) — the browser's default focus ring therefore stays attached to
+  "whichever button was tapped last round" even after that node's content
+  becomes a new, unanswered question. Reported by the user from a real
+  phone as "a green box appears before I've answered anything." Fixed with
+  an explicit `.choiceBtn:focus { outline: none; }` +
+  `.choiceBtn:focus-visible { outline: ...; }` pair (same for `.buzzBtn`) —
+  touch/pointer interactions don't satisfy `:focus-visible`'s heuristic so
+  taps no longer leave a ring, but keyboard Tab navigation still does.
+  **To reproduce/verify this class of bug in Playwright, you must use
+  `locator.tap()` (or `page.touchscreen`), not `.click()`** — Chromium's
+  synthetic `.click()` doesn't reliably trigger the same focus-visible
+  heuristics as a real touch event, so a `.click()`-based test can pass
+  while the real-device bug still reproduces. Emulate a real device
+  (`devices['Pixel 7']` from `playwright`) for realistic touch semantics.
+  Any other per-round-reused interactive element (if one gets added later)
+  needs the same explicit `:focus`/`:focus-visible` pair from the start.
 
 ## Dictionary lookup page (`find.html`)
 

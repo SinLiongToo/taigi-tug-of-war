@@ -297,6 +297,11 @@ kbd {
 #panelA .buzzBtn { background: var(--teamA); }
 #panelB .buzzBtn { background: var(--teamB); }
 .buzzBtn:hover { filter: brightness(1.08); }
+/* 同 .choiceBtn 的坑:搶答鈕每一輪都是同一顆 DOM element 重複使用,
+   觸控點過一次之後瀏覽器原生 focus 樣式會殘留到下一輪,見上面
+   .choiceBtn:focus-visible 的註解。 */
+.buzzBtn:focus { outline: none; }
+.buzzBtn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 
 #centerStage { grid-area: center; display: flex; flex-direction: column; align-items: stretch; }
 
@@ -422,6 +427,16 @@ kbd {
 }
 .choiceBtn:hover:not(:disabled) { border-color: var(--primary); box-shadow: var(--shadow-md); }
 .choiceBtn:active:not(:disabled) { transform: scale(0.98); }
+/* 選項按鈕的 DOM element 每一題都重複使用、只換內容跟 disabled 狀態
+   (不是每題重新 create),所以上一題點過的按鈕會保留瀏覽器原生的
+   :focus 樣式,沒特別處理的話下一題同一個位置會殘留一圈對焦框——手機
+   上使用者反應「還沒作答就看到綠框」就是這個。瀏覽器預設的 focus 樣式
+   顏色還會受系統佈景主題影響(例如 Android Material You 動態配色),
+   不一定是我們自己配色裡的綠。修法:滑鼠/觸控點擊不顯示對焦框
+   (:focus 直接 outline:none),只有鍵盤 Tab 導覽時才顯示
+   (:focus-visible),這是瀏覽器原生支援、專門處理這種情境的偽類。 */
+.choiceBtn:focus { outline: none; }
+.choiceBtn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .choiceBtn:disabled { opacity: 0.6; cursor: default; }
 .choiceKey {
   display: inline-flex;
