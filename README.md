@@ -1,17 +1,28 @@
 # 台語搶答拔河
 
-兩隊搶答台語語彙題目的拔河遊戲。誰先搶到答題權、答對,拔河繩就往那隊拉一格;
-先答對 N 題的隊伍獲勝(N 可在開始畫面設定)。也有「一人刷題」模式,不用
-搶答、不分隊,單純練習台語詞彙,成績累計永久保存在瀏覽器裡。純前端網頁,
-無框架、無需安裝,瀏覽器打開就能玩。
+台語詞彙練習遊戲。預設是「一人刷題」模式,不用搶答、不分隊,單純練習
+台語詞彙,成績累計永久保存在瀏覽器裡;也可以切換成兩隊搶答拔河模式——
+誰先搶到答題權、答對,拔河繩就往那隊拉一格,先答對 N 題的隊伍獲勝
+(N 可在開始畫面設定)。純前端網頁,無框架、無需安裝,瀏覽器打開就能玩。
 
 **線上玩**: https://sinliongtoo.github.io/taigi-tug-of-war/
 
 ## 玩法
 
+### 一人刷題(預設模式)
+
+開始畫面「遊戲模式」預設就是「一人刷題」,不用設目標題數跟隊名,設定跟
+雙人模式其餘部分大致相同。沒有搶答,出題後直接按 `1`~`4` 或點選項作答,
+馬上看到對/錯跟正解,1.2 秒後自動出下一題,可以拿來單純練習。畫面上方
+「本次」是這次開啟頁面以來的統計,「累計」是永久保存在瀏覽器裡的總成績
+(`localStorage`,換瀏覽器/清瀏覽器資料不會保留),設定畫面可以按
+「清除累計紀錄」重置(會先跳確認對話框)。
+
 ### 雙人搶答拔河
 
-1. 開始畫面設定:目標題數 N、每題時限、兩隊隊名、出題模式(可複選=混合出題)、
+開始畫面「遊戲模式」切換成「雙人搶答拔河」即可。
+
+1. 設定:目標題數 N、每題時限、兩隊隊名、出題模式(可複選=混合出題)、
    難易度(國小/國中/高中/大學,可複選)、羅馬字系統(台羅 / 白話字)。
 2. 每題畫面同時顯示題目與四個選項。
 3. **搶答**:A隊按 `D`、B隊按 `K`,誰先按誰取得作答權(畫面上的搶答鈕也可以點,適合觸控)。
@@ -20,15 +31,6 @@
    - 答錯 → 換對方隊伍有一次「偷答」機會(不用再搶,直接可以選)。
    - 偷答也答錯,或時間到都沒人成功作答 → 這題作廢,直接出下一題。
 5. 任一隊答對數先達到 N → 遊戲結束,顯示獲勝隊伍。
-
-### 一人刷題
-
-開始畫面「遊戲模式」選「一人刷題」,設定跟上面大致相同(不用設目標題數
-跟隊名)。沒有搶答,出題後直接按 `1`~`4` 或點選項作答,馬上看到對/錯跟
-正解,1.2 秒後自動出下一題,可以拿來單純練習。畫面上方「本次」是這次
-開啟頁面以來的統計,「累計」是永久保存在瀏覽器裡的總成績(`localStorage`,
-換瀏覽器/清瀏覽器資料不會保留),設定畫面可以按「清除累計紀錄」重置
-(會先跳確認對話框)。
 
 ## 出題模式
 
@@ -49,7 +51,12 @@
     山羊、山豬、水獺、飛鼠)。辭典裡沒有「台灣黑熊」「石虎」這種物種專有
     名詞,所以熊/鹿/猴/羊這幾張照片配的是辭典裡真正存在的**通用詞**,用台灣
     特有種的照片示意,不是宣稱該物種有專屬的台語詞;山豬、水獺、飛鼠則是
-    辭典裡本來就有、詞跟物種剛好對得上的乾淨案例。照片授權見下方「圖片授權」。
+    辭典裡本來就有、詞跟物種剛好對得上的乾淨案例。
+  - 2026-09-18 再加 24 種常見動物照片(狗、貓、牛、水牛、馬、豬、雞、鴨、
+    鵝、魚、蝦、蟳、鳥、兔、象、虎、獅、蛇、龜、蜂、鼠、駱駝、蜘蛛、
+    田蛤仔),emoji 保留不刪,照片跟 emoji 並存增加出題變化。這些漢字本來
+    就是題庫既有詞(emoji 清單裡都有),不需要另外查證。照片授權見下方
+    「圖片授權」。
 - **身體部位**:題目是身體部位 emoji 或照片,猜台語漢字或羅馬字。跟動物模式
   一樣拆成 `body-hanzi`/`body-roman` 兩個獨立勾選框。清單裡每個詞都逐一查證
   過教育部辭典是否收錄(`src/lib/questions.js`
@@ -205,6 +212,33 @@ node data/build-questions.js
 | `boar.jpg` | 台灣野豬(配「山豬」) | CC BY-SA 3.0 | Lord Koxinga | [File:2010 07 19400 7206 ... Sus scrofa taivanus.JPG](https://commons.wikimedia.org/wiki/File:2010_07_19400_7206_Wenshan_District,_Taipei,_Zoo,_Sus_scrofa_taivanus,_Formosan_wild_boar,_Taiwan.JPG) |
 | `otter.jpg` | 歐亞水獺(配「水獺」) | CC BY 4.0 | Bouke ten Cate | [File:Otter - Eurasian otter - Lutra lutra.jpg](https://commons.wikimedia.org/wiki/File:Otter_-_Eurasian_otter_-_Lutra_lutra.jpg) |
 | `flying-squirrel.jpg` | 白面鼯鼠(配「飛鼠」) | CC BY 4.0 | Rejoice Gassah | [File:Petaurista alborufus 114800059.jpg](https://commons.wikimedia.org/wiki/File:Petaurista_alborufus_114800059.jpg) |
+| `dog.jpg` | 狗(配「狗」) | CC BY-SA 4.0 | PattayaPatrol | [File:DFC 0440 Portrait of a sandy-coated dog...jpg](https://commons.wikimedia.org/wiki/File:DFC_0440_Portrait_of_a_sandy-coated_dog_with_a_weathered_collar_looking_off_to_the_side_against_a_beach_backdrop.jpg) |
+| `cat.jpg` | 貓(配「貓」) | CC BY 4.0 | Anish Anilkumar | [File:Domestic Cat Black Sitting.jpg](https://commons.wikimedia.org/wiki/File:Domestic_Cat_Black_Sitting.jpg) |
+| `cattle.jpg` | 牛(配「牛」) | CC BY-SA 4.0 | Weyham | [File:Cattle (Cows) in the field grazing 03.jpg](https://commons.wikimedia.org/wiki/File:Cattle_(Cows)_in_the_field_grazing_03.jpg) |
+| `buffalo.jpg` | 水牛(配「水牛」) | CC BY-SA 4.0 | Gannu03 | [File:Asian water buffalo (Bubalus bubalis) in shallow water 01.jpg](https://commons.wikimedia.org/wiki/File:Asian_water_buffalo_(Bubalus_bubalis)_in_shallow_water_01.jpg) |
+| `horse.jpg` | 馬(配「馬」) | CC0 | Halyna Feshchak | [File:Beautiful Brown Horse (198516275).jpeg](https://commons.wikimedia.org/wiki/File:Beautiful_Brown_Horse_(198516275).jpeg) |
+| `pig.jpg` | 迷你豬(配「豬」) | CC BY 4.0 | Schlurcher | [File:Hängebauchschwein.jpg](https://commons.wikimedia.org/wiki/File:H%C3%A4ngebauchschwein.jpg) |
+| `chicken.jpg` | 雞(配「雞」) | CC BY 3.0 | Aleksei Belta | [File:Chicken Posing (209225885).jpeg](https://commons.wikimedia.org/wiki/File:Chicken_Posing_(209225885).jpeg) |
+| `duck.jpg` | 鴨(配「鴨」) | CC BY-SA 4.0 | Oak Atsume | [File:Domestic Duck Resting with one leg in muddies water.jpg](https://commons.wikimedia.org/wiki/File:Domestic_Duck_Resting_with_one_leg_in_muddies_water.jpg) |
+| `goose.jpg` | 鵝(配「鵝」) | CC0 | Wilfredor | [File:Anser anser domesticus 2.jpg](https://commons.wikimedia.org/wiki/File:Anser_anser_domesticus_2.jpg) |
+| `fish.jpg` | 尼羅吳郭魚(配「魚」) | CC BY-SA 2.0 | Bernard DUPONT | [File:Nile Tilapia (Oreochromis niloticus) - Carwash Cenote QR.jpg](https://commons.wikimedia.org/wiki/File:Nile_Tilapia_(Oreochromis_niloticus)_-_Carwash_Cenote_QR.jpg) |
+| `shrimp.jpg` | 蝦(配「蝦」) | CC BY-SA 4.0 | Dappasolomon001 | [File:Fresh sea prawns.jpg](https://commons.wikimedia.org/wiki/File:Fresh_sea_prawns.jpg) |
+| `crab.jpg` | 鋸緣青蟳(配「蟳」) | CC BY-SA 2.5 | OpenCage | [File:Scylla serrata by OpenCage.jpg](https://commons.wikimedia.org/wiki/File:Scylla_serrata_by_OpenCage.jpg) |
+| `bird.jpg` | 麻雀(配「鳥」) | CC BY 4.0 | Rafal Brys | [File:Eurasian Tree Sparrow (Passer montanus) perched on a Thuja branch.jpg](https://commons.wikimedia.org/wiki/File:Eurasian_Tree_Sparrow_(Passer_montanus)_perched_on_a_Thuja_branch.jpg) |
+| `rabbit.jpg` | 兔(配「兔」) | CC BY-SA 4.0 | NasserHalaweh | [File:Leporidae Oryctolagus cuniculus domesticus 7.2.jpg](https://commons.wikimedia.org/wiki/File:Leporidae_Oryctolagus_cuniculus_domesticus_7.2.jpg) |
+| `elephant.jpg` | 象(配「象」) | CC BY 4.0 | Stephen Jacobs (Why Steve) | [File:African elephant standing.jpg](https://commons.wikimedia.org/wiki/File:African_elephant_standing.jpg) |
+| `tiger.jpg` | 虎(配「虎」) | CC0 | Joselodos | [File:Bengal tiger looking at the camera.jpg](https://commons.wikimedia.org/wiki/File:Bengal_tiger_looking_at_the_camera.jpg) |
+| `lion.jpg` | 獅(配「獅」) | CC BY 2.0 | GollyGforce | [File:Lion portrait.jpg](https://commons.wikimedia.org/wiki/File:Lion_portrait.jpg) |
+| `snake.jpg` | 蛇(配「蛇」) | CC BY 2.0 | photochem_PA | [File:Side view portrait of a snake (7032053613).jpg](https://commons.wikimedia.org/wiki/File:Side_view_portrait_of_a_snake_(7032053613).jpg) |
+| `turtle.jpg` | 陸龜(配「龜」) | CC BY-SA 4.0 | van Leeuwen | [File:Yellowfooted turtle-1539382134.jpg](https://commons.wikimedia.org/wiki/File:Yellowfooted_turtle-1539382134.jpg) |
+| `bee.jpg` | 蜂(配「蜂」) | CC BY 4.0 | Conall | [File:Honey bee on oregano flower.jpg](https://commons.wikimedia.org/wiki/File:Honey_bee_on_oregano_flower.jpg) |
+| `mouse.jpg` | 鼠(配「鼠」) | CC BY-SA 4.0 | Garst, Warren | [File:Four-striped grass mouse sitting on ground - DPLA.jpg](https://commons.wikimedia.org/wiki/File:Four-striped_grass_mouse_sitting_on_ground_-_DPLA_-_670c2b1540dfbdcccadcdad942597f3b.jpg) |
+| `camel.jpg` | 駱駝(配「駱駝」) | CC BY-SA 4.0 | KuwaitiG | [File:Desert camel in Jahra.jpg](https://commons.wikimedia.org/wiki/File:Desert_camel_in_Jahra.jpg) |
+| `spider.jpg` | 蜘蛛(配「蜘蛛」) | CC BY-SA 4.0 | Basile Morin | [File:Argiope spider female adult on her web dorsal view black background Don Det Laos.jpg](https://commons.wikimedia.org/wiki/File:Argiope_spider_female_adult_on_her_web_dorsal_view_black_background_Don_Det_Laos.jpg) |
+| `frog.jpg` | 綠沼蛙(配「田蛤仔」) | CC BY-SA 4.0 | Vengolis | [File:Green pond frog (Euphlyctis hexadactylus) 5341.jpg](https://commons.wikimedia.org/wiki/File:Green_pond_frog_(Euphlyctis_hexadactylus)_5341.jpg) |
+
+上面這 24 張(狗~田蛤仔)跟樹種/水果/工程車照片同一批做法,本機用 Pillow
+等比縮到長邊 900px、JPEG 品質 78 壓縮,單張約 37~235KB。
 
 `data/images/tw-plants/` 底下 5 張台灣鄉土樹種照片,一樣來自 Wikimedia Commons、
 CC BY 或 CC BY-SA 授權:
@@ -253,7 +287,7 @@ Wikimedia Commons、CC0/CC BY-SA 授權:
 | `crane.jpg` | 吊車(配「吊車」) | CC BY-SA 4.0 | Tbatb | [File:A Liebherr LTM 1500-8.1 crane truck lifting a Genie S-85 Lift Crane.jpg](https://commons.wikimedia.org/wiki/File:A_Liebherr_LTM_1500-8.1_crane_truck_lifting_a_Genie_S-85_Lift_Crane.jpg) |
 | `excavator.jpg` | 履帶式挖土機(配「怪手」) | CC0 | Daderot | [File:Komatsu excavator - Arlington, MA.jpg](https://commons.wikimedia.org/wiki/File:Komatsu_excavator_-_Arlington,_MA.jpg) |
 | `bulldozer.jpg` | 推土機(配「攄塗機」) | CC BY-SA 4.0 | Srđan Popović | [File:Caterpillar dozer.jpg](https://commons.wikimedia.org/wiki/File:Caterpillar_dozer.jpg) |
-| `truck.jpg` | 貨車(配「卡車」) | CC BY-SA 4.0 | Bin Moicka Markosie | [File:HK 中環 Central 皇后大道中 Queen's Road outdoor sidewalk carpark red Isuzu lorry June 2017 IX1.jpg](https://commons.wikimedia.org/wiki/File:HK_%E4%B8%AD%E7%92%B0_Central_%E7%9A%87%E5%90%8E%E5%A4%A7%E9%81%93%E4%B8%AD_Queen%27s_Road_outdoor_sidewalk_carpark_red_Isuzu_lorry_June_2017_IX1.jpg) |
+| `truck.jpg` | 大型貨車(配「卡車」) | CC BY-SA 3.0 | Mj-bird | [File:ISUZU GIGA, Full-cab type, Yellow Truck.jpg](https://commons.wikimedia.org/wiki/File:ISUZU_GIGA,_Full-cab_type,_Yellow_Truck.jpg) |
 | `pickup.jpg` | 輕型小貨車(配「發財仔車」) | CC0 | ITakePhotosOfCars | [File:Autozam Scrum Pickup left side view.jpg](https://commons.wikimedia.org/wiki/File:Autozam_Scrum_Pickup_left_side_view.jpg) |
 | `tanker.jpg` | 油罐車(配「油罐車」) | CC BY-SA 3.0 | Horacio Cambeiro | [File:Shell Fuel Tanker Truck at Capioví Service Station, Misiones, Argentina.jpg](https://commons.wikimedia.org/wiki/File:Shell_Fuel_Tanker_Truck_at_Capiov%C3%AD_Service_Station,_Misiones,_Argentina.jpg) |
 | `forklift.jpg` | 堆高機(配「堆高機」) | CC BY 4.0 | Goterrestrial | [File:Container loading with forklift at warehouse in Thailand.jpg](https://commons.wikimedia.org/wiki/File:Container_loading_with_forklift_at_warehouse_in_Thailand.jpg) |
@@ -330,6 +364,32 @@ data/images/tw-plants/        台灣鄉土樹種照片(樹仔/草仔模式用)
 
 ## 開發紀錄
 
+- 2026-09-18:「一人刷題」改成開始畫面的預設遊戲模式(原本預設是雙人搶答
+  拔河)。使用者的說法是「為一人刷題(台語練習,積分永久累計)」,呼應
+  這個模式的重點是可以隨時打開就單純練習、成績長期累積。技術上是
+  `index.html` 的 `gameType` radio 把 `checked` 從 `team` 換到 `solo`、
+  `main.js` 的 `init()` 呼叫 `UI.applyGameTypeVisibility('solo')`,另外
+  把 `teamOnlyFields`/`soloStatsBox`/`teamKeyHint`/`soloKeyHint` 這幾個
+  容器的原始 `hidden` 屬性也對調,避免 JS 執行前有一瞬間顯示錯的畫面
+  (雖然這個閃爍幾乎不可見,但既然要改就順手做乾淨)。雙人模式邏輯完全
+  沒動,只要切換勾選框照樣能玩。
+- 2026-09-18:使用者問「動物可以有實際的圖嗎?」——動物模式原本只有 7 種
+  台灣野生動物有照片,其餘 21 種常見動物(狗、貓、牛...)都只用 emoji。
+  這次一口氣把剩下 24 個 emoji-only 的動物都補上真實照片(狗、貓、牛、
+  水牛、馬、豬、雞、鴨、鵝、魚、蝦、蟳、鳥、兔、象、虎、獅、蛇、龜、蜂、
+  鼠、駱駝、蜘蛛、田蛤仔),emoji 保留不刪,照片跟 emoji 並存增加出題
+  變化,做法跟之前樹種/水果/工程車照片批次一致。這些漢字全部是題庫既有
+  詞(emoji 清單本來就有),不需要另外查證,只需要找對應的 CC 授權照片。
+  過程中踩到一個小坑:第一輪選的豬照片(英國農場遠景,豬只是畫面裡幾個
+  小點)實際截圖看太小根本認不出來,換成一張近拍的迷你豬才行——這也是
+  CLAUDE.md 測試紀律裡強調「有視覺相關改動要實際截圖看過」的原因之一,
+  單看檔名跟授權資訊猜不出實際構圖好不好。批次邏輯測試 8000 題零錯誤,
+  Playwright 確認 24 張圖全部正確載入顯示。
+- 2026-09-18:使用者反應「卡車的圖,是三噸半貨車」——原本配「卡車」的照片
+  (香港 Isuzu 箱型貨車)看起來像參考資料裡「發財仔車」的同義詞「三噸半」
+  那個等級的輕型貨車,跟「卡車」該有的大型貨車量級不符,容易讓「卡車」跟
+  「發財仔車」兩題看起來像同一種車。換成一張明顯更大型的多軸貨車照片
+  (Isuzu GIGA,CC BY-SA 3.0,Mj-bird),`truck.jpg` 檔名不變、內容換掉。
 - 2026-09-18:「樹仔/草仔」模式加 3 個常見台灣行道樹/園藝植物:七里香、
   福木、芙蓉(木芙蓉)。教育部辭典(主辭典+擴充辭典,共 21,282 筆原始
   資料)完全查不到這三個詞,常見同義詞(月橘、九里香、十里香、木芙蓉)

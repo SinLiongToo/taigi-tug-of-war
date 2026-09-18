@@ -47,6 +47,36 @@ const Questions = (() => {
     { type: 'image', value: 'data/images/tw-wildlife/boar.jpg', hanzi: '山豬' },
     { type: 'image', value: 'data/images/tw-wildlife/otter.jpg', hanzi: '水獺' },
     { type: 'image', value: 'data/images/tw-wildlife/flying-squirrel.jpg', hanzi: '飛鼠' },
+
+    // 2026-09-18 新增:原本只用 emoji 的常見動物(家畜/家禽/水產/野生動物)
+    // 也補上真實照片,emoji 保留不刪,兩者並存增加出題變化——跟樹仔/草仔、
+    // 工程車模式同一套做法。每個漢字都已經是題庫既有詞(見上面的 emoji
+    // 清單),不需要另外查證,直接讓 buildPicturePool() 用 byHanzi 查到的
+    // 辭典讀音。照片授權見 README「圖片授權」。
+    { type: 'image', value: 'data/images/tw-wildlife/dog.jpg', hanzi: '狗' },
+    { type: 'image', value: 'data/images/tw-wildlife/cat.jpg', hanzi: '貓' },
+    { type: 'image', value: 'data/images/tw-wildlife/cattle.jpg', hanzi: '牛' },
+    { type: 'image', value: 'data/images/tw-wildlife/buffalo.jpg', hanzi: '水牛' },
+    { type: 'image', value: 'data/images/tw-wildlife/horse.jpg', hanzi: '馬' },
+    { type: 'image', value: 'data/images/tw-wildlife/pig.jpg', hanzi: '豬' },
+    { type: 'image', value: 'data/images/tw-wildlife/chicken.jpg', hanzi: '雞' },
+    { type: 'image', value: 'data/images/tw-wildlife/duck.jpg', hanzi: '鴨' },
+    { type: 'image', value: 'data/images/tw-wildlife/goose.jpg', hanzi: '鵝' },
+    { type: 'image', value: 'data/images/tw-wildlife/fish.jpg', hanzi: '魚' },
+    { type: 'image', value: 'data/images/tw-wildlife/shrimp.jpg', hanzi: '蝦' },
+    { type: 'image', value: 'data/images/tw-wildlife/crab.jpg', hanzi: '蟳' },
+    { type: 'image', value: 'data/images/tw-wildlife/bird.jpg', hanzi: '鳥' },
+    { type: 'image', value: 'data/images/tw-wildlife/rabbit.jpg', hanzi: '兔' },
+    { type: 'image', value: 'data/images/tw-wildlife/elephant.jpg', hanzi: '象' },
+    { type: 'image', value: 'data/images/tw-wildlife/tiger.jpg', hanzi: '虎' },
+    { type: 'image', value: 'data/images/tw-wildlife/lion.jpg', hanzi: '獅' },
+    { type: 'image', value: 'data/images/tw-wildlife/snake.jpg', hanzi: '蛇' },
+    { type: 'image', value: 'data/images/tw-wildlife/turtle.jpg', hanzi: '龜' },
+    { type: 'image', value: 'data/images/tw-wildlife/bee.jpg', hanzi: '蜂' },
+    { type: 'image', value: 'data/images/tw-wildlife/mouse.jpg', hanzi: '鼠' },
+    { type: 'image', value: 'data/images/tw-wildlife/camel.jpg', hanzi: '駱駝' },
+    { type: 'image', value: 'data/images/tw-wildlife/spider.jpg', hanzi: '蜘蛛' },
+    { type: 'image', value: 'data/images/tw-wildlife/frog.jpg', hanzi: '田蛤仔' },
   ];
 
   // 「樹仔/草仔」模式的題庫:跟動物模式做法一樣,先逐一查證教育部辭典確實
@@ -151,6 +181,12 @@ const Questions = (() => {
   //     並改標「豬哥牙」,跟 `fork-tines.jpg` 並列成兩張不同照片、同一個
   //     漢字答案(使用者確認保留 `fork-tines.jpg` 不用動)。「怪手」另外
   //     換一張新的履帶式挖土機照片(`excavator.jpg`,檔名不變、內容換掉)。
+  //   - 2026-09-18 修正:原本配「卡車」的照片(香港 Isuzu 箱型貨車)使用者
+  //     反應「看起來像三噸半」——三噸半是參考資料裡「發財仔車」的同義詞
+  //     (輕型貨車等級),跟「卡車」該有的大型貨車不是同一個量級,容易讓人
+  //     誤會兩題根本是同一種車。換成一張明顯更大型的多軸貨車照片(Isuzu
+  //     GIGA,`truck.jpg`,檔名不變、內容換掉),跟 `pickup.jpg`(發財仔車)
+  //     在車型量級上有明顯區隔。
   const VEHICLE_WORDS = [
     { type: 'image', value: 'data/images/tw-vehicles/crane.jpg', hanzi: '吊車' },
     { type: 'image', value: 'data/images/tw-vehicles/excavator.jpg', hanzi: '怪手' },

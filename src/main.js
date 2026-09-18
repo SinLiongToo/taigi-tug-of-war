@@ -171,7 +171,7 @@
   async function init() {
     UI.cacheEls();
     UI.showScreen('settings');
-    UI.applyGameTypeVisibility('team');
+    UI.applyGameTypeVisibility('solo');
     UI.renderSoloStats(SoloStats.load());
     wireDom();
     initTheme();

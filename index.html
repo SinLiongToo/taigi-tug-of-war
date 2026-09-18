@@ -18,11 +18,11 @@
     <form id="settingsForm">
       <fieldset>
         <legend>遊戲模式</legend>
-        <label><input type="radio" name="gameType" value="team" checked> 雙人搶答拔河</label>
-        <label><input type="radio" name="gameType" value="solo"> 一人刷題(台語練習,積分永久累計)</label>
+        <label><input type="radio" name="gameType" value="team"> 雙人搶答拔河</label>
+        <label><input type="radio" name="gameType" value="solo" checked> 一人刷題(台語練習,積分永久累計)</label>
       </fieldset>
 
-      <div id="teamOnlyFields">
+      <div id="teamOnlyFields" hidden>
         <div class="field">
           <label for="targetScore">目標題數(N)</label>
           <input type="number" id="targetScore" value="5" min="1" max="50">
@@ -42,7 +42,7 @@
         <input type="number" id="questionSeconds" value="15" min="5" max="60">
       </div>
 
-      <div id="soloStatsBox" hidden>
+      <div id="soloStatsBox">
         <p id="soloStatsText" class="hint"></p>
         <button type="button" id="resetSoloStatsBtn">清除累計紀錄</button>
       </div>
@@ -81,10 +81,10 @@
           (教育部辭典本身沒有難易度資料),僅供參考。</p>
       </fieldset>
 
-      <button type="submit" id="startBtn" disabled>開始遊戲</button>
+      <button type="submit" id="startBtn" disabled>開始練習</button>
     </form>
-    <p class="hint" id="teamKeyHint">搶答鍵:A隊按 <kbd>D</kbd>、B隊按 <kbd>K</kbd>;作答按 <kbd>1</kbd>~<kbd>4</kbd>(畫面按鈕也可以點)</p>
-    <p class="hint" id="soloKeyHint" hidden>作答按 <kbd>1</kbd>~<kbd>4</kbd>(畫面按鈕也可以點),答完自動出下一題</p>
+    <p class="hint" id="teamKeyHint" hidden>搶答鍵:A隊按 <kbd>D</kbd>、B隊按 <kbd>K</kbd>;作答按 <kbd>1</kbd>~<kbd>4</kbd>(畫面按鈕也可以點)</p>
+    <p class="hint" id="soloKeyHint">作答按 <kbd>1</kbd>~<kbd>4</kbd>(畫面按鈕也可以點),答完自動出下一題</p>
   </section>
 
   <section id="gameScreen" hidden>
