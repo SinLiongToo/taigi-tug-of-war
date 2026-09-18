@@ -2,27 +2,55 @@
   color-scheme: light dark;
   --teamA: #e0524a;
   --teamB: #3a7bd5;
-  --bg: #ffffff;
-  --fg: #1c1c1c;
-  --muted: #6b6b6b;
-  --card-bg: #f4f4f4;
-  --border: #d8d8d8;
+  /* --primary 淺色模式故意選比較深的綠(不是最初選的 #059669),是因為
+     #059669 配白字文字對比度只有 3.77:1,沒到 WCAG AA 一般文字要求的
+     4.5:1——#047857 配白字有 5.48:1,親自算過對比度才換的,不是隨便選色。
+     --on-primary 是「疊在 --primary 實心底色上面的文字顏色」專用 token:
+     深色模式的 --primary 刻意選亮薄荷綠(在深色背景上當邊框/強調色很好看),
+     但拿來當按鈕實心底色時如果還套用白字,對比度只剩 1.92:1,幾乎看不清楚
+     ——所以深色模式的 --on-primary 改成深色文字,疊在亮綠底色上對比度有
+     9.83:1。這個問題是先用 Playwright 量對比度數字才抓到的,肉眼截圖看
+     沒有立刻發現。 */
+  --primary: #047857;
+  --primary-hover: #065f46;
+  --on-primary: #ffffff;
+  --primary-tint: color-mix(in srgb, var(--primary) 14%, transparent);
+  --bg: #f5f5f7;
+  --fg: #18181b;
+  --muted: #71717a;
+  --card-bg: #ffffff;
+  --border: #e4e4e7;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 1px 2px rgba(24, 24, 27, 0.05), 0 1px 3px rgba(24, 24, 27, 0.06);
+  --shadow-md: 0 8px 24px rgba(24, 24, 27, 0.08);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #16171a;
-    --fg: #eeeeee;
-    --muted: #a0a0a0;
-    --card-bg: #232427;
-    --border: #34363a;
+    --primary: #34d399;
+    --primary-hover: #6ee7b7;
+    --on-primary: #062e22;
+    --bg: #0f1115;
+    --fg: #f4f4f5;
+    --muted: #9a9aa2;
+    --card-bg: #1c1e23;
+    --border: #2e3138;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
   }
 }
 :root[data-theme="dark"] {
-  --bg: #16171a;
-  --fg: #eeeeee;
-  --muted: #a0a0a0;
-  --card-bg: #232427;
-  --border: #34363a;
+  --primary: #34d399;
+  --primary-hover: #6ee7b7;
+  --on-primary: #062e22;
+  --bg: #0f1115;
+  --fg: #f4f4f5;
+  --muted: #9a9aa2;
+  --card-bg: #1c1e23;
+  --border: #2e3138;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
 * { box-sizing: border-box; }
@@ -34,20 +62,28 @@ body {
   font-family: -apple-system, "Segoe UI", "Noto Sans TC", sans-serif;
   padding: 16px;
   padding-block: 20px;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1 { text-align: center; margin: 0; font-size: clamp(1.3rem, 5vw, 1.8rem); }
+h1 {
+  text-align: center;
+  margin: 0;
+  font-size: clamp(1.3rem, 5vw, 1.8rem);
+  letter-spacing: -0.01em;
+}
 
 section { max-width: 720px; margin: 0 auto; }
 
 .topBar {
   max-width: 720px;
-  margin: 0 auto 16px;
+  margin: 0 auto 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   position: relative;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
 }
 #themeToggle {
   position: absolute;
@@ -55,49 +91,153 @@ section { max-width: 720px; margin: 0 auto; }
   border: 1px solid var(--border);
   background: var(--card-bg);
   color: var(--fg);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   width: 40px;
   height: 40px;
   font-size: 1.2rem;
   line-height: 1;
   cursor: pointer;
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s, transform 0.1s;
 }
+#themeToggle:hover { border-color: var(--primary); }
+#themeToggle:active { transform: scale(0.94); }
 
 /* ---- 設定畫面 ---- */
-#settingsForm { display: flex; flex-direction: column; gap: 16px; }
-.field { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.field label { flex: 1; }
-.field input { width: 120px; padding: 6px; font-size: 1rem; }
+#dictStatus {
+  white-space: pre-line;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 16px;
+}
 
-fieldset {
-  border: 1px solid var(--border);
-  border-radius: 8px;
+#settingsForm { display: flex; flex-direction: column; gap: 14px; }
+
+.settingsCard {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
 }
-fieldset label { display: flex; align-items: center; gap: 8px; }
+#teamOnlyFields { display: flex; flex-direction: column; gap: 14px; }
+/* 跟 #soloStatsBox 同樣的坑:#id 的 specificity 蓋掉瀏覽器內建的
+   [hidden]{display:none},沒有這條 hidden 屬性會被上面的 display:flex
+   蓋掉——這次是截圖比對「應該隱藏卻沒隱藏」才抓到的。 */
+#teamOnlyFields[hidden] { display: none; }
+
+.field { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.field label { flex: 1; color: var(--fg); }
+.field input {
+  width: 120px;
+  padding: 9px 10px;
+  font-size: 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--fg);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+
+fieldset {
+  border: none;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+legend {
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0;
+  color: var(--fg);
+}
+.fieldHint {
+  text-align: left;
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin: -4px 0 0;
+  line-height: 1.5;
+}
+
+.options { display: flex; flex-wrap: wrap; gap: 8px; }
+.options label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 0.88rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.options label:hover { border-color: var(--primary); }
+.options label:active { transform: scale(0.97); }
+.options label:has(input:checked) {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+  font-weight: 600;
+}
+.options label:has(input:focus-visible) { outline: 2px solid var(--primary); outline-offset: 2px; }
+/* 視覺上隱藏原生 checkbox/radio,但維持 1x1px 而不是 0x0——保留在
+   tab 順序跟螢幕報讀器裡可以被找到,0x0 在部分瀏覽器/報讀器會被跳過。 */
+.options input[type="checkbox"], .options input[type="radio"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.segmented .options { flex-wrap: nowrap; }
+.segmented .options label { flex: 1 1 0; justify-content: center; padding: 12px 14px; font-size: 0.92rem; text-align: center; }
 
 #startBtn {
   padding: 14px;
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: 1.1rem;
+  font-weight: 700;
   border: none;
-  border-radius: 8px;
-  background: #2e7d32;
-  color: white;
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: var(--on-primary);
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, transform 0.1s;
 }
-#startBtn:disabled { background: #9e9e9e; cursor: not-allowed; }
+#startBtn:hover:not(:disabled) { background: var(--primary-hover); }
+#startBtn:active:not(:disabled) { transform: scale(0.99); }
+#startBtn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; box-shadow: none; }
 
-#dictStatus { white-space: pre-line; }
-.hint { text-align: center; color: var(--muted); }
+.hint { text-align: center; color: var(--muted); font-size: 0.85rem; }
 kbd {
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 1px 6px;
   font-family: monospace;
+  background: var(--card-bg);
 }
 
 /* ---- 遊戲畫面:左右分邊 + 中間拔河場景 ---- */
@@ -113,17 +253,21 @@ kbd {
 }
 
 .sidePanel {
-  border-radius: 14px;
-  padding: 14px 10px;
+  border-radius: var(--radius-lg);
+  padding: 16px 10px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-top: 3px solid transparent;
+  box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s;
 }
-#panelA { grid-area: panelA; background: color-mix(in srgb, var(--teamA) 14%, var(--card-bg)); border: 2px solid var(--teamA); }
-#panelB { grid-area: panelB; background: color-mix(in srgb, var(--teamB) 14%, var(--card-bg)); border: 2px solid var(--teamB); }
+#panelA { grid-area: panelA; border-top-color: var(--teamA); }
+#panelB { grid-area: panelB; border-top-color: var(--teamB); }
 .sidePanel.active { box-shadow: 0 0 0 4px rgba(255, 200, 0, 0.55); }
 .teamName { font-weight: bold; font-size: 1.05rem; word-break: break-word; }
 .teamScore { font-size: 1.7rem; font-weight: bold; }
@@ -131,15 +275,18 @@ kbd {
 #panelB .teamScore { color: var(--teamB); }
 .buzzBtn {
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: none;
   cursor: pointer;
   font-weight: bold;
   color: white;
   width: 100%;
+  transition: filter 0.15s, transform 0.1s;
 }
+.buzzBtn:active { transform: scale(0.97); }
 #panelA .buzzBtn { background: var(--teamA); }
 #panelB .buzzBtn { background: var(--teamB); }
+.buzzBtn:hover { filter: brightness(1.08); }
 
 #centerStage { grid-area: center; display: flex; flex-direction: column; align-items: stretch; }
 
@@ -152,6 +299,7 @@ kbd {
   font-weight: bold;
   font-variant-numeric: tabular-nums;
   margin-bottom: 6px;
+  box-shadow: var(--shadow-sm);
 }
 #timerBadge.timerLow, #soloTimerBadge.timerLow { color: #c62828; border-color: #c62828; }
 
@@ -214,12 +362,14 @@ kbd {
 /* ---- 題目卡 ---- */
 #questionCard, #soloQuestionCard {
   background: var(--card-bg);
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  padding: 22px 20px;
   text-align: center;
   margin-bottom: 16px;
 }
-#promptLabel, #soloPromptLabel { color: var(--muted); margin-bottom: 8px; }
+#promptLabel, #soloPromptLabel { color: var(--muted); margin-bottom: 8px; font-size: 0.9rem; }
 #promptText, #soloPromptText { font-size: clamp(1.3rem, 6vw, 1.8rem); font-weight: bold; word-break: break-word; }
 #promptText.emojiPrompt, #soloPromptText.emojiPrompt { font-size: clamp(2.5rem, 12vw, 4rem); line-height: 1; }
 .boneCrop {
@@ -227,6 +377,7 @@ kbd {
   aspect-ratio: 1 / 1;
   background-repeat: no-repeat;
   background-color: #fdfaf3;
+  border-radius: var(--radius-md);
 }
 .animalPhoto {
   display: block;
@@ -236,8 +387,9 @@ kbd {
   width: auto;
   height: auto;
   object-fit: cover;
-  border-radius: 12px;
-  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ---- 選項 ---- */
@@ -247,15 +399,19 @@ kbd {
   align-items: center;
   gap: 10px;
   padding: 14px;
-  border-radius: 8px;
-  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
   background: var(--card-bg);
   color: var(--fg);
   font-size: 1.05rem;
   cursor: pointer;
   text-align: left;
   word-break: break-word;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
 }
+.choiceBtn:hover:not(:disabled) { border-color: var(--primary); box-shadow: var(--shadow-md); }
+.choiceBtn:active:not(:disabled) { transform: scale(0.98); }
 .choiceBtn:disabled { opacity: 0.6; cursor: default; }
 .choiceKey {
   display: inline-flex;
@@ -267,20 +423,23 @@ kbd {
   background: var(--border);
   flex-shrink: 0;
   font-weight: bold;
+  font-size: 0.9rem;
 }
-.choiceBtn.correct { border-color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
-.choiceBtn.wrong { border-color: #c62828; background: rgba(198, 40, 40, 0.15); }
+.choiceBtn.correct { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 14%, var(--card-bg)); }
+.choiceBtn.wrong { border-color: #c62828; background: rgba(198, 40, 40, 0.12); }
 
 #backBtn, #soloEndBtn {
   display: block;
   margin: 0 auto;
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: transparent;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
   color: var(--fg);
   cursor: pointer;
+  transition: border-color 0.15s;
 }
+#backBtn:hover, #soloEndBtn:hover { border-color: var(--primary); }
 
 /* ---- 一人刷題畫面 ---- */
 #soloScreen { max-width: 720px; }
@@ -303,9 +462,10 @@ kbd {
 
 /* ---- 設定畫面:一人模式累計數據 ---- */
 #soloStatsBox {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 14px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -318,26 +478,32 @@ kbd {
 #soloStatsBox[hidden] { display: none; }
 #soloStatsBox .hint { margin: 0; text-align: left; }
 #resetSoloStatsBtn {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: transparent;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--bg);
   color: var(--fg);
   cursor: pointer;
   white-space: nowrap;
+  transition: border-color 0.15s;
 }
+#resetSoloStatsBtn:hover { border-color: #c62828; color: #c62828; }
 
 /* ---- 結束畫面 ---- */
 #gameOverScreen { text-align: center; }
 #playAgainBtn {
   padding: 12px 24px;
   font-size: 1.1rem;
-  border-radius: 8px;
+  font-weight: 700;
+  border-radius: var(--radius-md);
   border: none;
-  background: #2e7d32;
-  color: white;
+  background: var(--primary);
+  color: var(--on-primary);
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s;
 }
+#playAgainBtn:hover { background: var(--primary-hover); }
 
 @media (max-width: 700px) {
   #arena {
@@ -363,6 +529,7 @@ kbd {
   .buzzBtn { padding: 6px 10px; font-size: 0.85rem; }
   .topBar { justify-content: flex-start; }
   .topBar h1 { flex: 1; text-align: center; }
+  .segmented .options { flex-wrap: wrap; }
 }
 
 /* ---- 版本資訊 ---- */

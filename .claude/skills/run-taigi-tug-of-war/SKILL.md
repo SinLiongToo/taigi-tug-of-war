@@ -211,7 +211,13 @@ which reset every time the page reloads or a new solo session starts.
   was an explicit `#soloStatsBox[hidden] { display: none; }` override. If you
   add a new element that's toggled via `.hidden = ...` *and* has its own
   `display:` rule keyed off the same ID, add the same `[hidden]` override or
-  you'll reproduce this bug.
+  you'll reproduce this bug. **This bug recurred once already** — the
+  2026-09-18 redesign gave `#teamOnlyFields` its own `display: flex` rule for
+  the new card layout and hit the exact same trap (team-only fields stayed
+  visible in solo mode); fixed with `#teamOnlyFields[hidden] { display: none; }`.
+  Both instances were only caught by screenshotting the *other* game type,
+  not by reading the CSS. Any future element toggled via `.hidden` needs this
+  checked every time it also gets a `display:` rule of its own.
 
 ## Bumping the version footer
 
@@ -256,6 +262,19 @@ gets `Cannot find module 'playwright'` even though `npm install` succeeded.
   four checked by default; unchecking all falls back to unrestricted, not to
   zero results), radio `input[name="romanSystem"][value="tailo|poj"]`, click
   `#startBtn`.
+- **Since the 2026-09-18 visual redesign, all checkboxes/radios in
+  `index.html` are styled as pill "chips"** (`.options label:has(input:checked)`
+  in `style.css`) with the native `<input>` visually hidden via
+  `clip: rect(0,0,0,0)` (1×1px, not 0×0 — kept in the tab order and
+  accessible to screen readers, see the comment above that rule). This
+  means `page.check('input[name="gameType"][value="team"]')` now fails
+  Playwright's actionability check (the input has a non-zero but tiny
+  bounding box that the wrapping `<label>`'s visible content sits on top
+  of) — pass `{ force: true }`, or better, click the `<label>` itself
+  (`page.locator('label', { hasText: '雙人搶答拔河' }).click()`) since
+  that's what a real user does and exercises the native label→input
+  click-through instead of bypassing it. A real user clicking the label
+  still works fine either way; this is a Playwright-only wrinkle.
 - `animal-*`/`body-*`/`plant-*`/`vehicle-*` modes render an emoji, a whole photo, or (body only)
   a cropped region of the shared skeleton chart inside `#promptText`,
   depending on `q.promptType`: `'emoji'` (text), `'image'` (`<img>`), or
