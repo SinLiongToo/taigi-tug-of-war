@@ -126,6 +126,11 @@
     document.getElementById('playAgainBtn').addEventListener('click', backToSettings);
     document.getElementById('buzzBtnA').addEventListener('click', () => gs && gs.buzz('A'));
     document.getElementById('buzzBtnB').addEventListener('click', () => gs && gs.buzz('B'));
+    // 拔河人偶本身也可以直接按下去搶答,跟按「搶答」鈕是同一個動作——
+    // GameState.buzz() 自己會擋不在搶答階段的呼叫(回傳 false、不做事),
+    // 這裡不用另外判斷階段。
+    document.getElementById('charA').addEventListener('click', () => gs && gs.buzz('A'));
+    document.getElementById('charB').addEventListener('click', () => gs && gs.buzz('B'));
     document.querySelectorAll('#choices .choiceBtn').forEach((btn) => {
       btn.addEventListener('click', () => {
         if (gs && gs.phase === 'answer') gs.answer(gs.activeTeam, Number(btn.dataset.idx));

@@ -454,6 +454,20 @@ gets `Cannot find module 'playwright'` even though `npm install` succeeded.
 - Buzz keys are fixed, not configurable in the UI: `d` = Team A, `k` = Team B
   (`page.keyboard.press('d')`). Answer keys `1`–`4` work for whichever team
   currently holds `activeTeam`, no team-specific answer keys.
+- **The tug-of-war character itself is also clickable to buzz** (2026-09-20,
+  `main.js` wires `#charA`/`#charB` click to the same `gs.buzz('A'|'B')` as
+  the `#buzzBtnA`/`#buzzBtnB` buttons — `GameState.buzz()` already no-ops
+  outside the `buzz` phase, so no extra phase-guarding needed in the click
+  handler). A transparent `.tugHit` circle (`r=42`, centered over the torso
+  in the character's own local coordinates) sits behind the character parts
+  as a bigger, easier-to-hit tap target, since the limbs themselves are thin
+  unfilled strokes. **`.tugChar` has a perpetual `tugSway` CSS animation
+  running, so Playwright's default actionability check ("wait for element to
+  be stable") never succeeds on it** — `page.locator('#charA').click()`
+  times out waiting for stability that will never come. Use
+  `{ force: true }` (same fix as the chip-styled checkboxes elsewhere in
+  this file) to click/tap through it; a real user has no such problem since
+  browsers don't require stability before dispatching a real click/tap.
 - `#statusLine` text is the reliable phase signal: contains `搶答中` (buzz
   phase), `搶到了` (answer phase, first attempt), `偷答機會` (steal),
   `答對了`/`答錯了`/`作廢` (result). Poll on substring match, not exact text

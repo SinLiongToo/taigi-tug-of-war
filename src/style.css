@@ -332,6 +332,12 @@ kbd {
    身體+白臉+腮紅的「小怪獸」,取代原本的純線條火柴人。手/腳/身體一樣
    以髖部(0,0)為原點畫,方便下面的動畫繼續用 rotate/translate,轉軸
    自然就是髖部,不會跑位。 */
+/* 人偶本身也可以直接按下去搶答(見 main.js 的 charA/charB click),但四肢
+   都只是細線條(stroke,沒有 fill),實際點擊熱區太小很難點準,所以疊一個
+   蓋住整個人偶範圍的透明圓形當熱區,比單靠線條本身容易點,手機上也好按。 */
+.tugHit { fill: transparent; pointer-events: all; cursor: pointer; }
+#tugScene { cursor: default; }
+
 .tugChar .leg, .tugChar .arm {
   stroke-width: 5;
   stroke-linecap: round;
