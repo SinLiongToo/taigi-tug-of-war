@@ -10,16 +10,20 @@ no `package.json`:
 
 - **`index.html`** — the buzzer/quiz game. Script load order matters:
   `data/version.js` → `src/lib/romanize.js` → `data/questions.js` →
-  `src/lib/questions.js` → `src/game-state.js` → `src/solo-state.js` →
-  `src/solo-stats.js` → `src/keyboard.js` → `src/ui.js` → `src/settings.js` →
-  `src/theme.js` → `src/main.js`.
+  `src/lib/curated-words.js` → `src/lib/questions.js` → `src/game-state.js` →
+  `src/solo-state.js` → `src/solo-stats.js` → `src/keyboard.js` → `src/ui.js`
+  → `src/settings.js` → `src/theme.js` → `src/main.js`.
 - **`find.html`** — a standalone dictionary lookup page (2026-09-18), styled
   by an ChhoeTaigi/找台語-like search box. Load order:
   `data/version.js` → `src/lib/romanize.js` → `data/questions.js` →
-  `src/find.js` → `src/find-ui.js` → `src/theme.js`. Deliberately does
-  *not* load `src/lib/questions.js` (the quiz's question-generation engine) —
-  `find.js` only needs `TAIGI_QUESTIONS.entries` and `Romanize` directly, see
-  "Dictionary lookup page" below.
+  `src/lib/curated-words.js` → `src/find.js` → `src/find-ui.js` →
+  `src/theme.js`. Deliberately does *not* load `src/lib/questions.js` (the
+  quiz's question-*generation* engine, `generate()`/distractor logic etc.) —
+  `find.js` only needs `TAIGI_QUESTIONS.entries`, `Romanize`, and (since
+  2026-09-20) `CURATED_WORDS` directly, see "Dictionary lookup page" below.
+  `src/lib/curated-words.js` (the five curated word lists themselves) was
+  extracted out of `src/lib/questions.js` specifically so both pages could
+  load the *data* without either page needing the other's engine.
 
 `src/theme.js` (dark/light toggle) and `src/style.css` are shared by both
 pages; a `localStorage` key (`theme`) keeps the toggle in sync across them.
@@ -112,39 +116,49 @@ const q = vm.runInContext('Questions.generate(["animal-hanzi"], "poj")', sandbox
 ## Curated word-list modes (animal / body / plant / vehicle / place)
 
 Five modes don't draw from the main dictionary-filtered `entries` pool —
-they're hand-curated lists in `src/lib/questions.js`, each cross-checked at
-`Questions.load()` time against the loaded dictionary (`byHanzi.get(hanzi)`)
-so a typo or a word the dictionary doesn't actually contain silently drops
-out rather than crashing:
+they're hand-curated lists, each cross-checked at `Questions.load()` time
+against the loaded dictionary (`byHanzi.get(hanzi)`) so a typo or a word the
+dictionary doesn't actually contain silently drops out rather than crashing.
+The lists themselves (2026-09-20) live in `src/lib/curated-words.js` as the
+`CURATED_WORDS` global (`{ animal, body, plant, vehicle, place, boneImage,
+boneCrops }`), extracted out of `src/lib/questions.js` so `find.html` can
+load the data without loading the quiz's generation engine too — see
+"Dictionary lookup page" below for why that split exists.
 
-- `ANIMAL_WORDS`, `BODY_WORDS`, `PLANT_WORDS`, `VEHICLE_WORDS` — emoji or
-  photo prompt, `{ type: 'emoji'|'image', value, hanzi }`. Every `hanzi`
-  here **was individually verified to exist in the MOE dictionary** before
-  being added — don't add a new entry without checking `byHanzi.get('新詞')`
-  first (load `data/questions.js` via the `vm` pattern above and inspect
-  `TAIGI_QUESTIONS.entries`). **Existence of the hanzi alone isn't enough —
-  check the dictionary's own `defs` text actually matches the intended
-  meaning.** `VEHICLE_WORDS` hit this for real: `byHanzi.get('山貓')` returns
-  a real entry, but its definition is "雲豹、石虎、狸貓" (clouded leopard),
-  not "skid loader" — same trap for 鋼牙 (dictionary: dentures, not a
-  hydraulic shear attachment), 豬哥牙 (canine tooth, not a forklift fork),
-  干樂 (spinning top, not a concrete mixer truck nickname), 田螺 (a
-  freshwater snail, not a concrete mixer truck nickname either).
-  `buildPicturePool()` has no way to detect this automatically (it only
-  checks existence, not semantic match), so it's a manual read-the-definition
-  step every time a curated word list borrows vocabulary from a
-  non-dictionary reference source. The project owner explicitly signed off
-  on keeping these four anyway (`山貓`/`豬哥牙`/`干樂`/`田螺` — 鋼牙 stayed
-  out for lack of a clean photo, not a data decision) once the *pronunciation*
-  was cross-checked to match between the dictionary reading and the
-  reference source's romanization exactly — this is a same-hanzi-repurposed-
-  as-slang case (parallel to English reusing "Bobcat" for a skid loader),
-  not a fabricated reading, and both `VEHICLE_WORDS`' own comment block and
-  README disclose it. Don't generalize this as "dictionary definition
-  mismatches are fine to ignore" — it only holds here because (a) the
-  pronunciation was verified to be identical, not just assumed, and (b) the
-  project owner explicitly approved this specific case after being shown the
-  mismatch, not because the check itself doesn't matter.
+- `CURATED_WORDS.animal`/`.body`/`.plant`/`.vehicle` (`src/lib/curated-words.js`)
+  — emoji or photo prompt, `{ type: 'emoji'|'image', value, hanzi }`. Every
+  `hanzi` here **was individually verified to exist in the MOE dictionary**
+  before being added — don't add a new entry without checking
+  `byHanzi.get('新詞')` first (load `data/questions.js` via the `vm` pattern
+  above and inspect `TAIGI_QUESTIONS.entries`). **Existence of the hanzi
+  alone isn't enough — check the dictionary's own `defs` text actually
+  matches the intended meaning.** `CURATED_WORDS.vehicle` hit this for real:
+  `byHanzi.get('山貓')` returns a real entry, but its definition is
+  "雲豹、石虎、狸貓" (clouded leopard), not "skid loader" — same trap for
+  鋼牙 (dictionary: dentures, not a hydraulic shear attachment), 豬哥牙
+  (canine tooth, not a forklift fork), 干樂 (spinning top, not a concrete
+  mixer truck nickname), 田螺 (a freshwater snail, not a concrete mixer truck
+  nickname either), and (2026-09-20, `CURATED_WORDS.animal`) 塗龍 (dictionary:
+  a species of eel-like fish, 蛇鰻/土龍, not the Formosan salamander it's used
+  for in the animal mode). `buildPicturePool()` has no way to detect this
+  automatically (it only checks existence, not semantic match), so it's a
+  manual read-the-definition step every time a curated word list borrows
+  vocabulary from a non-dictionary reference source. The project owner
+  explicitly signed off on keeping these five anyway (`山貓`/`豬哥牙`/`干樂`/
+  `田螺`/`塗龍` — 鋼牙 stayed out for lack of a clean photo, not a data
+  decision) once the *pronunciation* was cross-checked to match between the
+  dictionary reading and the reference source's romanization exactly — this
+  is a same-hanzi-repurposed-as-slang case (parallel to English reusing
+  "Bobcat" for a skid loader), not a fabricated reading, and both the word
+  list's own comment block and README disclose it. Don't generalize this as
+  "dictionary definition mismatches are fine to ignore" — it only holds here
+  because (a) the pronunciation was verified to be identical, not just
+  assumed, and (b) the project owner explicitly approved this specific case
+  after being shown the mismatch, not because the check itself doesn't
+  matter. All five borrowed-meaning hanzi are keyed in `src/find.js`'s
+  `BORROWED_HANZI_NOTE` map (renamed 2026-09-20 from `VEHICLE_SLANG_NOTE`
+  once the animal mode needed the same mechanism) so a dictionary lookup of
+  e.g. 塗龍 shows an explanatory note instead of looking like a wrong result.
   Each of these four pools backs *two* checkbox modes (`animal-hanzi`/
   `animal-roman`, etc.) — `generate()` picks the direction directly from
   which checkbox fired rather than randomizing internally, see
@@ -161,18 +175,26 @@ out rather than crashing:
   busy/confusable with another entry in the same pool to answer correctly
   from (e.g. a dump truck photo that also has an excavator and a road roller
   strapped to a trailer behind it — swapped for a cleaner single-vehicle shot).
-- `PLACE_RAW` — hanzi + raw romanization string, **not** MOE-dictionary
-  sourced (the dictionary has essentially zero place names — verified by
-  grepping `data/raw/dict-twblg.json` for `/^地名/`-tagged defs: 12 hits
-  total, only 2 are actual place names). Instead it's pulled from two other
-  local projects under `Projects_antigravity/` (same OneDrive parent folder):
-  the 73-station `stations` array in `台灣鐵路四界行/app.js`, and the
-  14-entry mountain/river/landmark list in `geo地理,動物,人體,車,蟲/app.js`.
-  **Read-only** — never edit either of those projects. Every `PLACE_RAW`
+- `CURATED_WORDS.place` (`src/lib/curated-words.js`, was `PLACE_RAW`) — hanzi +
+  raw romanization string, **not** MOE-dictionary sourced (the dictionary has
+  essentially zero place names — verified by grepping
+  `data/raw/dict-twblg.json` for `/^地名/`-tagged defs: 12 hits total, only 2
+  are actual place names). Instead it's pulled from two other local projects
+  under `Projects_antigravity/` (same OneDrive parent folder): the
+  73-station `stations` array in `台灣鐵路四界行/app.js`, and the 14-entry
+  mountain/river/landmark list in `geo地理,動物,人體,車,蟲/app.js`.
+  **Read-only** — never edit either of those projects. Every place
   romanization was validated once via `Romanize.parseWord()` (one entry,
   烏日/"O͘-ji̍t", failed to parse and was dropped); this is a structural
   check only, not a correctness check against an authoritative dictionary —
-  README flags this mode as lower-confidence than the others.
+  README flags this mode as lower-confidence than the others. This mode
+  always uses its own romanization for generation even when a place hanzi
+  happens to collide with an unrelated real dictionary word (5 collisions
+  found 2026-09-20: 保安/沙崙/銅鑼/清水/日月潭) — it never calls
+  `byHanzi.get()` at all, unlike the other four curated pools. `find.js`'s
+  curated index mirrors this: place entries are always indexed regardless of
+  a dictionary collision, so a collision search shows both the real
+  dictionary result and the game's own place-name reading side by side.
 - `genFromPicturePool(pool, mode, direction, toRoman, labels, system)` is the
   shared generator behind animal/body/plant — don't reimplement the
   distractor logic per mode, extend this one if you add a fifth picture pool.
@@ -258,10 +280,12 @@ the pure-logic module (`Find.search(query)`, no DOM — trivially `vm`-loadable
 same as `Questions`); `src/find-ui.js` does the DOM rendering/wiring.
 
 - **Why it doesn't need `src/lib/questions.js`**: the quiz's `Questions`
-  module builds curated picture pools (`ANIMAL_WORDS` etc.) and handles
-  distractor generation — none of that applies to a plain lookup. `find.js`
-  reads `TAIGI_QUESTIONS.entries` directly and calls `Romanize` itself, so
-  it only needs `data/questions.js` + `src/lib/romanize.js`.
+  module builds curated picture *pools* (photo/emoji assignment, distractor
+  generation) from the raw `CURATED_WORDS` lists — none of that applies to a
+  plain lookup. `find.js` reads `TAIGI_QUESTIONS.entries` directly and calls
+  `Romanize` itself, so it only needs `data/questions.js` +
+  `src/lib/romanize.js` + (since 2026-09-20) `src/lib/curated-words.js` for
+  the raw word lists themselves.
 - **The search key trick**: `Romanize.wordToKey(parsedSylls)` (already
   present in `romanize.js`, with a comment saying it exists for exactly
   this — "供辭典反查索引使用") turns a syllable list into a
@@ -292,27 +316,55 @@ same as `Questions`); `src/find-ui.js` does the DOM rendering/wiring.
   directly (already embedded in `data/questions.js` by
   `build-questions.js`) rather than a hand-written string, so it can't drift
   out of sync with whatever dictionary files were actually merged.
-- **`Find.VEHICLE_SLANG_NOTE`** (2026-09-19): a small hanzi → note-text map
-  for the 4 words in `VEHICLE_WORDS` (`src/lib/questions.js`) that reuse a
-  real dictionary hanzi as construction-vehicle slang with an unrelated
-  dictionary definition (山貓/豬哥牙/干樂/田螺 — see the big comment above
-  `VEHICLE_WORDS` for the full writeup). `find-ui.js`'s `entryCard()` checks
-  this map and, if present, renders an amber `.findCardSlangNote` box above
-  the dictionary definition so a lookup of e.g. "山貓" doesn't look like a
-  wrong result just because it shows "雲豹" instead of "skid loader". This
-  is *not* the same gap as the 8 reference-only words below — those aren't
-  in the dictionary at all and stay unfindable on this page by design (the
-  page only searches what the MOE dictionary actually contains); these 4
-  *are* real dictionary words, just with a second, unrelated colloquial
-  sense the dictionary itself doesn't record. If you add another
-  `VEHICLE_WORDS`/`PLANT_WORDS`/etc. entry that reuses an existing
-  dictionary hanzi for an unrelated meaning, add it to this map too.
-- Testing: `vm`-load `romanize.js` + `data/questions.js` + `find.js` (no DOM
-  needed) and call `Find.search(...)` directly — sample real entries out of
+- **`Find.BORROWED_HANZI_NOTE`** (2026-09-19, renamed from
+  `VEHICLE_SLANG_NOTE` on 2026-09-20 once a non-vehicle case showed up): a
+  small hanzi → note-text map for the 5 words across `CURATED_WORDS.vehicle`
+  and `CURATED_WORDS.animal` that reuse a real dictionary hanzi with an
+  unrelated dictionary definition (山貓/豬哥牙/干樂/田螺/塗龍 — see the big
+  comment above each word list for the full writeup). `find-ui.js`'s
+  `entryCard()` checks this map and, if present, renders an amber
+  `.findCardSlangNote` box above the dictionary definition so a lookup of
+  e.g. "山貓" doesn't look like a wrong result just because it shows "雲豹"
+  instead of "skid loader". These 5 *are* real dictionary words with a
+  second, unrelated colloquial sense the dictionary itself doesn't record —
+  they show up under the normal dictionary-`exact` section, not the curated
+  section below. If you add another curated-word-list entry that reuses an
+  existing dictionary hanzi for an unrelated meaning, add it to this map too.
+- **Curated (non-dictionary) search results** (2026-09-20): `buildCuratedIndex()`
+  in `find.js` builds a second index from `CURATED_WORDS` (the same lists
+  `Questions` uses for the animal/body/plant/vehicle/place modes) — for the
+  four picture pools, a word only gets a curated index entry if
+  `byHanzi.get(hanzi)` *fails* (i.e. it's genuinely not a dictionary word;
+  if it *is* a dictionary word, the normal dictionary index already covers
+  it, see `BORROWED_HANZI_NOTE` above for the borrowed-meaning case). The
+  `place` pool is indexed unconditionally regardless of a dictionary
+  collision, because `Questions`' `placePool` always uses the place's own
+  romanization for real quiz questions even when the hanzi coincidentally
+  also exists as an unrelated dictionary word (5 such collisions exist:
+  保安/沙崙/銅鑼/清水/日月潭) — mirroring that quiz behavior means a
+  collision search shows both the dictionary's `exact` result *and* a
+  separate curated result with the game's own reading, not just one or the
+  other. `searchHanzi()`/`searchRoman()` both return an extra
+  `curated`/`curatedExact`/`curatedToneless` field; `find-ui.js`'s
+  `curatedCard()` renders these with a dashed amber border and an explicit
+  "非教育部辭典收錄" disclosure (no `defs`/`level` to show, since these
+  words were never dictionary-verified — only format-validated via
+  `Romanize.parseWord()`). This closed a real UX gap: reference-only words
+  like 七里香/堆高機/流籠車 (and now the 9 new non-dictionary animal words)
+  used to be silently unfindable on this page even though they're used
+  in-game; now they show up in their own clearly-labeled section instead of
+  either being missing or (worse) looking like a verified dictionary result.
+- Testing: `vm`-load `romanize.js` + `data/questions.js` +
+  `src/lib/curated-words.js` + `find.js` (no DOM needed) and call
+  `Find.search(...)` directly — sample real entries out of
   `TAIGI_QUESTIONS.entries` at random rather than hand-typing expected
   romanizations (don't guess pronunciations, even in a test script). A
   known-good regression check: 800 random entries, searched by hanzi/Tâi-lô/
-  POJ, should all resolve to themselves via `exact` with 0 failures.
+  POJ, should all resolve to themselves via `exact` with 0 failures. For the
+  curated index specifically, spot-check a handful of known non-dictionary
+  hanzi (e.g. 台灣烏熊/七里香/堆高機) resolve via `curated`/`curatedExact`,
+  and a known dictionary-clean curated word (e.g. 羌仔) resolves via the
+  *normal* `exact`, not `curated` (it should have zero curated entries).
 - Playwright: fill `#findInput`, click `#findSubmitBtn` (or submit the
   `#findForm`), read `#findResults`. `#findMeta` is populated on
   `DOMContentLoaded`, no async wait needed (no fetch, same as `#dictStatus`

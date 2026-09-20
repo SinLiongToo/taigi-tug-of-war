@@ -62,18 +62,29 @@ moedict-data-twblg)跟目前題庫詞數,滑鼠移過去可以點連結。搜尋
 四種輸入方式各附一個實際查得到的範例(不是隨便編的,每次改過都有重新用
 Playwright 對這幾個範例字串各自查一次確認真的查得到)。
 
-工程車模式裡「山貓」「豬哥牙」「干樂」「田螺」這 4 個詞(見上面「出題模式」
-的說明),辭典裡剛好有同樣的漢字、但釋義完全是別的東西——在這個查詢頁查到
-這 4 個字的時候,結果卡片會多一行橘色提醒,說明這個漢字在工程車俗稱裡另外
-還有什麼意思,避免使用者以為辭典的釋義(雲豹/犬齒/陀螺/軟體動物)是查詢
-出錯。至於完全沒被教育部辭典收錄、只在 `reference/` 或使用者提供的來源裡
-出現的詞(例如堆高機、流籠車、七里香等,見上面「出題模式」的說明),**這個
-查詢頁查不到**——它只查教育部辭典本身收錄的內容,不會把遊戲裡另外用其他
-來源補充的詞也一起搜進來。
+工程車模式裡「山貓」「豬哥牙」「干樂」「田螺」、動物模式裡「塗龍」這 5 個
+詞(見上面「出題模式」的說明),辭典裡剛好有同樣的漢字、但釋義完全是別的
+東西——在這個查詢頁查到這幾個字的時候,結果卡片會多一行橘色提醒,說明這個
+漢字在遊戲裡另外還有什麼意思,避免使用者以為辭典的釋義(雲豹/犬齒/陀螺/
+軟體動物/蛇鰻)是查詢出錯。
 
-技術上 `find.html` 只載入 `data/questions.js`(共用的離線題庫)跟
-`src/lib/romanize.js`(vendored,未修改),**不載入** `src/lib/questions.js`
-(遊戲用的出題引擎)——查詢邏輯自己一支 `src/find.js`,純函式、不碰 DOM,
+2026-09-20 起,完全沒被教育部辭典收錄、只在遊戲的動物/身體部位/植物/工程車/
+地名模式裡使用的詞(例如堆高機、流籠車、七里香、台灣烏熊等)**也查得到
+了**——查詢頁會另外列一區「遊戲圖片題庫用詞(非教育部辭典收錄)」,卡片
+用虛線框+橘色警示文字清楚標示「這不是教育部辭典收錄的詞,只做過格式驗證」,
+避免使用者誤以為是查證過的辭典資料。技術上這是因為 `find.js` 額外建立了
+一份「curated 索引」(來源是 `src/lib/curated-words.js` 的 `CURATED_WORDS`),
+辭典本身查得到的詞(不管有沒有被某個模式借去當俗稱用)一律以辭典結果為主、
+不重複建立 curated 條目;只有辭典完全查不到的詞才會出現在這個獨立分區。
+地名模式比較特別:即使某個地名的漢字剛好跟辭典裡別的詞撞了同一個字
+(例如「保安」「清水」「銅鑼」),查詢頁還是會把兩邊都列出來,因為遊戲的
+地名題目本來就是用地名自己的讀音出題,不是辭典讀音,查詢頁跟著誠實兩邊都show。
+
+技術上 `find.html` 載入 `data/questions.js`(共用的離線題庫)、
+`src/lib/romanize.js`(vendored,未修改)跟 `src/lib/curated-words.js`
+(五個出題模式共用的手動詞庫資料,見「專案結構」),**不載入**
+`src/lib/questions.js`(遊戲用的出題引擎,裡面還有 `generate()` 這種出題
+邏輯,查詢頁用不到)——查詢邏輯自己一支 `src/find.js`,純函式、不碰 DOM,
 方便直接用 Node `vm` 測試;`src/find-ui.js` 才是負責畫面渲染跟事件綁定的
 部分。深色/淺色模式的切換邏輯原本寫在遊戲的 `main.js` 裡,抽成獨立的
 `src/theme.js` 讓兩個頁面共用,同一個 `localStorage` key 讓兩頁切換的深淺色
@@ -92,8 +103,9 @@ Playwright 對這幾個範例字串各自查一次確認真的查得到)。
   羅馬字。「看漢字」「看羅馬字」是兩個獨立的勾選框(`animal-hanzi`/
   `animal-roman`),只想練羅馬字或只想練漢字可以只勾一個,兩個都勾就混合出。
   干擾選項也是從動物題庫裡挑的,比較有「猜動物」的主題感。題庫是一份
-  精選清單(`src/lib/questions.js` 裡的 `ANIMAL_WORDS`),跟教育部辭典資料
-  比對過漢字確實查得到才收錄。
+  精選清單(`src/lib/curated-words.js` 裡的 `CURATED_WORDS.animal`,原本放
+  在 `src/lib/questions.js`,2026-09-20 抽成獨立檔案,見「專案結構」),跟
+  教育部辭典資料比對過漢字確實查得到才收錄。
   - 其中 7 種是**台灣野生保育動物照片**(台灣黑熊、梅花鹿、台灣獼猴、長鬃
     山羊、山豬、水獺、飛鼠)。辭典裡沒有「台灣黑熊」「石虎」這種物種專有
     名詞,所以熊/鹿/猴/羊這幾張照片配的是辭典裡真正存在的**通用詞**,用台灣
@@ -104,10 +116,25 @@ Playwright 對這幾個範例字串各自查一次確認真的查得到)。
     田蛤仔),emoji 保留不刪,照片跟 emoji 並存增加出題變化。這些漢字本來
     就是題庫既有詞(emoji 清單裡都有),不需要另外查證。照片授權見下方
     「圖片授權」。
+  - 2026-09-20 再加 13 種保育類動物照片(使用者提供一組動物解說卡片,圖案+
+    台語漢字+羅馬字),查證結果分三類:羌仔、鯪鯉是辭典本身就有的乾淨案例
+    (辭典釋義剛好就是山羌/穿山甲,直接用辭典讀音,卡片上「台灣羌仔」
+    「台灣鯪鯉」的「台灣」字首辭典沒收,改用辭典既有的「羌仔」「鯪鯉」);
+    塗龍是辭典查得到同一個漢字、但釋義是另一種魚(蛇鰻)的借用案例,讀音
+    跟辭典一致,已加進 `src/find.js` 的 `BORROWED_HANZI_NOTE`;剩下台灣烏熊、
+    梅花鹿、烏雉雞(帝雉的卡片漢字,使用者確認過)、華雞(藍腹鷴的卡片
+    俗名)、石虎、台灣猴、青腰仔、石龜、媽祖魚、紋斑 9 個辭典完全查不到,
+    改用卡片本身標示的羅馬字,只做過 `Romanize.parseWord()` 格式驗證,沒有
+    逐字跟辭典核對發音。「媽祖魚」(台灣白海豚)配圖另外要說明:Wikimedia
+    Commons 上找不到 CC 授權、拍到台灣這個瀕危族群(僅存數十隻)本身的
+    照片,配圖是同物種、在香港大嶼山海域拍到的野生個體(不是台灣族群本身
+    的照片,但至少是野生、非圈養個體——第一次選的候選其實是泰國圈養個體,
+    使用者問「可以用我提供的圖片嗎?」之後才發現這個問題,換成現在這張,
+    見下方開發紀錄)。
 - **身體部位**:題目是身體部位 emoji 或照片,猜台語漢字或羅馬字。跟動物模式
   一樣拆成 `body-hanzi`/`body-roman` 兩個獨立勾選框。清單裡每個詞都逐一查證
-  過教育部辭典是否收錄(`src/lib/questions.js`
-  的 `BODY_WORDS`)。骨頭類詞彙特別多,除了基本的骨、手骨、跤骨、頭殼,還有
+  過教育部辭典是否收錄(`src/lib/curated-words.js`
+  的 `CURATED_WORDS.body`)。骨頭類詞彙特別多,除了基本的骨、手骨、跤骨、頭殼,還有
   一份詳細人骨部位(頭殼碗、牙槽骨、飯匙骨、胸掛骨、胸坎骨、龍骨、尻川骨、
   大腿骨、跤肚骨、跤胴骨……共 18 個)是照使用者提供的骨骼圖(作者:藍采琍)
   加入的。這份圖上的詞有 15 個辭典裡也查得到、讀音跟圖上完全一致(互相驗證
@@ -132,7 +159,8 @@ Playwright 對這幾個範例字串各自查一次確認真的查得到)。
   資料;如實回報給使用者之後,使用者直接提供羅馬字,只做過格式驗證,不是
   辭典查來的。
 - **工程車**:題目是工程車照片,猜台語漢字或羅馬字,一樣拆成 `vehicle-hanzi`/
-  `vehicle-roman` 兩個獨立勾選框(`src/lib/questions.js` 的 `VEHICLE_WORDS`,
+  `vehicle-roman` 兩個獨立勾選框(`src/lib/curated-words.js` 的
+  `CURATED_WORDS.vehicle`,
   共 15 個詞、16 張照片——「豬哥牙」對應兩張不同照片,見下方說明)。使用者
   提供了一份台語工程車詞彙的參考資料
   (`reference/《常見的工程車台語1》.md`,一份臉書貼文截圖整理),裡面每種車
@@ -164,7 +192,8 @@ Playwright 對這幾個範例字串各自查一次確認真的查得到)。
   `Romanize.parseWord()` 逐筆驗證過羅馬字格式能正確解析、也跟已知的台語地名
   讀音慣例(例:台北 Tâi-pak、高雄 Ko-hiông)核對過看起來合理,但沒辦法像
   其他模式一樣逐字對照教育部辭典確認發音,所以請比較保留地看待——如果哪個
-  地名的讀音有問題,歡迎回報修正,資料在 `src/lib/questions.js` 的 `PLACE_RAW`。
+  地名的讀音有問題,歡迎回報修正,資料在 `src/lib/curated-words.js` 的
+  `CURATED_WORDS.place`。
 - **九九乘法**:題目是一個乘法算式(阿拉伯數字,如「4 × 9 = ?」),選項是答案的
   台語唸法。**這個模式的數字讀音不是查辭典來的**(辭典只有一~十的單字,沒有
   「二十」「三十六」這種組合數字詞),是照傳統台語九九乘法歌慣用的讀法手動
@@ -288,6 +317,36 @@ node data/build-questions.js
 上面這 24 張(狗~田蛤仔)跟樹種/水果/工程車照片同一批做法,本機用 Pillow
 等比縮到長邊 900px、JPEG 品質 78 壓縮,單張約 37~235KB。
 
+`data/images/tw-wildlife/` 底下再加 13 張保育類動物照片(2026-09-20 新增,
+使用者提供一組動物解說卡片、查證過程見下方開發紀錄),同樣來自 Wikimedia
+Commons、CC0/CC BY/CC BY-SA 授權:
+
+| 檔案 | 動物 | 授權 | 攝影者 | 來源 |
+|---|---|---|---|---|
+| `muntjac.jpg` | 台灣山羌(配「羌仔」) | CC BY-SA 2.0 | realhydee | [File:A Muntiacus reevesi in Taiwan.jpg](https://commons.wikimedia.org/wiki/File:A_Muntiacus_reevesi_in_Taiwan.jpg) |
+| `pangolin.jpg` | 台灣穿山甲(配「鯪鯉」) | CC BY 4.0 | Licheng Shih | [File:Manis pentadactyla pentadactyla 131662828.jpg](https://commons.wikimedia.org/wiki/File:Manis_pentadactyla_pentadactyla_131662828.jpg) |
+| `salamander.jpg` | 台灣山椒魚(配「塗龍」) | CC BY 4.0 | 王朝威 | [File:Hynobius formosanus 231465908.jpg](https://commons.wikimedia.org/wiki/File:Hynobius_formosanus_231465908.jpg) |
+| `formosan-black-bear.jpg` | 台灣黑熊(配「台灣烏熊」) | CC BY-SA 3.0 | Abu0804 | [File:Formosan Black Bear.JPG](https://commons.wikimedia.org/wiki/File:Formosan_Black_Bear.JPG) |
+| `sika-deer.jpg` | 梅花鹿(配「梅花鹿」) | CC BY-SA 3.0 | Lord Koxinga | [File:2010 07 19340 7195 ... Cervus nippon taiouanus, Taiwan.JPG](https://commons.wikimedia.org/wiki/File:2010_07_19340_7195_Wenshan_District,_Taipei,_Zoo,_Cervus_nippon_taiouanus,_Taiwan.JPG) |
+| `mikado-pheasant.jpg` | 帝雉(配「烏雉雞」) | CC BY 2.0 | Cataloging Nature | [File:2014-03-30 Syrmaticus mikado (Mikado Pheasant) 06.jpg](https://commons.wikimedia.org/wiki/File:2014-03-30_Syrmaticus_mikado_(Mikado_Pheasant)_06.jpg) |
+| `swinhoe-pheasant.jpg` | 藍腹鷴(配「華雞」) | CC BY 2.0 | Cataloging Nature | [File:2014-03-29 Lophura swinhoii (Swinhoe's Pheasant).jpg](https://commons.wikimedia.org/wiki/File:2014-03-29_Lophura_swinhoii_(Swinhoe%27s_Pheasant).jpg) |
+| `leopard-cat.jpg` | 石虎(配「石虎」) | CC0 | ourskyuamlea | [File:Prionailurus bengalensis in Taiwan 01.jpg](https://commons.wikimedia.org/wiki/File:Prionailurus_bengalensis_in_Taiwan_01.jpg) |
+| `formosan-macaque.jpg` | 台灣獼猴(配「台灣猴」) | CC BY-SA 4.0 | Charles J. Sharp | [File:Taiwanese macaque (Macaca cyclopis) female Yangmingshan.jpg](https://commons.wikimedia.org/wiki/File:Taiwanese_macaque_(Macaca_cyclopis)_female_Yangmingshan.jpg) |
+| `tree-frog.jpg` | 台灣樹蛙(配「青腰仔」) | CC BY 4.0 | Chen Jia Hong | [File:Zhangixalus arvalis 219284576.jpg](https://commons.wikimedia.org/wiki/File:Zhangixalus_arvalis_219284576.jpg) |
+| `green-turtle.jpg` | 綠蠵龜(配「石龜」) | CC BY-SA 4.0 | Charles J. Sharp | [File:Green sea turtle (Chelonia mydas) Moorea.jpg](https://commons.wikimedia.org/wiki/File:Green_sea_turtle_(Chelonia_mydas)_Moorea.jpg) |
+| `white-dolphin.jpg` | 中華白海豚(配「媽祖魚」) | CC BY-SA 4.0 | Leonard Reback | [File:Chinese white dolphin.jpg](https://commons.wikimedia.org/wiki/File:Chinese_white_dolphin.jpg) |
+| `landlocked-salmon.jpg` | 櫻花鉤吻鮭(配「紋斑」) | CC BY 2.0 | 曾成訓 | [File:櫻花鉤吻鮭 2021.jpg](https://commons.wikimedia.org/wiki/File:%E6%AB%BB%E8%8A%B1%E9%89%A4%E5%90%BB%E9%AE%AD_2021.jpg) |
+
+這 13 張同樣是本機用 Pillow 等比縮到長邊 900px、JPEG 品質 78 壓縮,單張約
+55~165KB。其中 `white-dolphin.jpg` 要特別說明:配的是「媽祖魚」(台灣西部
+沿海白海豚族群,僅存數十隻,是台灣特有亞種)這個詞,但 Wikimedia Commons
+上找不到這個瀕危族群本身、CC 授權的照片,配圖用的是同一個物種
+(*Sousa chinensis*,中華白海豚)在香港大嶼山海域拍攝的野生個體,不是台灣
+族群本身的照片——這裡老實說清楚,不要讓人誤以為是台灣拍到的。第一次選用
+的候選照片(File:Pink Dolphin.JPG)雖然授權沒問題,但後來發現分類標籤
+寫著「Captive mammals」「Cetaceans of Thailand」,是泰國一隻圈養個體,
+跟保育主題不搭,換成現在這張野生個體的照片。
+
 `data/images/tw-plants/` 底下 5 張台灣鄉土樹種照片,一樣來自 Wikimedia Commons、
 CC BY 或 CC BY-SA 授權:
 
@@ -406,6 +465,8 @@ src/settings.js               讀取遊戲設定表單
 src/find.js                  辭典查詢邏輯(純查詢,不碰 DOM,方便 vm 測試)
 src/find-ui.js                辭典查詢頁畫面渲染跟事件綁定
 src/lib/romanize.js          台羅/白話字轉換 + 變調邏輯(vendored,未修改)
+src/lib/curated-words.js      動物/身體部位/植物/工程車/地名五個模式共用的手動詞庫
+                             資料(index.html、find.html 都會載入)
 src/lib/questions.js         出題引擎(讀題庫 + 動態組四選一,遊戲頁專用)
 data/raw/                    下載下來的教育部辭典原始資料(不進版控)
 data/build-questions.js       題庫建置腳本(含難易度分級 classifyLevel())
@@ -423,6 +484,58 @@ reference/*.json               上面 .md 的結構化 JSON 版本,給其他工�
 
 ## 開發紀錄
 
+- 2026-09-20:使用者問「媽祖魚找不到圖片可以用我的圖片嗎」——使用者提供的
+  動物卡片是出版品(不是使用者自己拍的照片或畫的圖),不符合專案「圖片
+  授權原則」(一律只能用確認過授權的公開圖庫,目前都是 Wikimedia Commons,
+  沒有「使用者提供的圖也可以」這個例外),所以沒有採用,跟使用者說明原因
+  之後,使用者要求「再找一輪」。用不同關鍵字(中華白海豚台灣、Taiwanese
+  humpback dolphin、Sousa chinensis Xiamen 等)在 Commons 搜尋,大部分
+  沒有結果或不相關;改用 `incategory:Sousa chinensis` 列出整個分類的檔案,
+  意外發現原本選用的 `white-dolphin.jpg`(Pink Dolphin.JPG)分類標籤寫著
+  「Captive mammals」「Cetaceans of Thailand」——是泰國一隻**圈養**個體,
+  跟保育主題不搭。換成同分類裡的 File:Chinese white dolphin.jpg
+  (CC BY-SA 4.0,Leonard Reback 攝於香港大嶼山海域,說明文字確認是野生
+  個體),雖然一樣不是台灣族群本身的照片,但至少是野生、非圈養,是目前
+  找得到的最佳選擇。
+- 2026-09-20:使用者問「find.html 可以擴大搜尋範圍嗎?」,把動物/身體部位/
+  植物/工程車/地名五個出題模式裡、教育部辭典查不到的詞也一起收進查詢頁的
+  搜尋範圍(之前只搜辭典本身)。做法:把這五份詞庫清單(`ANIMAL_WORDS` 等)
+  從 `src/lib/questions.js` 抽成獨立的 `src/lib/curated-words.js`
+  (`CURATED_WORDS` 全域),讓 `find.html` 也能載入而不用連出題引擎一起載入;
+  `find.js` 新增 `buildCuratedIndex()`,對每個詞先查辭典(`byHanzi`),查得到
+  就不重複建索引(辭典本身的搜尋結果已經涵蓋),查不到才用清單自己的 `poj`
+  建一份獨立索引,查詢結果會列在「遊戲圖片題庫用詞(非教育部辭典收錄)」
+  這個獨立分區,卡片用虛線框+橘色警示文字跟辭典結果做區隔,避免使用者誤把
+  「只做過格式驗證」的詞看成「查證過的辭典資料」。地名模式例外:即使漢字
+  剛好跟辭典裡別的詞撞了(查證時發現「保安」「清水」「銅鑼」等 5 筆撞字),
+  一律照建才不遺漏,因為遊戲的地名題目本來就是用地名自己的讀音,不是辭典
+  讀音。順便把原本命名為 `VEHICLE_SLANG_NOTE` 的借字警示對照表改名成
+  `BORROWED_HANZI_NOTE`(現在動物模式的「塗龍」也用得到,不再是工程車
+  專屬)。用 vm 對 800 筆隨機辭典詞做回歸測試全過,再對 17 個代表性查詢
+  (乾淨辭典詞、借字詞、9 個新增非辭典動物詞、地名撞字案例)逐一驗證行為
+  符合預期,最後用 Playwright 截圖確認桌面版跟 375px 手機版畫面都正常、
+  沒有橫向捲動。
+- 2026-09-20:使用者提供一組保育類動物解說卡片照片(圖案+台語漢字+羅馬字),
+  要求加進動物模式題庫、也要能在 find.html 搜尋得到(驅動了上面那條搜尋
+  範圍擴大的紀錄)。逐張核對教育部辭典,結果分三類:羌仔、鯪鯉是乾淨案例
+  (辭典釋義剛好就是山羌/穿山甲,卡片上「台灣羌仔」「台灣鯪鯉」的「台灣」
+  字首辭典沒收,改用辭典既有的「羌仔」「鯪鯉」,直接用辭典讀音);塗龍是
+  辭典查得到同一個漢字、但釋義是另一種魚(蛇鰻)的借用案例,讀音跟辭典
+  一致(已加進 `BORROWED_HANZI_NOTE`);剩下台灣烏熊、梅花鹿、烏雉雞
+  (卡片上的漢字經使用者確認,因為原始照片是直式旋轉小字看不清楚)、華雞、
+  石虎、台灣猴、青腰仔、石龜、媽祖魚、紋斑 9 個辭典完全查不到,改用卡片
+  本身標示的羅馬字,只做過 `Romanize.parseWord()` 格式驗證,沒有逐字跟辭典
+  核對發音。13 張對應照片全部從 Wikimedia Commons 搜尋、用 `imageinfo` +
+  `iiprop=url|extmetadata` 確認 CC0/CC BY/CC BY-SA 授權才下載,每張都實際
+  看過縮圖確認拍到的真的是對的物種、畫面夠清楚(其中台灣烏熊、帝雉兩張
+  第一次選到的候選照片太模糊/是非典型個體,換了更清楚的候選)。媽祖魚
+  (台灣白海豚)例外說明:Commons 上找不到台灣這個瀕危族群(僅存數十隻)
+  本身的 CC 授權照片,配圖是同物種在其他地區拍攝的個體,已在程式註解跟
+  README 圖片授權表清楚標明,不要讓人誤以為是台灣拍到的。用 vm 批次跑
+  1040 題(13 種模式各 80 題)跟針對動物模式 400 次抽樣確認全部 13 個新詞
+  都能正確出題、選項不重複、correctIndex 合法;最後用 Playwright 實際玩
+  遊戲驗證全部 13 張新照片都會出現且能正常作答,375px 手機版也沒有橫向
+  捲動。
 - 2026-09-19:使用者問「新增的 reference 可以 output 出來,json 可以給其它
   tool 使用嗎?」,確認範圍是指 `reference/《常見的工程車台語1》.md` 這份
   檔案本身,不是遊戲題庫。新增 `reference/construction-vehicles-taigi.json`,
