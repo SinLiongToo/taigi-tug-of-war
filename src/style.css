@@ -328,49 +328,93 @@ kbd {
 }
 #ropeKnot circle { fill: var(--fg); }
 #ropeKnot .flag { fill: #f2b705; }
-.tugChar .leg, .tugChar .torso, .tugChar .arm {
-  stroke-width: 6;
+/* 拔河角色造型(2026-09-20 改版,照使用者小孩畫的角色重畫):圓頭巾狀
+   身體+白臉+腮紅的「小怪獸」,取代原本的純線條火柴人。手/腳/身體一樣
+   以髖部(0,0)為原點畫,方便下面的動畫繼續用 rotate/translate,轉軸
+   自然就是髖部,不會跑位。 */
+.tugChar .leg, .tugChar .arm {
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+.tugChar .toe, .tugChar .hand {
+  stroke-width: 3;
   stroke-linecap: round;
   fill: none;
 }
-.tugChar .head { stroke: none; }
-#charA .leg, #charA .torso, #charA .arm, #charA .head { stroke: var(--teamA); fill: var(--teamA); }
-#charB .leg, #charB .torso, #charB .arm, #charB .head { stroke: var(--teamB); fill: var(--teamB); }
+.tugChar .body { stroke-width: 3; stroke-linejoin: round; }
+/* 臉固定用淺色,不能跟著深色模式的 --card-bg 變暗——深色模式下臉會
+   幾乎全黑,上面深色的眼睛/嘴巴就看不見了(這是實際截圖抓到的問題,
+   不是猜的)。 */
+.tugChar .face { fill: #fdfaf3; stroke-width: 2.5; }
+.tugChar .eye { fill: #2b2b2b; }
+.tugChar .eyeLine, .tugChar .eyeX { stroke: #2b2b2b; stroke-width: 2; stroke-linecap: round; fill: none; }
+.tugChar .mouth { stroke: #2b2b2b; stroke-width: 2; fill: none; }
+.tugChar .mouthOpen { fill: #6b2b2b; stroke: none; }
+.tugChar .blush { stroke: #ff8a65; stroke-width: 2; stroke-linecap: round; opacity: 0.7; }
 
-/* 拔河角色動畫。角色的手/腳/身體都是以自己的髖部(0,0)為原點畫的,
-   父層 <g transform="translate(...)"> 只負責定位、不參與動畫,
-   所以這裡對 .tugChar 做 rotate 動畫,轉軸自然就是髖部,不會跑位。 */
+/* 預設表情:張眼、閉嘴微笑;閉眼/驚訝眼/張嘴是特定狀態才顯示,見下面
+   .bigPull/.stumble/.victory/.defeated 那幾條規則,靠 opacity 切換,
+   不用另外寫 JS 控制哪個表情該顯示。 */
+.tugChar .eyesClosed, .tugChar .eyesSurprised, .tugChar .mouthOpen { opacity: 0; }
+.tugChar .eyesOpen, .tugChar .eyesClosed, .tugChar .eyesSurprised,
+.tugChar .mouth, .tugChar .mouthOpen { transition: opacity 0.15s ease; }
+
+#charA .leg, #charA .toe, #charA .arm, #charA .hand, #charA .body { stroke: var(--teamA); }
+#charA .body { fill: var(--teamA); }
+#charA .face { stroke: var(--teamA); }
+#charB .leg, #charB .toe, #charB .arm, #charB .hand, #charB .body { stroke: var(--teamB); }
+#charB .body { fill: var(--teamB); }
+#charB .face { stroke: var(--teamB); }
+
+/* 平常(還沒搶答/等待作答)時,兩隊角色像真的在較勁拔河一樣持續施力:
+   邊晃邊有一點上下彈,不是單純左右擺動。 */
 @keyframes tugSway {
-  0%, 100% { transform: rotate(-7deg); }
-  50%      { transform: rotate(5deg); }
+  0%   { transform: rotate(-8deg) translateY(0); }
+  50%  { transform: rotate(6deg) translateY(-2px); }
+  100% { transform: rotate(-8deg) translateY(0); }
 }
-.tugChar { animation: tugSway 1.2s ease-in-out infinite; }
-#charB { animation-delay: 0.6s; } /* 跟A錯開,看起來像雙方輪流較量,不是同步晃 */
+.tugChar { animation: tugSway 1s ease-in-out infinite; transform-origin: 0 0; }
+#charB { animation-delay: 0.5s; } /* 跟A錯開,看起來像雙方輪流較量,不是同步晃 */
 
-/* 答對時,獲勝那隊用力拉一下 */
+/* 答對時,獲勝那隊用力拉一下:比之前更誇張的後仰+一點縮放,表情切成
+   張嘴用力、腮紅加深。 */
 @keyframes bigPull {
-  0%   { transform: rotate(-7deg); }
-  25%  { transform: rotate(-34deg) scale(1.12); }
-  55%  { transform: rotate(8deg); }
-  100% { transform: rotate(-7deg); }
+  0%   { transform: rotate(-8deg) scale(1); }
+  20%  { transform: rotate(-42deg) scale(1.18) translate(-4px, -3px); }
+  50%  { transform: rotate(10deg) scale(0.96); }
+  75%  { transform: rotate(-14deg) scale(1.05); }
+  100% { transform: rotate(-8deg) scale(1); }
 }
 .tugChar.bigPull { animation: bigPull 0.75s ease-out; }
+.tugChar.bigPull .mouth { opacity: 0; }
+.tugChar.bigPull .mouthOpen { opacity: 1; }
+.tugChar.bigPull .blush { opacity: 1; }
 
-/* 答對時,另一隊被拉得一個踉蹌 */
+/* 答對時,另一隊被拉得一個踉蹌,表情切成驚訝的 X 眼。 */
 @keyframes stumble {
-  0%   { transform: rotate(5deg); }
-  40%  { transform: rotate(24deg) translate(6px, 3px); }
-  100% { transform: rotate(-7deg); }
+  0%   { transform: rotate(6deg); }
+  35%  { transform: rotate(28deg) translate(7px, 4px) scale(0.95); }
+  60%  { transform: rotate(16deg) translate(3px, 1px); }
+  100% { transform: rotate(-8deg); }
 }
 .tugChar.stumble { animation: stumble 0.75s ease-out; }
+.tugChar.stumble .eyesOpen { opacity: 0; }
+.tugChar.stumble .eyesSurprised { opacity: 1; }
 
-/* 遊戲結束:獲勝隊伍歡呼跳動,落敗隊伍癱倒 */
+/* 遊戲結束:獲勝隊伍歡呼跳動(張嘴笑+腮紅),落敗隊伍癱倒閉眼。 */
 @keyframes victoryBounce {
-  0%, 100% { transform: translateY(0) rotate(-8deg); }
-  50%      { transform: translateY(-16px) rotate(10deg); }
+  0%, 100% { transform: translateY(0) rotate(-10deg) scale(1); }
+  50%      { transform: translateY(-18px) rotate(12deg) scale(1.08); }
 }
-.tugChar.victory { animation: victoryBounce 0.55s ease-in-out infinite; }
-.tugChar.defeated { animation: none; transform: rotate(50deg) translate(10px, 10px); opacity: 0.55; }
+.tugChar.victory { animation: victoryBounce 0.5s ease-in-out infinite; }
+.tugChar.victory .mouth { opacity: 0; }
+.tugChar.victory .mouthOpen { opacity: 1; }
+.tugChar.victory .blush { opacity: 1; }
+.tugChar.defeated { animation: none; transform: rotate(55deg) translate(10px, 12px); opacity: 0.55; }
+.tugChar.defeated .eyesOpen { opacity: 0; }
+.tugChar.defeated .eyesClosed { opacity: 1; }
 
 #statusLine, #soloStatusLine { text-align: center; font-weight: bold; min-height: 1.4em; margin-bottom: 12px; }
 
